@@ -54,9 +54,6 @@ jobs:
       )
     runs-on: [self-hosted, chatbotx]
     timeout-minutes: 15
-    environment:
-      name: devel
-      url: https://dev-chatbotx.fibrazo.com.co/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -87,9 +84,6 @@ jobs:
       needs.maintenance_on.result == 'success'
     runs-on: [self-hosted, chatbotx]
     timeout-minutes: 60
-    environment:
-      name: devel
-      url: https://dev-chatbotx.fibrazo.com.co/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -127,9 +121,6 @@ jobs:
       )
     runs-on: [self-hosted, chatbotx]
     timeout-minutes: 15
-    environment:
-      name: devel
-      url: https://dev-chatbotx.fibrazo.com.co/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
