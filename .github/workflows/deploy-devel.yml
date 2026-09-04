@@ -37,7 +37,7 @@ concurrency:
 env:
   ENV: devel
   WORKSPACE: /var/www/chatbotx-dev
-  SERVER: ip-10-6-3-11.us-west-2.compute.internal
+  SERVER: dev-chatbotx-sysbrazo
   SSH_USER: sysbrazo
   SECRET_NAME: dev/chatbotx/all-secret
   COMPOSE_FILES: "-f docker-compose.yml -f docker-compose.apps.yml -f docker-compose.dev.yml"
