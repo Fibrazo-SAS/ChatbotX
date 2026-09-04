@@ -41,7 +41,7 @@ env:
   SSH_USER: sysbrazo
   BASTION: bhdev.fibrazo.com.co
   SECRET_NAME: dev/chatbotx/all-secret
-  COMPOSE_FILES: "-f docker-compose.yml -f docker-compose.apps.yml -f docker-compose.server.yml -f docker-compose.dev.yml"
+  COMPOSE_FILES: "-f docker-compose.yml -f docker-compose.apps.yml -f docker-compose.dev.yml"
   HUSKY: "0"
 
 jobs:

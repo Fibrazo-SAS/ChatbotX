@@ -64,9 +64,11 @@ echo 'Building realtime (4/4)...'
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
   "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} build realtime"
 
-# 5. Levantar todo (sin rebuild — ya están buildeadas)
-echo 'Starting all containers...'
+# 5. Levantar SOLO las apps con --no-deps (postgres/redis corren en systemd,
+#    no los levantamos desde el compose — pero el proyecto necesita sus
+#    definiciones para los depends_on)
+echo 'Starting app containers (--no-deps)...'
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
-  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d"
+  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d --no-deps builder worker realtime javascript-executor"
 
 echo "Deploy completed on ${SERVER}"
