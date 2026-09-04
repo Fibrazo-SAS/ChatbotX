@@ -1,0 +1,19 @@
+# Override para el server dev de ChatbotX.
+#
+# En el server, Postgres y Redis corren con systemd (los instaló Fer) — así que
+# los servicios de datos del compose base se DESACTIVAN (profiles: never).
+# El storage (RustFS/filesystem) SÍ va en Docker — no choca con nada.
+# Adminer y Redis-UI son herramientas de dev local — no hacen falta en el server.
+
+services:
+  postgres:
+    profiles: ["never"]
+
+  adminer:
+    profiles: ["never"]
+
+  redis:
+    profiles: ["never"]
+
+  redis-ui:
+    profiles: ["never"]
