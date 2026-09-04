@@ -1,23 +1,19 @@
 #!/bin/bash
 set -eu
 
-# Deploy — ChatbotX (equivalente a deploy-v3.sh de sysbrazo)
+# Deploy — ChatbotX (patrón portal React: SSH con bastión)
 #
-# Corre DESDE el runner (como deploy-v3.sh). Se conecta por SSH al server
-# y ejecuta: git pull + baja el secret de AWS → .env + docker compose up.
+# Corre DESDE el runner. Se conecta al server saltando por el bastión
+# (igual que deploy-portal.sh) y ejecuta: git pull + secret → .env + docker compose.
 #
 # Variables de entorno (las pasa el workflow):
-#   SSH_USER, SERVER, WORKSPACE, SECRET_NAME, ENV
-#
-# El maintenance mode lo manejan maintenance-on.sh / maintenance-off.sh
-# (jobs dedicados del workflow), no este script — igual que sysbrazo.
+#   SSH_USER, BASTION, SERVER, WORKSPACE, SECRET_NAME, ENV
 
 echo "Deploying ChatbotX to ${SERVER} (${ENV})"
 
-# 1. Pull + generar .env + levantar contenedores, TODO en el server.
-#    El secret de AWS lo baja la instancia (IAM role). El secret está en
-#    formato JSON, así que se convierte a KEY=value para el .env.
-ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SERVER} "
+SSH_JUMP=(-J "${SSH_USER}@${BASTION}" -o StrictHostKeyChecking=no)
+
+ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" "
   set -eu
   cd ${WORKSPACE} || exit 1;
 

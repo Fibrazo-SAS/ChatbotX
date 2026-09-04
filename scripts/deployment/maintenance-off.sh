@@ -1,17 +1,14 @@
 #!/bin/bash
 set -eu
 
-# Deshabilita maintenance mode en el server de ChatbotX.
+# Deshabilita maintenance mode en el server de ChatbotX (patrón portal: bastión)
 #
 # Variables de entorno (las pasa el workflow):
-#   SSH_USER, SERVER, WORKSPACE
-#
-# Elimina el archivo .maintenance. CI corre esto solo si deploy + smoke
-# salieron OK; si smoke falla, se queda en maintenance.
+#   SSH_USER, BASTION, SERVER, WORKSPACE
 
 echo "Disabling maintenance mode on ${SERVER}"
 
-ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SERVER} \
+ssh -J "${SSH_USER}@${BASTION}" -o StrictHostKeyChecking=no "${SSH_USER}@${SERVER}" \
   "rm -f ${WORKSPACE}/.maintenance"
 
 echo "Maintenance mode disabled on ${SERVER}"

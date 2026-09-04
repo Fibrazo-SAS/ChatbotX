@@ -1,20 +1,16 @@
 #!/bin/bash
 set -eu
 
-# Smoke tests — ChatbotX (equivalente a run-smoke-tests.sh de sysbrazo)
+# Smoke tests — ChatbotX (patrón portal: bastión)
 #
 # Variables de entorno (las pasa el workflow):
-#   SSH_USER, SERVER, PORT (default 3123)
-#
-# Corre los checks críticos de salud DESDE el server (vía SSH), no desde el
-# runner — porque el server puede estar en una red privada.
+#   SSH_USER, BASTION, SERVER, PORT (default 3123)
 
 PORT="${PORT:-3123}"
 
 echo "Running smoke tests on ${SERVER}"
 
-# Health check del builder
-HTTP_CODE=$(ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SERVER} \
+HTTP_CODE=$(ssh -J "${SSH_USER}@${BASTION}" -o StrictHostKeyChecking=no "${SSH_USER}@${SERVER}" \
   "curl -sf -o /dev/null -w '%{http_code}' http://localhost:${PORT}/api/health" \
   || echo "000")
 
