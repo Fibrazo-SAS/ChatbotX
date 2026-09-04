@@ -37,7 +37,7 @@ concurrency:
 env:
   ENV: devel
   WORKSPACE: /var/www/chatbotx-dev
-  SERVER: dev-chatbotx-sysbrazo
+  SERVER: ip-10-6-3-11.us-west-2.compute.internal
   SSH_USER: sysbrazo
   BASTION: bhdev.fibrazo.com.co
   SECRET_NAME: dev/chatbotx/all-secret
