@@ -1,11 +1,13 @@
 #!/bin/bash
 set -eu
 
-# Deploy — ChatbotX (patrón portal React: deploy-portal.sh)
+# Deploy — ChatbotX (patrón portal React: rsync desde el runner)
 #
 # 1. chown de la carpeta en el server
 # 2. rsync del código desde el runner (que tiene el checkout)
-# 3. En el server: .env desde AWS Secrets Manager + docker compose up
+# 3. En el server: .env desde AWS Secrets Manager
+# 4. Build SECUENCIAL (de a una imagen — el server de 8GB no aguanta builds
+#    en paralelo) + up
 #
 # Variables de entorno (las pasa el workflow):
 #   SSH_USER, BASTION, SERVER, WORKSPACE, SECRET_NAME, ENV
@@ -32,7 +34,7 @@ ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
   --exclude-from="${RSYNC_EXCLUDE}" \
   . "${SSH_USER}@${SERVER}:${WORKSPACE}"
 
-# 3. En el server: .env desde AWS Secrets Manager + levantar contenedores
+# 3. En el server: .env desde AWS Secrets Manager
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" "
   set -eu
   cd ${WORKSPACE} || exit 1;
@@ -43,9 +45,28 @@ ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" "
     --region ${AWS_REGION:-us-west-2} \
     --query SecretString --output text \
     | python3 -c 'import sys, json; [print(f\"{k}={v}\") for k, v in json.load(sys.stdin).items()]' > .env;
-
-  echo 'Building and starting containers';
-  docker compose ${COMPOSE_FILES} up -d --build;
 "
+
+# 4. Build SECUENCIAL — una imagen a la vez para no saturar los 8GB
+echo 'Building builder (1/4)...'
+ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
+  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} build builder"
+
+echo 'Building worker (2/4)...'
+ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
+  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} build worker"
+
+echo 'Building javascript-executor (3/4)...'
+ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
+  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} build javascript-executor"
+
+echo 'Building realtime (4/4)...'
+ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
+  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} build realtime"
+
+# 5. Levantar todo (sin rebuild — ya están buildeadas)
+echo 'Starting all containers...'
+ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
+  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d"
 
 echo "Deploy completed on ${SERVER}"
