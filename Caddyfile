@@ -1,0 +1,6 @@
+# ChatbotX — Caddy reverse proxy (dev)
+# Sirve el dominio con HTTPS automático (Let's Encrypt) y lo reparte a los servicios.
+
+dev-chatbotx.fibrazo.com.co {
+	reverse_proxy builder:3000
+}

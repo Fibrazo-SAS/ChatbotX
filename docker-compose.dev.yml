@@ -6,6 +6,7 @@
 # Este archivo solo declara lo que CAMBIA en dev respecto al stack base:
 # - seed de datos demo al arrancar
 # - log level debug
+# - Caddy como reverse proxy (dominio dev + HTTPS automático)
 
 services:
   builder:
@@ -21,3 +22,25 @@ services:
   realtime:
     environment:
       - LOG_LEVEL=debug
+
+  # Reverse proxy: da HTTPS + dominio y reparte el tráfico a los servicios
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - builder
+      - realtime
+      - filesystem
+    networks:
+      - chatbotx-network
+
+volumes:
+  caddy-data:
+  caddy-config:

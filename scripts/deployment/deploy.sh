@@ -69,6 +69,6 @@ ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
 #    definiciones para los depends_on)
 echo 'Starting app containers (--no-deps)...'
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
-  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d --no-deps builder worker realtime javascript-executor"
+  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d --no-deps builder worker realtime javascript-executor caddy"
 
 echo "Deploy completed on ${SERVER}"
