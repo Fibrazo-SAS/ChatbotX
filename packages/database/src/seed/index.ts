@@ -1,7 +1,6 @@
 import { createId } from "@chatbotx.io/utils"
 import { db } from "../client"
 import {
-  accountModel,
   userModel,
   workspaceMemberModel,
   workspaceModel,
@@ -14,25 +13,23 @@ async function main() {
     return
   }
 
-  // Create demo user
+  // Platform admin comes from PLATFORM_ADMIN_EMAIL — never a demo user
+  const adminEmail = process.env.PLATFORM_ADMIN_EMAIL
+  if (!adminEmail) {
+    console.log("PLATFORM_ADMIN_EMAIL not set; skipping seed")
+    return
+  }
+
+  // Create platform admin user (login via magic link / reset password)
   user = await db
     .insert(userModel)
     .values({
-      email: "demo@example.com",
-      name: "Demo ChatbotX",
+      email: adminEmail,
+      name: "Platform Admin",
       emailVerified: true,
     })
     .returning()
     .then((result) => result[0])
-
-  await db.insert(accountModel).values({
-    accountId: user?.id ?? "",
-    providerId: "credential",
-    // NOTES: password is "Demo@1234" hashed with scrypt
-    password:
-      "641c52171319d3ae13b238da41318493:90d5458996d391675ebdea8d4902afb94acdbad160f555b0bc7fe68d70ace03dc3cf903b8a21fa8433e9a016d52741d2fb2d444ed20b329dd7effbf8d5341d87",
-    userId: user?.id ?? "",
-  })
 
   // Create workspace
   const workspacesCount = await db.$count(workspaceModel)
