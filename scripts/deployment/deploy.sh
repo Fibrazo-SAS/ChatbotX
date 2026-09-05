@@ -27,6 +27,20 @@ echo "Deploying ChatbotX to ${SERVER} (${ENV})"
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
   "cd ${WORKSPACE} && sudo chown ${SSH_USER}:www-data -R ${WORKSPACE}"
 
+
+# 1.5 Maintenance mode ON (patrón portal): .maintenance es visible para Caddy.
+#     El rsync ya no lo borra (está en rsync_exclude). El trap garantiza el OFF
+#     aunque un build falle.
+MAINTENANCE_ON() {
+  ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" "touch ${WORKSPACE}/.maintenance"
+}
+MAINTENANCE_OFF() {
+  ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" "rm -f ${WORKSPACE}/.maintenance"
+}
+
+MAINTENANCE_ON
+trap MAINTENANCE_OFF EXIT
+
 # 2. Sync del código (rsync desde el runner, igual que el portal)
 /usr/bin/rsync \
   -e "ssh -J ${SSH_USER}@${BASTION} -o StrictHostKeyChecking=no" \
