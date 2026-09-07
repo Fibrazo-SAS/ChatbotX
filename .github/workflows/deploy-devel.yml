@@ -75,7 +75,7 @@ jobs:
           ./scripts/deployment/maintenance-on.sh
 
   deploy:
-    name: Deploy + smoke
+    name: Deploy
     needs: [maintenance_on]
     if: |
       always() &&
@@ -101,6 +101,29 @@ jobs:
         run: |
           chmod +x ./scripts/deployment/deploy.sh
           ./scripts/deployment/deploy.sh
+
+  smoke:
+    name: Smoke tests
+    needs: [deploy]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      needs.deploy.result == 'success'
+    runs-on: [self-hosted, chatbotx]
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Init SSH
+        run: |
+          chmod +x ./scripts/deployment/init-ssh.sh
+          ./scripts/deployment/init-ssh.sh
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Smoke tests
         run: |
@@ -136,3 +159,31 @@ jobs:
         run: |
           chmod +x ./scripts/deployment/maintenance-off.sh
           ./scripts/deployment/maintenance-off.sh
+
+  restore:
+    name: Restore after failed deploy
+    needs: [deploy]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      needs.deploy.result == 'failure'
+    runs-on: [self-hosted, chatbotx]
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Init SSH
+        run: |
+          chmod +x ./scripts/deployment/init-ssh.sh
+          ./scripts/deployment/init-ssh.sh
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Restore apps + maintenance off
+        run: |
+          chmod +x ./scripts/deployment/restore.sh
+          ./scripts/deployment/restore.sh

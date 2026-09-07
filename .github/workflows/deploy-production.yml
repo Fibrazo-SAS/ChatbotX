@@ -82,7 +82,7 @@ jobs:
           ./scripts/deployment/maintenance-on.sh
 
   deploy:
-    name: Deploy + smoke
+    name: Deploy
     needs: [maintenance_on]
     if: |
       always() &&
@@ -114,6 +114,35 @@ jobs:
         run: |
           chmod +x ./scripts/deployment/deploy.sh
           ./scripts/deployment/deploy.sh
+
+  smoke:
+    name: Smoke tests
+    needs: [deploy]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags/') &&
+      needs.deploy.result == 'success'
+    runs-on: [self-hosted, chatbotx]
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://chatbotx.fibrazo.com.co/
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Init SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Smoke tests
         run: |
@@ -156,3 +185,39 @@ jobs:
         run: |
           chmod +x ./scripts/deployment/maintenance-off.sh
           ./scripts/deployment/maintenance-off.sh
+
+  restore:
+    name: Restore after failed deploy
+    needs: [deploy]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags/') &&
+      needs.deploy.result == 'failure'
+    runs-on: [self-hosted, chatbotx]
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://chatbotx.fibrazo.com.co/
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
+
+      - name: Init SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Restore apps + maintenance off
+        run: |
+          chmod +x ./scripts/deployment/restore.sh
+          ./scripts/deployment/restore.sh
