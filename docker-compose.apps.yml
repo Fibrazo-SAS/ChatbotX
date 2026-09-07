@@ -26,6 +26,7 @@ x-worker-common: &worker-common
 services:
   builder:
     <<: *service-common
+    mem_limit: 2g
     build:
       context: .
       dockerfile: apps/builder/docker/Dockerfile
@@ -46,6 +47,7 @@ services:
 
   worker:
     <<: *worker-common
+    mem_limit: 8g
     networks:
       - chatbotx-network
       - javascript-executor-network
@@ -94,6 +96,7 @@ services:
 
   realtime:
     <<: *service-common
+    mem_limit: 1g
     build:
       context: .
       dockerfile: apps/realtime/docker/Dockerfile

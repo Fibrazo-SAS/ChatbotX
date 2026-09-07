@@ -39,7 +39,20 @@ MAINTENANCE_OFF() {
 }
 
 MAINTENANCE_ON
-trap MAINTENANCE_OFF EXIT
+
+# Si el deploy no llega al final (build que falla, ssh cortado), el trap
+# restaura las apps viejas (un build fallido no pisa la imagen vieja) y
+# saca el maintenance. Caddy queda arriba todo el tiempo sirviendo el 503.
+RESTORE_NEEDED=1
+restore_on_exit() {
+  if [ "${RESTORE_NEEDED}" = "1" ]; then
+    echo 'Deploy incomplete — restoring previous app containers...'
+    ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
+      "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d --no-deps builder worker realtime javascript-executor caddy || true"
+  fi
+  MAINTENANCE_OFF
+}
+trap restore_on_exit EXIT
 
 # 2. Sync del código (rsync desde el runner, igual que el portal)
 /usr/bin/rsync \
@@ -60,6 +73,13 @@ ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" "
     --query SecretString --output text \
     | python3 -c 'import sys, json; [print(f\"{k}={v}\") for k, v in json.load(sys.stdin).items()]' > .env;
 "
+
+# 3.5 Parar las apps viejas ANTES de compilar: el server (16GB) no aguanta el
+#     build con el stack corriendo (el worker solo se come ~7GB). Si el stop
+#     falla, el trap restaura y aborta limpio.
+echo 'Stopping old app containers before build...'
+ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
+  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} stop builder worker realtime javascript-executor"
 
 # 4. Build SECUENCIAL — una imagen a la vez para no saturar los 8GB
 echo 'Building builder (1/4)...'
@@ -84,5 +104,7 @@ ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
 echo 'Starting app containers (--no-deps)...'
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
   "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d --no-deps builder worker realtime javascript-executor caddy"
+
+RESTORE_NEEDED=0
 
 echo "Deploy completed on ${SERVER}"
