@@ -1,10 +1,6 @@
 import { createId } from "@chatbotx.io/utils"
 import { db } from "../client"
-import {
-  userModel,
-  workspaceMemberModel,
-  workspaceModel,
-} from "../schema"
+import { userModel, workspaceMemberModel, workspaceModel } from "../schema"
 
 async function main() {
   // Skip if a user already exists (idempotent seed)
