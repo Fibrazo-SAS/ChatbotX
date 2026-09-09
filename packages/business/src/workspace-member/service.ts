@@ -317,9 +317,9 @@ export class WorkspaceMemberService extends BaseService {
       .update(workspaceMemberModel)
       .set({
         ...(roleChanged ? { role: props.role } : {}),
-        ...(props.permissions !== undefined
-          ? { permissions: props.permissions }
-          : {}),
+        ...(props.permissions === undefined
+          ? {}
+          : { permissions: props.permissions }),
       })
       .where(eq(workspaceMemberModel.id, member.id))
 

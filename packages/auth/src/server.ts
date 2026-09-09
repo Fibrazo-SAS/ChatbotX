@@ -405,7 +405,9 @@ function buildSocialProviders(
  * `userService.deactivatePlatformUser` at deactivation time, so the block is
  * effective immediately. Throwing here rejects the sign-in with a 403.
  */
-const guardDeactivatedUserSession = async (session: Record<string, unknown>) => {
+const guardDeactivatedUserSession = async (
+  session: Record<string, unknown>,
+) => {
   const user = await db.query.userModel.findFirst({
     where: { id: String(session.userId) },
     columns: { deactivatedAt: true },

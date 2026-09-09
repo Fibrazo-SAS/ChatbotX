@@ -3,7 +3,11 @@ import { sessionModel, userModel } from "@chatbotx.io/database/schema"
 import type { UserModel } from "@chatbotx.io/database/types"
 import { BaseService } from "../base.service"
 import { tenantService } from "../enterprise/tenant/service"
-import { ChatbotXException, forbiddenException, notFoundException } from "../errors"
+import {
+  ChatbotXException,
+  forbiddenException,
+  notFoundException,
+} from "../errors"
 import { isSuperAdmin } from "./utils"
 
 class UserService extends BaseService {

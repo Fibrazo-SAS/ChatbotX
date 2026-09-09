@@ -1,7 +1,6 @@
 import {
   isPlatformAdmin,
   isPlatformSuperAdmin,
-  isSuperAdmin,
   isWorkspaceScheduledForDeletion,
   quotaEnforcementService,
   userQuotaService,
