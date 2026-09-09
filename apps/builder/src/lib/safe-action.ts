@@ -1,6 +1,6 @@
 import {
   isPlatformAdmin,
-  isSuperAdmin,
+  isPlatformSuperAdmin,
   isWorkspaceScheduledForDeletion,
   quotaEnforcementService,
   userQuotaService,
@@ -85,7 +85,7 @@ export const platformAdminActionClient = authActionClient.use(
 )
 
 export const superAdminActionClient = authActionClient.use(({ ctx, next }) => {
-  if (!isSuperAdmin(ctx.user)) {
+  if (!isPlatformSuperAdmin(ctx.user)) {
     throw new Error("Unauthorized")
   }
   return next({ ctx })

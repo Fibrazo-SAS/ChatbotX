@@ -49,7 +49,11 @@ type SmtpResolution =
 const resolveSmtpForTenant = async (): Promise<SmtpResolution> => {
   const tenantId = getTenantId()
   const ownerId = await resolveTenantOwnerId(tenantId)
-  if (!ownerId) {
+  // The platform's own tenant (root, self-hosted) always sends through the
+  // default SMTP from the environment (e.g. MailHog in local dev). The
+  // `blocked` arm below is only for white-label resellers that have an owner
+  // but no SMTP credential of their own — never blocking the platform itself.
+  if (!ownerId || tenantId === ROOT_TENANT_ID) {
     return { kind: "default" }
   }
 
@@ -393,14 +397,32 @@ function buildSocialProviders(
  * default behavior. Both hooks are best-effort: a throwing hook never blocks
  * sign-up/sign-in, and on failure the original data is persisted unmodified.
  */
+/**
+ * Deactivation gate (/admin/users → deactivate): a user with
+ * `deactivatedAt` set can never create a new auth session — this covers
+ * password sign-in, magic link, SSO and bearer-token clients alike, because
+ * they all funnel through session creation. Existing sessions are revoked by
+ * `userService.deactivatePlatformUser` at deactivation time, so the block is
+ * effective immediately. Throwing here rejects the sign-in with a 403.
+ */
+const guardDeactivatedUserSession = async (
+  session: Record<string, unknown>,
+) => {
+  const user = await db.query.userModel.findFirst({
+    where: { id: String(session.userId) },
+    columns: { deactivatedAt: true },
+  })
+  if (user?.deactivatedAt) {
+    throw new APIError("FORBIDDEN", {
+      message: "This account has been deactivated by an administrator",
+    })
+  }
+}
+
 function buildDatabaseHooks({
   onUserCreated,
   upgradeOAuthAccount,
 }: Pick<AuthConfig, "onUserCreated" | "upgradeOAuthAccount">) {
-  if (!(onUserCreated || upgradeOAuthAccount)) {
-    return
-  }
-
   const userHooks = onUserCreated
     ? {
         create: {
@@ -447,6 +469,11 @@ function buildDatabaseHooks({
     : undefined
 
   return {
+    session: {
+      create: {
+        before: guardDeactivatedUserSession,
+      },
+    },
     ...(userHooks && { user: userHooks }),
     ...(upgradeAccountBeforeHook && {
       account: {
@@ -495,6 +522,15 @@ export function createAuth(config: AuthConfig) {
           returned: false,
         },
         mustChangePassword: {
+          type: "boolean",
+          required: false,
+          input: false,
+          returned: true,
+        },
+        // /admin console gate (/admin, superAdminActionClient). Computed in
+        // queries/actions from the User row too, but exposed here so the
+        // session carries it for layout gates without an extra query.
+        isPlatformSuperAdmin: {
           type: "boolean",
           required: false,
           input: false,

@@ -12,7 +12,7 @@
 
 | Recurso    | Valor                                                           |
 | ---------- | --------------------------------------------------------------- |
-| Tipo       | `c7i.xlarge` — 4 vCPU / 8 GB RAM (confirmado con Fer)        |
+| Tipo       | `c7i.xlarge` — 4 vCPU / **16 GB RAM** (actualizado 2026-09-07: se amplió de 8 GB a 16 GB) |
 | SO         | Ubuntu 24.04 LTS                                                |
 | Disco      | 50 GB SSD                                                       |
 | Acceso     | **IP pública directa, SIN Load Balancer** (suficiente para dev) |
@@ -20,6 +20,9 @@
 | Software   | **Docker 24+** y **Docker Compose v2.20+** instalados           |
 
 > **Todo va en este mismo servidor**: base de datos, Redis, storage y la app.
+> **RAM (lección aprendida):** 8 GB NO alcanzan para compilar en el server — el `next build`
+> del builder + el worker (≈7 GB) hacen OOM o swap thrash. Dev corre con **16 GB + swap 11 GB**
+> (`vm.swappiness=10`, solo como colchón). Detalle en `docs/deploy/2026-09-04-dev-server-runbook.md` §4.
 > No hace falta ningún servidor separado ni LB para dev.
 > La seguridad la dan los Security Groups (puertos restringidos), no un LB.
 

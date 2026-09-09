@@ -148,12 +148,12 @@
     "clone": "Clonar",
     "remove": "Quitar",
     "restore": "Restaurar",
-    "loadMore": "Load more",
-    "saveAsDraft": "Save as draft",
-    "schedule": "Schedule",
-    "moveToDraft": "Move to draft",
-    "stop": "Stop",
-    "resume": "Resume"
+    "loadMore": "Cargar más",
+    "saveAsDraft": "Guardar como borrador",
+    "schedule": "Programar",
+    "moveToDraft": "Mover a borrador",
+    "stop": "Detener",
+    "resume": "Reanudar"
   },
   "errors": {
     "superAdminRequired": "Debes ser superadministrador del espacio de trabajo para hacer esto."
@@ -1018,18 +1018,18 @@
       "label": "Intervalo personalizado"
     },
     "customCss": {
-      "label": "Custom CSS"
+      "label": "CSS personalizado"
     },
     "theme": {
       "label": "Tema",
       "placeholder": "Seleccionar un tema"
     },
     "customJS": {
-      "label": "Custom JS",
+      "label": "JS personalizado",
       "placeholder": "Introduce JavaScript personalizado"
     },
     "customCSS": {
-      "label": "Custom CSS",
+      "label": "CSS personalizado",
       "placeholder": "Introduce CSS personalizado"
     },
     "customField": {
@@ -1052,12 +1052,12 @@
       "label": "Respuesta predeterminada"
     },
     "defaultReplyFrequency": {
-      "description": "Controls how often the Default Reply flow may fire for the same contact on a channel.",
-      "label": "Default Reply activation frequency",
+      "description": "Controla con qué frecuencia se activa el flujo de respuesta predeterminada para el mismo contacto en un canal.",
+      "label": "Frecuencia de activación de la respuesta predeterminada",
       "options": {
-        "allTime": "All time",
-        "oncePerHour": "Once per 1h",
-        "oncePerDay": "Once per 24h"
+        "allTime": "Siempre",
+        "oncePerHour": "Una vez por hora",
+        "oncePerDay": "Una vez cada 24 h"
       }
     },
     "smartResponseDelaySeconds": {
@@ -1288,7 +1288,7 @@
       "label": "Campos que extraer",
       "key": {
         "label": "Clave JSON",
-        "placeholder": "e.g. email, phone, address"
+        "placeholder": "p. ej. email, teléfono, dirección"
       },
       "customFieldId": {
         "label": "Guardar en campo personalizado"
@@ -1308,7 +1308,7 @@
       "label": "Servidor MCP"
     },
     "template": {
-      "label": "Template"
+      "label": "Plantilla"
     },
     "systemFunction": {
       "label": "Función del sistema",
@@ -1515,9 +1515,9 @@
       "label": "Estado",
       "pending": "Pendiente",
       "processing": "Procesando",
-      "installing": "Installing",
+      "installing": "Instalando",
       "completed": "Completado",
-      "partial": "Partial",
+      "partial": "Parcial",
       "failed": "Fallido",
       "success": "Éxito",
       "error": "Error"
@@ -1630,7 +1630,7 @@
       "placeholders": {
         "instagram": "Instagram usuario ID",
         "messenger": "Messenger PSID",
-        "telegram": "Telegram chat ID",
+        "telegram": "ID de chat de Telegram",
         "tiktok": "TikTok usuario ID",
         "zalo": "Zalo usuario ID"
       }
@@ -2189,7 +2189,7 @@
       "ctid": "CTID"
     },
     "adSource": {
-      "label": "Ad source"
+      "label": "Fuente del anuncio"
     }
   },
   "flows": {
@@ -3352,7 +3352,10 @@
     "signUpTitle": "Sign up un {name}",
     "changePasswordTitle": "Change tu password",
     "changePasswordDescription": "Establecer un nuevo password antes continuing.",
-    "passwordChangeSuccess": "Contraseña cambiada"
+    "passwordChangeSuccess": "Contraseña cambiada",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "signInSuccess": "Sesión iniciada correctamente"
   },
   "emailTopics": {
     "title": "Correo Topics"
@@ -4516,6 +4519,76 @@
     },
     "queues": {
       "title": "Colas"
+    },
+    "users": {
+      "title": "Usuarios",
+      "searchPlaceholder": "Buscar por nombre o email...",
+      "platformSuperAdmin": "Super administrador de plataforma",
+      "workspaces": "Espacios de trabajo",
+      "registeredAt": "Fecha de alta",
+      "create": {
+        "button": "Crear usuario",
+        "title": "Crear usuario",
+        "description": "Se creará la cuenta y recibirá un email con el enlace para ingresar.",
+        "success": "Usuario creado. Se envió el email con el enlace para ingresar."
+      },
+      "addToWorkspace": {
+        "button": "Agregar al espacio de trabajo",
+        "title": "Agregar a {name} a un espacio de trabajo",
+        "description": "El usuario tendrá acceso inmediato con el rol seleccionado. No se envía email de invitación.",
+        "workspaceLabel": "Espacio de trabajo",
+        "roleLabel": "Rol",
+        "success": "Usuario agregado al espacio de trabajo.",
+        "loadError": "No se pudieron cargar los espacios de trabajo."
+      },
+      "deactivate": {
+        "button": "Desactivar",
+        "title": "¿Desactivar a {name}?",
+        "description": "El usuario se cerrará la sesión en todos lados y no podrá volver a ingresar. Sus datos no se borran — podés reactivar la cuenta cuando quieras.",
+        "removeFromWorkspaces": "Sacarlo también de todos los espacios de trabajo",
+        "removeFromWorkspacesHint": "Elimina sus membresías. La reactivación no las restaura automáticamente.",
+        "confirm": "Desactivar",
+        "success": "Usuario desactivado."
+      },
+      "reactivate": {
+        "button": "Reactivar",
+        "success": "Usuario reactivado."
+      },
+      "deactivated": "Desactivado",
+      "editWorkspaces": {
+        "button": "Editar espacios de trabajo",
+        "title": "Espacios de trabajo de {name}",
+        "description": "Cambiá el rol o sacá al usuario de un espacio. Los cambios aplican al instante.",
+        "remove": "Sacar del espacio de trabajo",
+        "success": "Rol actualizado.",
+        "removeSuccess": "Usuario sacado del espacio de trabajo.",
+        "empty": "Este usuario no pertenece a ningún espacio de trabajo.",
+        "permissions": "Permisos del espacio"
+      },
+      "setSuperAdmin": {
+        "grant": "Dar super admin de plataforma",
+        "revoke": "Quitar super admin de plataforma",
+        "granted": "Super admin de plataforma otorgado.",
+        "revoked": "Super admin de plataforma revocado."
+      }
+    },
+    "workspaces": {
+      "title": "Espacios de trabajo",
+      "searchPlaceholder": "Buscar por nombre de espacio...",
+      "owner": "Dueño",
+      "members": "Miembros",
+      "tenant": "Tenant",
+      "platformTenant": "Plataforma",
+      "createdAt": "Creado",
+      "namePlaceholder": "Nombre del espacio",
+      "ownerHint": "Dejálo vacío para quedarte el ownership vos.",
+      "loadUsersError": "No se pudieron cargar los usuarios.",
+      "createSuccess": "Espacio de trabajo creado.",
+      "create": {
+        "button": "Crear espacio de trabajo",
+        "title": "Crear espacio de trabajo",
+        "description": "Crea un workspace de plataforma. Después podés asignarle usuarios desde la página Usuarios."
+      }
     }
   },
   "platformCredentials": {

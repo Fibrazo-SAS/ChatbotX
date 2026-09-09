@@ -1,0 +1,10 @@
+# ChatbotX — Caddy reverse proxy (dev)
+# Sirve el dominio con HTTPS automático (Let's Encrypt) y lo reparte a los servicios.
+# Maintenance mode: si existe /srv/.maintenance (touch del deploy), responde 503.
+
+dev-chatbotx.fibrazo.com.co {
+	@maint file /srv/.maintenance
+	respond @maint "ChatbotX en mantenimiento — volvé en unos minutos" 503
+
+	reverse_proxy builder:3000
+}

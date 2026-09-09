@@ -1,4 +1,7 @@
-import { hasEnterpriseFeatures, isSuperAdmin } from "@chatbotx.io/business"
+import {
+  hasEnterpriseFeatures,
+  isPlatformSuperAdmin,
+} from "@chatbotx.io/business"
 import { notFound } from "next/navigation"
 import { AdminSidebar } from "@/features/admin/components/admin-sidebar"
 import { ManageLayout } from "@/features/manage/manage-layout"
@@ -15,7 +18,7 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const user = await getCurrentUser()
-  if (!(user && isSuperAdmin(user))) {
+  if (!(user && isPlatformSuperAdmin(user))) {
     return notFound()
   }
 

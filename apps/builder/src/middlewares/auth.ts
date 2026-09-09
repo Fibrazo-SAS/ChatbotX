@@ -36,6 +36,7 @@ export const authMiddleware = base.middleware(async ({ context, next }) => {
         image: sessionData.user.image || null,
         isAnonymous: sessionData.user.isAnonymous ?? false,
         mustChangePassword: sessionData.user.mustChangePassword ?? false,
+        isPlatformSuperAdmin: sessionData.user.isPlatformSuperAdmin ?? false,
         // stripeCustomerId: sessionData.user.stripeCustomerId || null,
       },
     },
