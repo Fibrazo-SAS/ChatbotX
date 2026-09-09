@@ -236,23 +236,27 @@ export class WorkspaceMemberService extends BaseService {
       throw new Error("User is already a member of this workspace")
     }
 
+    // Full permissions by default — mirrors the invite flow's form default
+    // (getSuperAdminPermissions). A member with every permission off cannot
+    // resolve a workspace landing segment and gets a 404 on entry; the admin
+    // can tighten the flags afterwards from the edit dialog.
+    const fullPermissions = {
+      superAdmin: true,
+      analytics: true,
+      flows: true,
+      contacts: true,
+      onlyAssignedContacts: true,
+      emailAndPhone: true,
+      broadcast: true,
+      ecommerce: true,
+    } satisfies WorkspaceMemberPermissions
+
     const member = await this.create({
       data: {
         workspaceId: props.workspaceId,
         userId: props.userId,
         role: props.role,
-        // Agent default: no granular permissions granted — the platform admin
-        // can tighten them later from the workspace members table.
-        permissions: {
-          superAdmin: false,
-          analytics: false,
-          flows: false,
-          contacts: false,
-          onlyAssignedContacts: false,
-          emailAndPhone: false,
-          broadcast: false,
-          ecommerce: false,
-        } satisfies WorkspaceMemberPermissions,
+        permissions: fullPermissions,
       },
     })
 

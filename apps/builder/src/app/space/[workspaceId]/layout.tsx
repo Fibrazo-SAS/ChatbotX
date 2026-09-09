@@ -1,7 +1,7 @@
 import {
   integrationService,
   isPlatformAdmin,
-  isSuperAdmin,
+  isPlatformSuperAdmin,
   isWorkspaceScheduledForDeletion,
   quotaEnforcementService,
   workspaceMemberService,
@@ -114,7 +114,7 @@ export default async function WorkspaceLayout({
       <AppSidebar
         allWorkspaces={allWorkspaces}
         isPlatformAdmin={platformAdmin}
-        isSuperAdmin={isSuperAdmin(user)}
+        isSuperAdmin={isPlatformSuperAdmin(user)}
         permissions={targetWorkspaceMember.permissions}
         quota={quotaSummary}
         scheduledForDeletion={scheduledForDeletion}
