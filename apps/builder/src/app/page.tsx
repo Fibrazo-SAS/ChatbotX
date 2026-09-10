@@ -2,7 +2,6 @@ import { resolveTenantByDomain } from "@chatbotx.io/auth/tenant"
 import {
   isPlatformAdmin,
   isPlatformSuperAdmin,
-  isSuperAdmin,
   quotaEnforcementService,
   userQuotaService,
 } from "@chatbotx.io/business"
