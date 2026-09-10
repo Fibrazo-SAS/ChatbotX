@@ -81,6 +81,16 @@ echo 'Stopping old app containers before build...'
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
   "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} stop builder worker realtime javascript-executor"
 
+# 3.6 Prune de Docker ANTES del build: en este pipeline el cache de build no
+#     rinde (el mount de pnpm no coincide con el store real y el source se
+#     copia nuevo en cada build) y acumula GBs hasta llenar el disco del
+#     server (fue la causa del ENOSPC en el apt-get del Dockerfile). Se limpia
+#     el cache y solo capas dangling; las imágenes de los contenedores
+#     actuales quedan intactas, así que el rollback del trap sigue disponible.
+echo 'Pruning Docker build cache and dangling images before build...'
+ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
+  "docker builder prune -af >/dev/null 2>&1 || true; docker image prune -f >/dev/null 2>&1 || true"
+
 # 4. Build SECUENCIAL — una imagen a la vez para no saturar los 8GB
 echo 'Building builder (1/4)...'
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
