@@ -12,6 +12,13 @@ export const workspaceRelations = defineRelationsPart(schema, (r) => ({
       from: r.workspaceModel.tenantId,
       to: r.tenantModel.id,
     }),
+    // Members of the workspace (reverse of workspaceMemberModel.workspaceId).
+    // Used by the /admin/workspaces directory; other features query members
+    // by workspaceId directly.
+    workspaceMembers: r.many.workspaceMemberModel({
+      from: r.workspaceModel.id,
+      to: r.workspaceMemberModel.workspaceId,
+    }),
     savedReplies: r.many.savedReplyModel({
       from: r.workspaceModel.id,
       to: r.savedReplyModel.workspaceId,

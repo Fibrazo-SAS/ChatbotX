@@ -22,3 +22,14 @@ export const isSuperAdmin = (user: Pick<UserModel, "email">): boolean => {
   const { PLATFORM_ADMIN_EMAIL } = keys()
   return Boolean(PLATFORM_ADMIN_EMAIL && user.email === PLATFORM_ADMIN_EMAIL)
 }
+
+/**
+ * Canonical platform-console gate (/admin): the env PLATFORM_ADMIN_EMAIL
+ * account is always a super admin (backdoor), plus any user the env admin
+ * explicitly promoted (`User.isPlatformSuperAdmin`). Use THIS — not
+ * `isSuperAdmin` — for visibility/access checks. `isSuperAdmin` remains the
+ * grant/revoke authority check: only the env admin may promote or demote.
+ */
+export const isPlatformSuperAdmin = (
+  user: Pick<UserModel, "email" | "isPlatformSuperAdmin">,
+): boolean => user.isPlatformSuperAdmin || isSuperAdmin(user)

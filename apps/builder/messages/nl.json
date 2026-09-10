@@ -3352,7 +3352,10 @@
     "signUpTitle": "Registreren bij {name}",
     "changePasswordTitle": "Je wachtwoord wijzigen",
     "changePasswordDescription": "Stel een nieuw wachtwoord in voordat je verdergaat.",
-    "passwordChangeSuccess": "Wachtwoord gewijzigd"
+    "passwordChangeSuccess": "Wachtwoord gewijzigd",
+    "showPassword": "Wachtwoord tonen",
+    "hidePassword": "Wachtwoord verbergen",
+    "signInSuccess": "Succesvol aangemeld"
   },
   "emailTopics": {
     "title": "E-mailonderwerpen"
@@ -4516,6 +4519,76 @@
     },
     "queues": {
       "title": "Wachtrijen"
+    },
+    "users": {
+      "title": "Gebruikers",
+      "searchPlaceholder": "Zoek op naam of e-mail...",
+      "platformSuperAdmin": "Platform superbeheerder",
+      "workspaces": "Werkruimten",
+      "registeredAt": "Geregistreerd op",
+      "create": {
+        "button": "Gebruiker maken",
+        "title": "Gebruiker maken",
+        "description": "Het account wordt aangemaakt en ontvangt een e-mail met de inloglink.",
+        "success": "Gebruiker aangemaakt. De e-mail met de inloglink is verzonden."
+      },
+      "addToWorkspace": {
+        "button": "Add to workspace",
+        "title": "Add {name} to a workspace",
+        "description": "The user will get immediate access with the selected role. No invitation email is sent.",
+        "workspaceLabel": "Workspace",
+        "roleLabel": "Role",
+        "success": "User added to the workspace.",
+        "loadError": "Could not load workspaces."
+      },
+      "deactivate": {
+        "button": "Deactivate",
+        "title": "Deactivate {name}?",
+        "description": "The user will be signed out everywhere and will no longer be able to sign in. Their data is not deleted — you can reactivate the account at any time.",
+        "removeFromWorkspaces": "Also remove from all workspaces",
+        "removeFromWorkspacesHint": "Deletes the user's memberships. Reactivation will not restore them automatically.",
+        "confirm": "Deactivate",
+        "success": "User deactivated."
+      },
+      "reactivate": {
+        "button": "Reactivate",
+        "success": "User reactivated."
+      },
+      "deactivated": "Deactivated",
+      "editWorkspaces": {
+        "button": "Edit workspaces",
+        "title": "Workspaces of {name}",
+        "description": "Change the role or remove the user from a workspace. Changes apply immediately.",
+        "remove": "Remove from workspace",
+        "success": "Role updated.",
+        "removeSuccess": "User removed from the workspace.",
+        "empty": "This user is not a member of any workspace.",
+        "permissions": "Workspace permissions"
+      },
+      "setSuperAdmin": {
+        "grant": "Grant platform super admin",
+        "revoke": "Revoke platform super admin",
+        "granted": "Platform super admin granted.",
+        "revoked": "Platform super admin revoked."
+      }
+    },
+    "workspaces": {
+      "title": "Workspaces",
+      "searchPlaceholder": "Search by workspace name...",
+      "owner": "Owner",
+      "members": "Members",
+      "tenant": "Tenant",
+      "platformTenant": "Platform",
+      "createdAt": "Created at",
+      "namePlaceholder": "Workspace name",
+      "ownerHint": "Leave empty to become the owner yourself.",
+      "loadUsersError": "Could not load users.",
+      "createSuccess": "Workspace created.",
+      "create": {
+        "button": "Create workspace",
+        "title": "Create workspace",
+        "description": "Creates a platform workspace. You can assign users to it afterwards from the Users page."
+      }
     }
   },
   "platformCredentials": {

@@ -1,7 +1,7 @@
 import { resolveTenantByDomain } from "@chatbotx.io/auth/tenant"
 import {
   isPlatformAdmin,
-  isSuperAdmin,
+  isPlatformSuperAdmin,
   quotaEnforcementService,
   userQuotaService,
 } from "@chatbotx.io/business"
@@ -78,7 +78,7 @@ export default async function MainPage() {
         <AccountRail
           isPlatformAdmin={platformAdmin}
           isPlatformContext={isPlatformContext}
-          isSuperAdmin={isSuperAdmin(user)}
+          isSuperAdmin={isPlatformSuperAdmin(user)}
           metrics={buildQuotaMetrics(usageSummary)}
           planName={quota?.planName ?? null}
           planStatus={quota?.planStatus ?? null}

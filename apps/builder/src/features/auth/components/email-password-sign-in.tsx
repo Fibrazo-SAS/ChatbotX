@@ -1,4 +1,5 @@
 import { InputField } from "@chatbotx.io/ui/components/form/input-field"
+import { PasswordInput } from "@chatbotx.io/ui/components/form/password-input"
 import { Button } from "@chatbotx.io/ui/components/ui/button"
 import {
   Form,
@@ -8,7 +9,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@chatbotx.io/ui/components/ui/form"
-import { Input } from "@chatbotx.io/ui/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon } from "lucide-react"
 import Link from "next/link"
@@ -46,7 +46,7 @@ export const EmailPasswordSignIn = () => {
     })
 
     if (data) {
-      toast.success("Signed in successfully")
+      toast.success(t("auth.signInSuccess"))
       // Full reload (not router.push) so a fresh session re-renders
       // layout/sidebar state that depends on auth.
       window.location.assign(
@@ -90,10 +90,11 @@ export const EmailPasswordSignIn = () => {
                 </Link>
               </div>
               <FormControl>
-                <Input
+                <PasswordInput
+                  hidePasswordLabel={t("auth.hidePassword")}
                   placeholder="********"
                   required
-                  type="password"
+                  showPasswordLabel={t("auth.showPassword")}
                   {...field}
                 />
               </FormControl>

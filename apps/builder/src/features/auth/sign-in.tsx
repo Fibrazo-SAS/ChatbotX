@@ -8,13 +8,13 @@ import {
   CardHeader,
 } from "@chatbotx.io/ui/components/ui/card"
 import { ArrowLeftIcon, LinkIcon, MailIcon } from "lucide-react"
-import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+// import Link from "next/link"
+// import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useState } from "react"
 import { isCommunity } from "@/env"
 import SSOSignIn from "@/features/auth/sso-sign-in"
-import { withCallbackUrlParam } from "@/lib/safe-callback-url"
+// import { withCallbackUrlParam } from "@/lib/safe-callback-url"
 import { useTenantSettings } from "../tenant"
 import { EmailPasswordSignIn } from "./components/email-password-sign-in"
 import { MagicLinkSignIn } from "./components/magic-link-signin"
@@ -37,13 +37,13 @@ export const SignInForm = ({
 }: SignInFormProps) => {
   const t = useTranslations()
   const { name, policyUrl, termsOfServiceUrl } = useTenantSettings()
+  // Registro deshabilitado: solo por invitación del admin (ver ticket 14997).
+  // const searchParams = useSearchParams()
+  // const signUpHref = withCallbackUrlParam(
+  //   "/auth/sign-up",
+  //   searchParams.get("callbackURL"),
+  // )
   const [activeMethod, setActiveMethod] = useState<SignInMethod | null>(null)
-  const searchParams = useSearchParams()
-  const signUpHref = withCallbackUrlParam(
-    "/auth/sign-up",
-    searchParams.get("callbackURL"),
-  )
-
   return (
     <div className="flex flex-col gap-6" {...props}>
       <Card>
@@ -104,12 +104,14 @@ export const SignInForm = ({
               </>
             )}
 
+            {/* Registro deshabilitado: solo por invitación del admin (ver ticket 14997).
             <div className="text-center font-medium text-foreground/60 text-sm">
               {t("auth.dontHaveAnAccount")}{" "}
               <Link className="text-foreground underline" href={signUpHref}>
                 {t("auth.signUp")}
               </Link>
             </div>
+            */}
           </div>
         </CardContent>
       </Card>
