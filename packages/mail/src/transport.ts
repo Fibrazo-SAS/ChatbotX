@@ -19,3 +19,7 @@ export const createSmtpTransporter = (options?: SmtpTransportOptions) =>
         }
       : mailEnv.SMTP_SERVER,
   )
+
+/** Create a transporter from a nodemailer connection URL (e.g. smtp:// or smtps://). */
+export const createSmtpTransporterFromUrl = (url: string) =>
+  nodemailer.createTransport(url)

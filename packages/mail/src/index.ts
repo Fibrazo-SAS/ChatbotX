@@ -18,7 +18,11 @@ import {
   type SignUpVerificationProps,
 } from "./emails/sign-up-verification"
 import { keys } from "./keys"
-import { createSmtpTransporter, type SmtpTransportOptions } from "./transport"
+import {
+  createSmtpTransporter,
+  createSmtpTransporterFromUrl,
+  type SmtpTransportOptions,
+} from "./transport"
 
 export type EmailTemplate = { subject?: string; body?: string }
 export {
@@ -61,6 +65,9 @@ async function compileMjml(mjmlString: string): Promise<string> {
 
 const env = keys()
 const transporter = createSmtpTransporter()
+const fallbackTransporter = env.SMTP_FALLBACK_SERVER
+  ? createSmtpTransporterFromUrl(env.SMTP_FALLBACK_SERVER)
+  : null
 
 type SendMailOptions = {
   from?: string
@@ -97,12 +104,28 @@ async function sendMail(
     ? createSmtpTransporter(options.transport)
     : transporter
 
-  await mailTransporter.sendMail({
+  const mailOptions = {
     from: options?.from ?? env.SMTP_FROM,
     to: email,
     subject,
     html,
-  })
+  }
+
+  try {
+    await mailTransporter.sendMail(mailOptions)
+  } catch (error) {
+    // Fallback: only for the platform's own SMTP — a reseller's per-tenant
+    // transport must never fall back to the platform relay — and only when a
+    // fallback URL is configured. Keeps auth/transactional emails flowing when
+    // the primary relay (e.g. Doppler) is down.
+    if (options?.transport || !fallbackTransporter) {
+      throw error
+    }
+    console.warn(
+      `[mail] primary SMTP failed (${(error as Error).message}); retrying with fallback SMTP`,
+    )
+    await fallbackTransporter.sendMail(mailOptions)
+  }
 }
 
 async function sendEmailWithTemplate(
