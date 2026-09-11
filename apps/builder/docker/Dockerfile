@@ -40,6 +40,14 @@ COPY --from=pre /app/out/full/ .
 ENV BETTER_AUTH_SECRET="docker-build-time-placeholder-not-used-at-runtime-0"
 ENV BETTER_AUTH_URL="http://localhost:3000"
 
+# The `/ws/:path*` rewrite destination is baked into routes-manifest.json by
+# `next build` (next.config.ts evaluates rewrites() at build time), so it must
+# be set here — the compose `environment` is runtime-only and can't change it.
+# Default to the compose service name; override via build arg for non-compose
+# deployments.
+ARG NEXT_PUBLIC_INTERNAL_WS_URL=http://realtime:1999
+ENV NEXT_PUBLIC_INTERNAL_WS_URL=$NEXT_PUBLIC_INTERNAL_WS_URL
+
 # - `.next/cache` cache mount: Turbopack's filesystem cache, local to the build.
 #   Not persisted across CI runs — `turbo.json` excludes `.next/cache/**` from the
 #   build outputs, so restoring it can never turn a turbo cache miss into a hit;
