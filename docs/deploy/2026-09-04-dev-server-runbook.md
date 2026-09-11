@@ -154,11 +154,11 @@ user como SUPERUSER (pgvector no es "trusted"). Las migraciones crean las tablas
      firmaban contra `S3_ENDPOINT` (= `host.docker.internal:9000`), que el navegador no puede resolver.
      La firma AWS incluye el `Host`, así que NO se puede reescribir el host después de firmar.
      **Fix:** nueva env `S3_PUBLIC_ENDPOINT` (host público del storage) contra la que se firman las presigned URLs
-     (fallback a `S3_ENDPOINT`), + subdominio `storage.dev-chatbotx.fibrazo.com.co` → `filesystem:9000` en Caddy.
-- **Config necesaria en dev:**
-  - DNS: `storage.dev-chatbotx.fibrazo.com.co` → `35.87.134.232`
-  - `Caddyfile`: `storage.dev-chatbotx.fibrazo.com.co { reverse_proxy filesystem:9000 }`
-  - Secret: `S3_PUBLIC_ENDPOINT=https://storage.dev-chatbotx.fibrazo.com.co`
+     (fallback a `S3_ENDPOINT`), + ruta `/chatbotx/*` → `filesystem:9000` en Caddy (mismo dominio, reusa el HTTPS).
+- **Config necesaria en dev (sin DNS nuevo):**
+  - `Caddyfile`: `handle /chatbotx/* { header_up Host {host} → reverse_proxy filesystem:9000 }` en el sitio `dev-chatbotx.fibrazo.com.co`
+  - Secret: `S3_PUBLIC_ENDPOINT=https://dev-chatbotx.fibrazo.com.co`
+  - (El path `/chatbotx/*` es el bucket en path-style y viaja intacto para conservar la firma S3.)
 
 ## 5. Pipeline de deploy (cómo funciona HOY)
 
@@ -189,8 +189,8 @@ Secret: `dev/chatbotx/all-secret` (us-west-2).
 - [ ] `SERVER` y `SECRET_NAME` en `deploy-production.yml` (hoy: `<SERVER-PROD-PENDIENTE>`)
 - [ ] **Websocket (ver §4.7):** `NEXT_PUBLIC_INTERNAL_WS_URL` ya va como build arg en el Dockerfile del
       builder; el `.env` del realtime lo genera el entrypoint. Confirmar que el dominio público llegue a `/ws`.
-- [ ] **Storage público (ver §4.8):** subdominio propio del storage + `S3_PUBLIC_ENDPOINT` en el secret.
-      En prod NO usar un contenedor rustfs suelto sin HA — idealmente S3 gestionado + CDN/CloudFront delante.
+- [ ] **Storage público (ver §4.8):** en dev reusa el dominio con la ruta `/chatbotx/*` en Caddy + `S3_PUBLIC_ENDPOINT`
+      en el secret. En prod NO usar un contenedor rustfs suelto sin HA — idealmente S3 gestionado + CDN/dominio propio.
 - [ ] Portar los fixes de dev a prod: `deploy.sh` con stop de apps antes del build + trap de restore,
       `mem_limit` en `docker-compose.apps.yml` (ya en el repo)
 
