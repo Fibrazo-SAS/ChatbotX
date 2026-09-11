@@ -32,6 +32,10 @@ services:
       dockerfile: apps/builder/docker/Dockerfile
     ports:
       - "3123:3000"
+    environment:
+      # Realtime lives in a separate container on the compose network; the
+      # builder's /ws/:path* rewrite must target the service, not localhost.
+      - NEXT_PUBLIC_INTERNAL_WS_URL=http://realtime:1999
     depends_on:
       postgres:
         condition: service_healthy
