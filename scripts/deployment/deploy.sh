@@ -108,12 +108,14 @@ echo 'Building realtime (4/4)...'
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
   "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} build realtime"
 
-# 5. Levantar SOLO las apps con --no-deps (postgres/redis corren en systemd,
+# 5. Levantar apps + storage con --no-deps (postgres/redis corren en systemd,
 #    no los levantamos desde el compose — pero el proyecto necesita sus
-#    definiciones para los depends_on)
-echo 'Starting app containers (--no-deps)...'
+#    definiciones para los depends_on). `filesystem` (rustfs) SÍ vive en Docker
+#    y no tiene deploy propio, así que se levanta acá; `filesystem-init` es
+#    idempotente (crea el bucket + public anónimo) y asegura que exista.
+echo 'Starting app + storage containers (--no-deps)...'
 ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
-  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d --no-deps builder worker realtime javascript-executor caddy"
+  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d --no-deps filesystem filesystem-init builder worker realtime javascript-executor caddy"
 
 RESTORE_NEEDED=0
 

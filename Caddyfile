@@ -6,12 +6,15 @@ dev-chatbotx.fibrazo.com.co {
 	@maint file /srv/.maintenance
 	respond @maint "ChatbotX en mantenimiento — volvé en unos minutos" 503
 
-	reverse_proxy builder:3000
-}
+	# Almacenamiento de objetos (rustfs) — servido bajo una ruta del MISMO
+	# dominio para reusar el HTTPS existente (evita un DNS/dominio extra).
+	# `/chatbotx/*` es el bucket en path-style; el path viaja intacto (sin
+	# reescribir) y se preserva el Host original para que la firma AWS de la
+	# URL presignada siga siendo válida al llegar a rustfs.
+	handle /chatbotx/* {
+		header_up Host {host}
+		reverse_proxy filesystem:9000
+	}
 
-# Almacenamiento de objetos (rustfs). Expuesto en un subdominio propio para que
-# el navegador pueda ejecutar los uploads/downloads presignados. El path viaja
-# intacto (sin reescribir), así la firma AWS de la URL presignada se conserva.
-storage.dev-chatbotx.fibrazo.com.co {
-	reverse_proxy filesystem:9000
+	reverse_proxy builder:3000
 }
