@@ -120,6 +120,46 @@ user como SUPERUSER (pgvector no es "trusted"). Las migraciones crean las tablas
 - **Fix:** el secret debe usar `host.docker.internal` (ver §3). `172.17.0.1` solo es válido
   desde contenedores del bridge default. Revisar en consola AWS → Secrets Manager.
 
+### 4.7 Websocket caído — realtime (PartyKit) no arranca + rewrite `/ws` horneado en build (2026-09-11)
+
+- **Síntoma:** el chat en vivo no actualiza en tiempo real. El builder loguea
+  `Failed to proxy http://localhost:1999/parties/workspaces/... ECONNREFUSED 127.0.0.1:1999`.
+- **Dos causas encadenadas:**
+  1. **Realtime nunca arrancaba.** PartyKit `dev` NO lee el `process.env` del contenedor: lee variables
+     solo desde un `.env` en disco (`findUpSync(".env")` → `dotenv.parse`), que inyecta al Worker como
+     `PARTYKIT_PROCESS_ENV`. El commit que sacó el `COPY .env` del Dockerfile dejó el contenedor sin `.env`
+     → `REALTIME_BROADCAST_SECRET` era `undefined` en el Worker → `createEnv` (exige `z.string().min(32)`)
+     tiraba y nunca bindeaba `:1999`.
+     **Fix (PR #24):** el entrypoint del realtime materializa `REALTIME_BROADCAST_SECRET` y
+     `NEXT_PUBLIC_BUILDER_URL` en un `.env` desde el entorno del contenedor antes de arrancar.
+  2. **El builder apuntaba `/ws` a `localhost:1999`.** El rewrite `/ws/:path* → NEXT_PUBLIC_INTERNAL_WS_URL`
+     se evalúa en `next build` (queda horneado en `routes-manifest.json`), NO en runtime. Sin la var en el
+     build caía al default `http://localhost:1999`. Setearla en el compose `environment` NO alcanzaba (es runtime).
+     **Fix (PR #25):** build ARG `NEXT_PUBLIC_INTERNAL_WS_URL=http://realtime:1999` en el Dockerfile del builder.
+- **Verificación:**
+  ```bash
+  docker logs chatbotx-realtime-1 --tail 20        # "Ready on http://0.0.0.0:1999" + "101 Switching Protocols"
+  docker exec chatbotx-builder-1 sh -c 'grep -o "realtime:1999" /app/apps/builder/.next/routes-manifest.json'
+  ```
+
+### 4.8 Storage (rustfs) caído + presigned URL con `host.docker.internal` (2026-09-11)
+
+- **Síntoma:** el import de flujos falla. El browser intenta `PUT` a
+  `http://host.docker.internal:9000/...` y no resuelve (host Docker-interno).
+- **Dos causas:**
+  1. **rustfs estaba caído.** `chatbotx-filesystem-1` → `Exited (255)` desde el 5/9, **sin `restart` policy**.
+     El deploy de apps (`up -d --no-deps builder worker realtime javascript-executor caddy`) NO levanta el filesystem.
+     **Fix:** `docker compose ... up -d filesystem filesystem-init` + `restart: unless-stopped` en `docker-compose.yml`.
+  2. **La URL presignada se firmaba contra el endpoint interno.** `getPresignedUpload`/`getPresignedDownload`
+     firmaban contra `S3_ENDPOINT` (= `host.docker.internal:9000`), que el navegador no puede resolver.
+     La firma AWS incluye el `Host`, así que NO se puede reescribir el host después de firmar.
+     **Fix:** nueva env `S3_PUBLIC_ENDPOINT` (host público del storage) contra la que se firman las presigned URLs
+     (fallback a `S3_ENDPOINT`), + subdominio `storage.dev-chatbotx.fibrazo.com.co` → `filesystem:9000` en Caddy.
+- **Config necesaria en dev:**
+  - DNS: `storage.dev-chatbotx.fibrazo.com.co` → `35.87.134.232`
+  - `Caddyfile`: `storage.dev-chatbotx.fibrazo.com.co { reverse_proxy filesystem:9000 }`
+  - Secret: `S3_PUBLIC_ENDPOINT=https://storage.dev-chatbotx.fibrazo.com.co`
+
 ## 5. Pipeline de deploy (cómo funciona HOY)
 
 ```
@@ -147,6 +187,10 @@ Secret: `dev/chatbotx/all-secret` (us-west-2).
 - [ ] Redis con política de eviction **noeviction** (hoy: allkeys-lru → warning)
 - [ ] Security Group: 80/443 abiertos (Caddy/Let's Encrypt) + 3123 (health) — el SG actual acepta 80
 - [ ] `SERVER` y `SECRET_NAME` en `deploy-production.yml` (hoy: `<SERVER-PROD-PENDIENTE>`)
+- [ ] **Websocket (ver §4.7):** `NEXT_PUBLIC_INTERNAL_WS_URL` ya va como build arg en el Dockerfile del
+      builder; el `.env` del realtime lo genera el entrypoint. Confirmar que el dominio público llegue a `/ws`.
+- [ ] **Storage público (ver §4.8):** subdominio propio del storage + `S3_PUBLIC_ENDPOINT` en el secret.
+      En prod NO usar un contenedor rustfs suelto sin HA — idealmente S3 gestionado + CDN/CloudFront delante.
 - [ ] Portar los fixes de dev a prod: `deploy.sh` con stop de apps antes del build + trap de restore,
       `mem_limit` en `docker-compose.apps.yml` (ya en el repo)
 
@@ -169,4 +213,14 @@ PGPASSWORD='fe3Poos1' psql -h "${GATEWAY}" -U dev_chatbotx_adm -d chatbotxdb -c 
 
 # Ver el secret (lectura OK con el rol del server)
 aws secretsmanager get-secret-value --secret-id dev/chatbotx/all-secret --region us-west-2 --query SecretString --output text
+
+# ¿Realtime (websocket) arriba?
+docker logs chatbotx-realtime-1 --tail 20   # buscar "Ready on http://0.0.0.0:1999"
+
+# ¿El rewrite /ws quedó bien horneado?
+docker exec chatbotx-builder-1 sh -c 'grep -o "realtime:1999\|localhost:1999" /app/apps/builder/.next/routes-manifest.json'
+
+# ¿Storage (rustfs) arriba?
+docker ps -a | grep filesystem
+curl -s -o /dev/null -w '%{http_code}\n' http://host.docker.internal:9000/health
 ```

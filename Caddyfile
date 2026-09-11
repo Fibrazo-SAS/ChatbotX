@@ -8,3 +8,10 @@ dev-chatbotx.fibrazo.com.co {
 
 	reverse_proxy builder:3000
 }
+
+# Almacenamiento de objetos (rustfs). Expuesto en un subdominio propio para que
+# el navegador pueda ejecutar los uploads/downloads presignados. El path viaja
+# intacto (sin reescribir), así la firma AWS de la URL presignada se conserva.
+storage.dev-chatbotx.fibrazo.com.co {
+	reverse_proxy filesystem:9000
+}
