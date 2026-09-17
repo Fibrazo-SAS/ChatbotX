@@ -2443,7 +2443,10 @@
     "sendText": {
       "tiktokTitleTruncated": "Cuando se adjuntan botones, TikTok solo envía los primeros 40 caracteres de este mensaje; el resto se recortará."
     },
-    "dataWasSaved": "Datos guardados"
+    "dataWasSaved": "Datos guardados",
+    "versions": {
+      "systemVersion": "Versión del sistema"
+    }
   },
   "folders": {
     "heading": {

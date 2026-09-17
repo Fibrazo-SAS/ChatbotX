@@ -2369,7 +2369,10 @@
     "sendText": {
       "tiktokTitleTruncated": "Saat tombol dilampirkan, TikTok hanya mengirim 40 karakter pertama pesan ini — sisanya akan terpotong."
     },
-    "dataWasSaved": "Data telah disimpan"
+    "dataWasSaved": "Data telah disimpan",
+    "versions": {
+      "systemVersion": "System version"
+    }
   },
   "folders": {
     "heading": {
@@ -3913,6 +3916,29 @@
       "keyword": "Kata kunci",
       "keywordPlaceholder": "Tindakan atau detail",
       "allAdmins": "Semua Admin"
+    },
+    "details": {
+      "flowCreated": "created a new flow \"{name}\"",
+      "flowUpdated": "updated a flow \"{name}\"",
+      "flowActivated": "activated a flow \"{name}\"",
+      "flowDeactivated": "deactivated a flow \"{name}\"",
+      "flowPublished": "published a flow \"{name}\"",
+      "flowDuplicated": "duplicated a flow \"{name}\"",
+      "flowRestored": "restored a previous version of flow \"{name}\"",
+      "flowReverted": "reverted flow \"{name}\" draft to its published version",
+      "flowDeleted": "deleted flow \"{name}\"",
+      "flowDeletedMany": "deleted flows ({names})",
+      "flowImported": "imported a flow \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "View changes",
+      "title": "Changes",
+      "added": "Added",
+      "removed": "Removed",
+      "changed": "Modified",
+      "before": "Before",
+      "after": "After",
+      "noChanges": "No detailed changes recorded for this action"
     }
   },
   "customFields": {
