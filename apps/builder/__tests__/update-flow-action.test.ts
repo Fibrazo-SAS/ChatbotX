@@ -30,6 +30,10 @@ vi.mock("@chatbotx.io/business/audit", () => ({
   auditService: { record: mocks.auditRecord },
 }))
 
+vi.mock("next-intl/server", () => ({
+  getTranslations: vi.fn().mockResolvedValue((key: string) => key),
+}))
+
 vi.mock("@chatbotx.io/database/client", () => ({
   db: { update: mocks.dbUpdate },
   eq: (...args: unknown[]) => ({ eq: args }),
@@ -85,7 +89,41 @@ describe("updateFlowAction", () => {
     expect(mocks.auditRecord).toHaveBeenCalledWith({
       workspaceId: "workspace-1",
       action: "update",
-      detail: "updated a flow (#flow-1)",
+      detail: "auditLogs.details.flowUpdated",
+    })
+  })
+
+  test("audits activation with a distinct activate action", async () => {
+    mocks.findOrFail.mockResolvedValue({
+      id: "flow-1",
+      workspaceId: "workspace-1",
+      name: "Welcome",
+      active: false,
+      enableInInbox: true,
+    })
+
+    await callAction({
+      bindArgsParsedInputs: ["workspace-1", "flow-1"],
+      parsedInput: { active: true },
+    })
+
+    expect(mocks.auditRecord).toHaveBeenCalledWith({
+      workspaceId: "workspace-1",
+      action: "activate",
+      detail: "auditLogs.details.flowActivated",
+    })
+  })
+
+  test("audits deactivation with a distinct deactivate action", async () => {
+    await callAction({
+      bindArgsParsedInputs: ["workspace-1", "flow-1"],
+      parsedInput: { active: false },
+    })
+
+    expect(mocks.auditRecord).toHaveBeenCalledWith({
+      workspaceId: "workspace-1",
+      action: "deactivate",
+      detail: "auditLogs.details.flowDeactivated",
     })
   })
 })

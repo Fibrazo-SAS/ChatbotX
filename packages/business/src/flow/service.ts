@@ -152,6 +152,7 @@ class FlowService extends BaseService {
       startNodeId: string
       nodes: FlowVersionModel["nodes"]
       edges: FlowVersionModel["edges"]
+      publishedById?: string | null
     },
   ): Promise<{
     flowId: string
@@ -197,6 +198,7 @@ class FlowService extends BaseService {
         isDraft: false,
         isLatest: true,
         startNodeId: input.startNodeId,
+        publishedById: input.publishedById ?? null,
       },
     ])
 
@@ -363,12 +365,12 @@ class FlowService extends BaseService {
   async deleteMany(input: {
     workspaceId: string
     ids: string[]
-  }): Promise<void> {
+  }): Promise<{ name: string }[]> {
     const flows = await db.query.flowModel.findMany({
       where: { workspaceId: input.workspaceId, id: { in: input.ids } },
     })
     if (flows.length === 0) {
-      return
+      return []
     }
     const flowIds = flows.map((flow) => flow.id)
 
@@ -386,10 +388,9 @@ class FlowService extends BaseService {
         .where(inArray(flowAnalyticsSessionModel.flowId, flowIds))
     })
 
-    await this.audit(
-      "delete",
-      `deleted flow${flows.length > 1 ? "s" : ""} (${flows.map((flow) => `#${flow.id}`).join(", ")})`,
-    )
+    // The delete audit is emitted by the builder action (which has the
+    // actor's locale) — see delete-flow.action.ts.
+    return flows.map((flow) => ({ name: flow.name }))
   }
 }
 

@@ -137,6 +137,11 @@ export type JobSendAuditLog = {
     workspaceId: string
     action: string
     detail: string
+    changesDetails?: {
+      added?: string[]
+      removed?: string[]
+      changed?: { name: string; before?: string; after?: string }[]
+    }
     ipAddress?: string
     userAgent?: string
     source?: string

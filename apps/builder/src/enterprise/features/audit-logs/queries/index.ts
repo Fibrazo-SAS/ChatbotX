@@ -41,7 +41,6 @@ export async function listAuditLogs(
           OR: [
             { action: { ilike: likeContains(input.keyword) } },
             { detail: { ilike: likeContains(input.keyword) } },
-            { ipAddress: { ilike: likeContains(input.keyword) } },
           ],
         }
       : {}),

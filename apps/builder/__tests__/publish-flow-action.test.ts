@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest"
 
 const {
   mockFlowFindFirst,
+  mockPreviousPublished,
   mockDbTransaction,
   mockTxInsert,
   mockTxInsertValues,
@@ -23,6 +24,7 @@ const {
 
   return {
     mockFlowFindFirst: vi.fn(),
+    mockPreviousPublished: vi.fn(),
     mockDbTransaction: vi.fn(),
     mockTxInsert,
     mockTxInsertValues,
@@ -53,11 +55,20 @@ vi.mock("@chatbotx.io/business/errors", () => ({
 
 vi.mock("@chatbotx.io/business/audit", () => ({
   auditService: { record: mockAuditRecord },
+  getAuditActor: () => ({ userId: "user-1", workspaceId: "1" }),
+  SYSTEM_ACTOR: "system",
+}))
+
+vi.mock("next-intl/server", () => ({
+  getTranslations: vi.fn().mockResolvedValue((key: string) => key),
 }))
 
 vi.mock("@chatbotx.io/database/client", () => ({
   db: {
-    query: { flowModel: { findFirst: mockFlowFindFirst } },
+    query: {
+      flowModel: { findFirst: mockFlowFindFirst },
+      flowVersionModel: { findFirst: mockPreviousPublished },
+    },
     transaction: mockDbTransaction,
   },
   and: (...args: unknown[]) => ({ and: args }),
@@ -89,6 +100,7 @@ const findInsertedVersion = () =>
     startNodeId: string
     isDraft: boolean
     isLatest: boolean
+    publishedById?: string | null
   }
 
 const findDraftUpdateValue = () => {
@@ -101,6 +113,7 @@ const findDraftUpdateValue = () => {
 describe("publishFlow", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockPreviousPublished.mockResolvedValue(undefined)
     mockTxInsertValues.mockResolvedValue(undefined)
     mockTxInsert.mockReturnValue({ values: mockTxInsertValues })
     mockTxWhere.mockResolvedValue(undefined)
@@ -144,6 +157,7 @@ describe("publishFlow", () => {
     mockFlowFindFirst.mockResolvedValue({
       id: "10",
       workspaceId: "1",
+      name: "Onboarding",
       flowVersions: [
         {
           id: "100",
@@ -152,6 +166,11 @@ describe("publishFlow", () => {
           edges: [],
         },
       ],
+    })
+    mockPreviousPublished.mockResolvedValue({
+      id: "published-1",
+      nodes: [staleNode],
+      edges: [],
     })
 
     await publishFlow(
@@ -163,6 +182,7 @@ describe("publishFlow", () => {
     expect(inserted.isDraft).toBe(false)
     expect(inserted.isLatest).toBe(true)
     expect(inserted.startNodeId).toBe("1")
+    expect(inserted.publishedById).toBe("user-1")
     expect(inserted.nodes).toEqual([
       expect.objectContaining({
         id: "2",
@@ -174,6 +194,17 @@ describe("publishFlow", () => {
     expect(draftUpdate?.nodes).toEqual([expect.objectContaining({ id: "2" })])
 
     expect(mockInvalidateList).toHaveBeenCalledWith("10")
+
+    expect(mockAuditRecord).toHaveBeenCalledWith({
+      workspaceId: "1",
+      action: "publish",
+      detail: "auditLogs.details.flowPublished",
+      changesDetails: {
+        added: ["Current canvas"],
+        removed: ["Stale draft"],
+        changed: undefined,
+      },
+    })
   })
 
   /**
@@ -201,6 +232,11 @@ describe("publishFlow", () => {
       id: "10",
       workspaceId: "1",
       flowVersions: [{ id: "100", startNodeId: "2", nodes: [], edges: [] }],
+    })
+    mockPreviousPublished.mockResolvedValue({
+      id: "published-1",
+      nodes: [],
+      edges: [],
     })
 
     await publishFlow(

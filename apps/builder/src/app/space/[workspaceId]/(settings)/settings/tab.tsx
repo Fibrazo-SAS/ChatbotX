@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useMemo } from "react"
 import { AppTab } from "@/components/app-tab"
+import { isCommunity } from "@/env"
 import { useWorkspaceId } from "@/hooks/routing"
 
 const GENERAL_TAB_VALUE = "general"
@@ -43,6 +44,14 @@ export function SettingsTab({
       //   label: t("billing.title"),
       //   value: "billing",
       // },
+      ...(isCommunity()
+        ? []
+        : [
+            {
+              label: t("auditLogs.title"),
+              value: "audit-logs",
+            },
+          ]),
     ],
     [t],
   )
@@ -50,14 +59,22 @@ export function SettingsTab({
   const activeTab = useMemo(() => {
     const segments = pathname.split("/")
     const settingsIndex = segments.indexOf("settings")
-    return settingsIndex === -1 ? undefined : segments[settingsIndex + 1]
+    if (settingsIndex === -1) {
+      // The audit-logs page lives outside the /settings subtree (enterprise
+      // route group) but still renders this tab bar.
+      return segments.includes("audit-logs") ? "audit-logs" : undefined
+    }
+    return segments[settingsIndex + 1]
   }, [pathname])
 
   return (
     <AppTab
       tabs={tabs.map((tab) => ({
         label: tab.label,
-        href: `/space/${workspaceId}/settings/${tab.value}`,
+        href:
+          tab.value === "audit-logs"
+            ? `/space/${workspaceId}/audit-logs`
+            : `/space/${workspaceId}/settings/${tab.value}`,
         isActive: activeTab === tab.value,
         disabled: scheduledForDeletion && tab.value !== GENERAL_TAB_VALUE,
         disabledTooltip: scheduledForDeletion

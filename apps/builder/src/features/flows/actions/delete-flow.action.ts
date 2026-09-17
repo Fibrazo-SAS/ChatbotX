@@ -1,6 +1,8 @@
 "use server"
 
 import { flowService } from "@chatbotx.io/business"
+import { auditService } from "@chatbotx.io/business/audit"
+import { getTranslations } from "next-intl/server"
 import {
   type BulkUpdateIdsRequest,
   bulkUpdateIdsRequest,
@@ -20,6 +22,24 @@ export const deleteFlowAction = workspaceActionClient
       bindArgsParsedInputs: WorkspaceIdRequestParams
       parsedInput: BulkUpdateIdsRequest
     }) => {
-      await flowService.deleteMany({ workspaceId, ids: parsedInput.ids })
+      const deleted = await flowService.deleteMany({
+        workspaceId,
+        ids: parsedInput.ids,
+      })
+
+      if (deleted.length > 0) {
+        const t = await getTranslations()
+
+        await auditService.record({
+          workspaceId,
+          action: "delete",
+          detail:
+            deleted.length === 1
+              ? t("auditLogs.details.flowDeleted", { name: deleted[0].name })
+              : t("auditLogs.details.flowDeletedMany", {
+                  names: deleted.map((flow) => `"${flow.name}"`).join(", "),
+                }),
+        })
+      }
     },
   )

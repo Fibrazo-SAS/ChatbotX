@@ -1,7 +1,9 @@
 "use server"
 
-import { flowVersionService } from "@chatbotx.io/business"
+import { flowService, flowVersionService } from "@chatbotx.io/business"
+import { auditService } from "@chatbotx.io/business/audit"
 import { zodBigintAsString } from "@chatbotx.io/utils"
+import { getTranslations } from "next-intl/server"
 import z from "zod"
 import { workspaceActionClient } from "@/lib/safe-action"
 
@@ -21,6 +23,17 @@ export const restoreFlowVersionAction = workspaceActionClient
     })
 
     await flowVersionService.restore({ version })
+
+    const flow = await flowService.findBy({ workspaceId, id: flowId })
+    const t = await getTranslations()
+
+    await auditService.record({
+      workspaceId,
+      action: "restore",
+      detail: t("auditLogs.details.flowRestored", {
+        name: flow?.name ?? flowId,
+      }),
+    })
 
     return { nodes: version.nodes, edges: version.edges }
   })

@@ -9,6 +9,7 @@ import {
 } from "@chatbotx.io/database/schema"
 import { sendMessageNodeDefaultFn } from "@chatbotx.io/flow-config"
 import { createId } from "@chatbotx.io/utils"
+import { getTranslations } from "next-intl/server"
 import {
   type WorkspaceIdRequestParams,
   workspaceIdrequestParams,
@@ -71,10 +72,12 @@ export const createFlowAction = workspaceActionClient
         return flow
       })
 
+      const t = await getTranslations()
+
       await auditService.record({
         workspaceId,
         action: "create",
-        detail: `created a new flow (#${flow.id})`,
+        detail: t("auditLogs.details.flowCreated", { name: flow.name }),
       })
 
       return { id: flow.id }

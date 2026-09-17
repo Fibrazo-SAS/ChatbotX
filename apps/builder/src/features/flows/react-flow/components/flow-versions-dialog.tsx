@@ -1,5 +1,10 @@
 "use client"
 
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@chatbotx.io/ui/components/ui/avatar"
 import { Button } from "@chatbotx.io/ui/components/ui/button"
 import {
   Dialog,
@@ -15,7 +20,9 @@ import { useAction } from "next-safe-action/hooks"
 import { useState } from "react"
 import { toast } from "sonner"
 import useSWR from "swr"
+import type { FlowVersionResource } from "@/features/flow-versions/schema/resource"
 import type { FlowResource } from "@/features/flows/schema/resource"
+import { useUserAvatarUrl } from "@/lib/auth/avatar"
 import { client } from "@/lib/orpc/orpc"
 import { restoreFlowVersionAction } from "../../actions/restore-flow-version-action"
 
@@ -25,6 +32,24 @@ type FlowVersionsDialogProps = {
   flow: FlowResource
   workspaceId: string
   onRestoreSuccess: (nodes: unknown[], edges: unknown[]) => void
+}
+
+function VersionAuthor({
+  user,
+}: {
+  user: NonNullable<FlowVersionResource["publishedBy"]>
+}) {
+  const avatarUrl = useUserAvatarUrl(user.image)
+
+  return (
+    <span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+      <Avatar className="size-5">
+        <AvatarImage alt="userImage" src={avatarUrl ?? ""} />
+        <AvatarFallback>{user.name?.[0]}</AvatarFallback>
+      </Avatar>
+      <span className="max-w-[140px] truncate">{user.name ?? user.email}</span>
+    </span>
+  )
 }
 
 export function FlowVersionsDialog({
@@ -98,10 +123,19 @@ export function FlowVersionsDialog({
                 className="flex items-center justify-between gap-4 py-3"
                 key={version.id}
               >
-                <span className="flex items-center gap-1.5 font-medium text-sm">
-                  {format(version.createdAt, "yyyy/MM/dd HH:mm")}
-                  {version.isLatest && (
-                    <StarIcon className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                <span className="flex flex-col gap-0.5">
+                  <span className="flex items-center gap-1.5 font-medium text-sm">
+                    {format(version.createdAt, "yyyy/MM/dd HH:mm")}
+                    {version.isLatest && (
+                      <StarIcon className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                    )}
+                  </span>
+                  {version.publishedBy ? (
+                    <VersionAuthor user={version.publishedBy} />
+                  ) : (
+                    <span className="text-muted-foreground text-xs">
+                      {t("flows.versions.systemVersion")}
+                    </span>
                   )}
                 </span>
                 <div className="flex shrink-0 items-center gap-2">

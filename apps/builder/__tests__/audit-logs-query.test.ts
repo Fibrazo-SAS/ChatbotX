@@ -227,7 +227,6 @@ describe("listAuditLogs", () => {
           OR: [
             { action: { ilike: "%member%" } },
             { detail: { ilike: "%member%" } },
-            { ipAddress: { ilike: "%member%" } },
           ],
         }),
         orderBy: { createdAt: "desc", id: "desc" },

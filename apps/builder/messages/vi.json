@@ -2443,7 +2443,10 @@
     "sendText": {
       "tiktokTitleTruncated": "Khi có gắn nút, TikTok chỉ gửi tối đa 40 ký tự đầu của tin nhắn này — phần còn lại sẽ bị cắt bỏ."
     },
-    "dataWasSaved": "Đã lưu dữ liệu"
+    "dataWasSaved": "Đã lưu dữ liệu",
+    "versions": {
+      "systemVersion": "Phiên bản hệ thống"
+    }
   },
   "folders": {
     "heading": {
@@ -3828,8 +3831,31 @@
       "user": "Người dùng",
       "userPlaceholder": "ID người dùng",
       "keyword": "Từ khóa",
-      "keywordPlaceholder": "Hành động, chi tiết hoặc địa chỉ IP",
+      "keywordPlaceholder": "Hành động hoặc chi tiết",
       "allAdmins": "Tất cả admin"
+    },
+    "details": {
+      "flowCreated": "đã tạo luồng mới \"{name}\"",
+      "flowUpdated": "đã cập nhật luồng \"{name}\"",
+      "flowActivated": "đã kích hoạt luồng \"{name}\"",
+      "flowDeactivated": "đã vô hiệu hóa luồng \"{name}\"",
+      "flowPublished": "đã xuất bản luồng \"{name}\"",
+      "flowDuplicated": "đã nhân bản luồng \"{name}\"",
+      "flowRestored": "đã khôi phục phiên bản trước của luồng \"{name}\"",
+      "flowReverted": "đã hoàn nguyên bản nháp của luồng \"{name}\" về phiên bản đã xuất bản",
+      "flowDeleted": "đã xóa luồng \"{name}\"",
+      "flowDeletedMany": "đã xóa các luồng ({names})",
+      "flowImported": "đã nhập luồng \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "Xem thay đổi",
+      "title": "Thay đổi",
+      "added": "Đã thêm",
+      "removed": "Đã xóa",
+      "changed": "Đã sửa",
+      "before": "Trước",
+      "after": "Sau",
+      "noChanges": "Không có thay đổi chi tiết cho hành động này"
     }
   },
   "customFields": {

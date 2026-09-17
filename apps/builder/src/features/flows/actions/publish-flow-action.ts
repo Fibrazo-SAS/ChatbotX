@@ -1,13 +1,19 @@
 "use server"
 
 import { flowVersionService } from "@chatbotx.io/business"
-import { auditService } from "@chatbotx.io/business/audit"
+import {
+  auditService,
+  getAuditActor,
+  SYSTEM_ACTOR,
+} from "@chatbotx.io/business/audit"
 import { notFoundException } from "@chatbotx.io/business/errors"
 import { and, db, eq } from "@chatbotx.io/database/client"
 import { flowModel, flowVersionModel } from "@chatbotx.io/database/schema"
 import { createId, zodBigintAsString } from "@chatbotx.io/utils"
+import { getTranslations } from "next-intl/server"
 import { workspaceActionClient } from "@/lib/safe-action"
 import { type PublishFlowSchema, publishFlowSchema } from "../schema/action"
+import { diffFlowNodes, type FlowDiffNode } from "./diff-flow-nodes"
 
 export const publishFlowAction = workspaceActionClient
   .bindArgsSchemas([zodBigintAsString(), zodBigintAsString()])
@@ -46,6 +52,21 @@ export const publishFlow = async (
   const draftVersion = flow.flowVersions[0]
   const validated = publishFlowSchema.parse(input)
 
+  // Previous published version — the diff baseline. A flow can exist with only
+  // a draft (first publish), in which case every node counts as added.
+  const previousPublished = await db.query.flowVersionModel.findFirst({
+    where: {
+      flowId: flow.id,
+      workspaceId: flow.workspaceId,
+      isDraft: false,
+      isLatest: true,
+    },
+  })
+  const changesDetails = diffFlowNodes(
+    (previousPublished?.nodes ?? []) as FlowDiffNode[],
+    validated.nodes as unknown as FlowDiffNode[],
+  )
+
   await db.transaction(async (tx) => {
     // Remove all other latest versions
     await tx
@@ -69,6 +90,7 @@ export const publishFlow = async (
       .where(eq(flowVersionModel.id, draftVersion.id))
 
     const newVersionId = createId()
+    const actorUserId = getAuditActor()?.userId
     await tx.insert(flowVersionModel).values({
       id: newVersionId,
       workspaceId: flow.workspaceId,
@@ -77,6 +99,8 @@ export const publishFlow = async (
       isLatest: true,
       ...validated,
       startNodeId: draftVersion.startNodeId,
+      publishedById:
+        actorUserId && actorUserId !== SYSTEM_ACTOR ? actorUserId : null,
     })
 
     await tx
@@ -89,9 +113,12 @@ export const publishFlow = async (
 
   await flowVersionService.invalidateList(flow.id)
 
+  const t = await getTranslations()
+
   await auditService.record({
     workspaceId: ctx.workspaceId,
     action: "publish",
-    detail: `published a flow (#${flow.id})`,
+    detail: t("auditLogs.details.flowPublished", { name: flow.name }),
+    changesDetails,
   })
 }

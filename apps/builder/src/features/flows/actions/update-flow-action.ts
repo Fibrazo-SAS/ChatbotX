@@ -4,6 +4,7 @@ import { auditService } from "@chatbotx.io/business/audit"
 import { db, eq, findOrFail } from "@chatbotx.io/database/client"
 import { flowModel } from "@chatbotx.io/database/schema"
 import { zodBigintAsString } from "@chatbotx.io/utils"
+import { getTranslations } from "next-intl/server"
 import { workspaceActionClient } from "@/lib/safe-action"
 import { type UpdateFlowSchema, updateFlowSchema } from "../schema/action"
 
@@ -53,9 +54,22 @@ const updateFlow = async (
     return
   }
 
+  // The active/inactive toggle is a distinct audited action (not a generic
+  // "update"), so compliance can tell activation changes apart from edits.
+  let action = "update"
+  let detailKey = "auditLogs.details.flowUpdated"
+  if (parsedInput.active !== undefined && parsedInput.active !== flow.active) {
+    action = parsedInput.active ? "activate" : "deactivate"
+    detailKey = parsedInput.active
+      ? "auditLogs.details.flowActivated"
+      : "auditLogs.details.flowDeactivated"
+  }
+
+  const t = await getTranslations()
+
   await auditService.record({
     workspaceId: ctx.workspaceId,
-    action: "update",
-    detail: `updated a flow (#${flow.id})`,
+    action,
+    detail: t(detailKey, { name: flow.name }),
   })
 }

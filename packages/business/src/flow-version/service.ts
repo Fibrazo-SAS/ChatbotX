@@ -50,13 +50,27 @@ class FlowVersionService extends BaseService {
   }: {
     flowId: string
     workspaceId: string
-  }): Promise<FlowVersionModel[]> {
+  }): Promise<
+    (FlowVersionModel & {
+      publishedBy: {
+        id: string
+        name: string | null
+        email: string
+        image: string | null
+      } | null
+    })[]
+  > {
     return await withCache(
       `flows:${flowId}:versions`,
       () =>
         db.query.flowVersionModel.findMany({
           where: { flowId, workspaceId, isDraft: false },
           orderBy: (table) => [desc(table.isLatest), desc(table.createdAt)],
+          with: {
+            publishedBy: {
+              columns: { id: true, name: true, email: true, image: true },
+            },
+          },
         }),
       { tags: [`flows:${flowId}:versions`] },
     )
