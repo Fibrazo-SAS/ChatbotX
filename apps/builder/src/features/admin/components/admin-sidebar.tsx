@@ -7,12 +7,14 @@ import {
   SidebarHeader,
 } from "@chatbotx.io/ui/components/ui/sidebar"
 import {
+  Building2Icon,
   CircleHelpIcon,
   Grid2x2PlusIcon,
   ListTodoIcon,
   MailIcon,
   PaletteIcon,
   RadioTowerIcon,
+  UsersIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
@@ -51,6 +53,16 @@ export function AdminSidebar({
       title: t("channels.title"),
       url: "/admin/platform-channels",
       icon: RadioTowerIcon,
+    },
+    {
+      title: t("platformAdmin.users.title"),
+      url: "/admin/users",
+      icon: UsersIcon,
+    },
+    {
+      title: t("platformAdmin.workspaces.title"),
+      url: "/admin/workspaces",
+      icon: Building2Icon,
     },
     ...(showEnterpriseItems && !isCloud()
       ? [

@@ -42,3 +42,17 @@ reports
 # `drizzle-kit generate` diffs src/schema against the newest snapshot to build
 # the next migration (see packages/database/scripts/check-schema-drift.mjs).
 packages/database/drizzle/*/snapshot.json
+
+# Infra/deploy files — NO entran al contexto del build:
+# cambiarlos NO debe invalidar el cache Docker (evita rebuilds completos en
+# pushes de solo-infra, que OOM en el server de 8GB).
+Caddyfile
+docker-compose*.yml
+rsync_exclude
+scripts
+docs
+versiones
+spec
+.agents
+.claude
+.devin

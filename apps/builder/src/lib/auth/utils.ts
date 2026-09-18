@@ -15,7 +15,7 @@ import { auth } from "./auth"
 // `tenantId` is the white-label tenant key. It is deliberately never returned by
 // the auth session (see `additionalFields.tenantId.returned = false` in
 // `@chatbotx.io/auth/server`), so the session-derived user never carries it.
-export type SessionUser = Omit<UserModel, "tenantId">
+export type SessionUser = Omit<UserModel, "tenantId" | "deactivatedAt">
 
 export const getCurrentUserId = async (): Promise<string | null> => {
   const session = await auth.api.getSession({
@@ -36,6 +36,7 @@ export const getCurrentUser = async (): Promise<SessionUser | null> => {
         image: session.user.image || null,
         isAnonymous: session.user.isAnonymous ?? false,
         mustChangePassword: session.user.mustChangePassword ?? false,
+        isPlatformSuperAdmin: session.user.isPlatformSuperAdmin ?? false,
       }
     : null
 }

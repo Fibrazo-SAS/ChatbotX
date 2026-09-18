@@ -2,12 +2,12 @@
 import type { UserModel } from "@chatbotx.io/database/types"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
-const { isSuperAdminSpy } = vi.hoisted(() => ({
-  isSuperAdminSpy: vi.fn(),
+const { isPlatformSuperAdminSpy } = vi.hoisted(() => ({
+  isPlatformSuperAdminSpy: vi.fn(),
 }))
 
 vi.mock("@chatbotx.io/business", () => ({
-  isSuperAdmin: isSuperAdminSpy,
+  isPlatformSuperAdmin: isPlatformSuperAdminSpy,
 }))
 vi.mock("@/env", () => ({ isCloud: () => true }))
 
@@ -23,7 +23,7 @@ describe("resolveCredentialScopedUserId", () => {
   })
 
   test("rejects a non-super-admin requesting platform scope", () => {
-    isSuperAdminSpy.mockReturnValue(false)
+    isPlatformSuperAdminSpy.mockReturnValue(false)
 
     expect(() =>
       resolveCredentialScopedUserId(asUser("user-1"), "platform"),
@@ -31,7 +31,7 @@ describe("resolveCredentialScopedUserId", () => {
   })
 
   test("resolves platform scope to undefined for a super admin", () => {
-    isSuperAdminSpy.mockReturnValue(true)
+    isPlatformSuperAdminSpy.mockReturnValue(true)
 
     expect(
       resolveCredentialScopedUserId(asUser("admin-1"), "platform"),
@@ -39,11 +39,11 @@ describe("resolveCredentialScopedUserId", () => {
   })
 
   test("resolves user scope to the caller's own id without checking super-admin status", () => {
-    isSuperAdminSpy.mockReturnValue(false)
+    isPlatformSuperAdminSpy.mockReturnValue(false)
 
     expect(resolveCredentialScopedUserId(asUser("user-1"), "user")).toBe(
       "user-1",
     )
-    expect(isSuperAdminSpy).not.toHaveBeenCalled()
+    expect(isPlatformSuperAdminSpy).not.toHaveBeenCalled()
   })
 })

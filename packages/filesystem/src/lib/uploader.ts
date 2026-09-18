@@ -53,6 +53,17 @@ export class Uploader {
   get endpoint(): string | undefined {
     return env.S3_ENDPOINT
   }
+
+  /**
+   * Endpoint used to sign presigned URLs handed to the browser. The S3 client
+   * itself talks to `S3_ENDPOINT` (server-side), but a presigned URL is
+   * fetched by the client, which cannot resolve Docker-internal hosts like
+   * `host.docker.internal`. `S3_PUBLIC_ENDPOINT` lets deployments sign against
+   * a public host; unset, it falls back to `S3_ENDPOINT` (single-host setups).
+   */
+  get publicEndpoint(): string | undefined {
+    return env.S3_PUBLIC_ENDPOINT ?? env.S3_ENDPOINT
+  }
   get region(): string {
     return env.S3_REGION
   }
@@ -94,7 +105,7 @@ export class Uploader {
     return (
       await client.sign(
         new Request(
-          `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${filePath}?X-Amz-Expires=${5 * 60}`,
+          `${this.publicEndpoint}/${this.#bucketName}/${filePath}?X-Amz-Expires=${5 * 60}`,
           {
             method: "PUT",
           },
@@ -120,7 +131,7 @@ export class Uploader {
     return (
       await client.sign(
         new Request(
-          `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${filePath}?X-Amz-Expires=${expiresInSeconds}`,
+          `${this.publicEndpoint}/${this.#bucketName}/${filePath}?X-Amz-Expires=${expiresInSeconds}`,
           {
             method: "GET",
           },

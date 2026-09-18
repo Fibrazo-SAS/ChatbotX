@@ -27,7 +27,7 @@ import {
 import { isCommunity } from "../keys"
 import { logger } from "../logger"
 import { quotaEnforcementService } from "../quota-enforcement/service"
-import { isPlatformAdmin } from "../user"
+import { isPlatformAdmin, isPlatformSuperAdmin } from "../user"
 import { userQuotaService } from "../user-quota/service"
 import {
   type WorkspaceTeardownIntegrations,
@@ -421,9 +421,13 @@ class WorkspaceService extends BaseService {
     // up their own by connecting a channel.
     const creator = await db.query.userModel.findFirst({
       where: { id: props.createdBy },
-      columns: { id: true, email: true },
+      columns: { id: true, email: true, isPlatformSuperAdmin: true },
     })
-    if (!(creator && (await isPlatformAdmin(creator)))) {
+    const platformAdmin =
+      creator && (await isPlatformAdmin(creator))
+        ? true
+        : Boolean(creator && isPlatformSuperAdmin(creator))
+    if (!platformAdmin) {
       throw forbiddenException("Only platform admins can create workspaces")
     }
 

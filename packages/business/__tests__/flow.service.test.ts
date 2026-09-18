@@ -308,6 +308,7 @@ describe("flowService.createPublishedDefault", () => {
         isDraft: false,
         isLatest: true,
         startNodeId: "node-1",
+        publishedById: null,
       },
     ])
   })

@@ -44,6 +44,7 @@ export const listAuditLogsSearchParamsCache = createSearchParamsCache({
     { id: "createdAt", desc: true },
   ]),
   userId: parseAsString.withDefault(""),
+  flowId: parseAsString.withDefault(""),
 })
 
 export type ListAuditLogsRequest = Awaited<

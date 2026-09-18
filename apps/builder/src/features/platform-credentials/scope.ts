@@ -1,4 +1,4 @@
-import { isSuperAdmin } from "@chatbotx.io/business"
+import { isPlatformSuperAdmin } from "@chatbotx.io/business"
 import type { UserModel } from "@chatbotx.io/database/types"
 import { z } from "zod"
 import { isCloud } from "@/env"
@@ -19,7 +19,7 @@ export function resolveCredentialScopedUserId(
   scope: CredentialScope,
 ): string | undefined {
   if (scope === "platform") {
-    if (!isSuperAdmin(user)) {
+    if (!isPlatformSuperAdmin(user)) {
       throw new Error("Unauthorized")
     }
     return

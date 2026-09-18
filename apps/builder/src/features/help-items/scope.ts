@@ -1,4 +1,7 @@
-import { isSuperAdmin, resolveAdminTenantId } from "@chatbotx.io/business"
+import {
+  isPlatformSuperAdmin,
+  resolveAdminTenantId,
+} from "@chatbotx.io/business"
 import { ROOT_TENANT_ID } from "@chatbotx.io/database/schema"
 import type { UserModel } from "@chatbotx.io/database/types"
 import { z } from "zod"
@@ -22,7 +25,7 @@ export const resolveHelpItemTenantId = async (
   scope: HelpItemScope,
 ): Promise<string> => {
   if (scope === "platform") {
-    if (!isSuperAdmin(user)) {
+    if (!isPlatformSuperAdmin(user)) {
       throw new Error("Unauthorized")
     }
     return ROOT_TENANT_ID

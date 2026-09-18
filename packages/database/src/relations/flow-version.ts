@@ -16,5 +16,9 @@ export const flowVersionRelations = defineRelationsPart(schema, (r) => ({
       from: r.flowVersionModel.workspaceId,
       to: r.workspaceModel.id,
     }),
+    publishedBy: r.one.userModel({
+      from: r.flowVersionModel.publishedById,
+      to: r.userModel.id,
+    }),
   },
 }))

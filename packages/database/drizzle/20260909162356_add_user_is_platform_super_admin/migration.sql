@@ -1,0 +1,1 @@
+ALTER TABLE "User" ADD COLUMN "isPlatformSuperAdmin" boolean DEFAULT false NOT NULL;

@@ -1,6 +1,6 @@
 import {
   isPlatformAdmin,
-  isSuperAdmin,
+  isPlatformSuperAdmin,
   isWorkspaceScheduledForDeletion,
   quotaEnforcementService,
   userQuotaService,
@@ -85,7 +85,7 @@ export const platformAdminActionClient = authActionClient.use(
 )
 
 export const superAdminActionClient = authActionClient.use(({ ctx, next }) => {
-  if (!isSuperAdmin(ctx.user)) {
+  if (!isPlatformSuperAdmin(ctx.user)) {
     throw new Error("Unauthorized")
   }
   return next({ ctx })
@@ -116,7 +116,11 @@ export const workspaceActionClientAllowExpired = authActionClient.use(
     // loaded here. The `permissions` jsonb defaults to `{}`, so callers must
     // fail closed on missing keys (see `hasWorkspacePermission`).
     return withAuditContext(
-      { ...(getAuditActor() ?? {}), workspaceId: workspace.id },
+      {
+        ...(getAuditActor() ?? {}),
+        workspaceId: workspace.id,
+        role: member.role,
+      },
       () =>
         next({
           ctx: {

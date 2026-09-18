@@ -2369,7 +2369,10 @@
     "sendText": {
       "tiktokTitleTruncated": "ボタンを追加すると、TikTokはこのメッセージの最初の40文字までしか送信しません。残りは切り捨てられます。"
     },
-    "dataWasSaved": "データが保存されました"
+    "dataWasSaved": "データが保存されました",
+    "versions": {
+      "systemVersion": "System version"
+    }
   },
   "folders": {
     "heading": {
@@ -3331,7 +3334,10 @@
     "signUpTitle": "{name}に新規登録",
     "changePasswordTitle": "パスワードを変更",
     "changePasswordDescription": "続行する前に新しいパスワードを設定してください。",
-    "passwordChangeSuccess": "パスワードを変更しました"
+    "passwordChangeSuccess": "パスワードを変更しました",
+    "showPassword": "パスワードを表示",
+    "hidePassword": "パスワードを非表示",
+    "signInSuccess": "ログインしました"
   },
   "emailTopics": {
     "title": "メールトピック"
@@ -3889,6 +3895,33 @@
       "keyword": "キーワード",
       "keywordPlaceholder": "アクションまたは詳細",
       "allAdmins": "すべての管理者"
+    },
+    "details": {
+      "flowCreated": "created a new flow \"{name}\"",
+      "flowUpdated": "updated a flow \"{name}\"",
+      "flowActivated": "activated a flow \"{name}\"",
+      "flowDeactivated": "deactivated a flow \"{name}\"",
+      "flowPublished": "published a flow \"{name}\"",
+      "flowDuplicated": "duplicated a flow \"{name}\"",
+      "flowRestored": "restored a previous version of flow \"{name}\"",
+      "flowReverted": "reverted flow \"{name}\" draft to its published version",
+      "flowDeleted": "deleted flow \"{name}\"",
+      "flowDeletedMany": "deleted flows ({names})",
+      "flowImported": "imported a flow \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "View changes",
+      "title": "Changes",
+      "added": "Added",
+      "removed": "Removed",
+      "changed": "Modified",
+      "before": "Before",
+      "after": "After",
+      "noChanges": "No detailed changes recorded for this action"
+    },
+    "roles": {
+      "owner": "Owner",
+      "agent": "Agent"
     }
   },
   "customFields": {
@@ -4516,6 +4549,76 @@
     },
     "queues": {
       "title": "キュー"
+    },
+    "users": {
+      "title": "ユーザー",
+      "searchPlaceholder": "名前またはメールで検索...",
+      "platformSuperAdmin": "プラットフォームスーパー管理者",
+      "workspaces": "ワークスペース",
+      "registeredAt": "登録日",
+      "create": {
+        "button": "ユーザーを作成",
+        "title": "ユーザーを作成",
+        "description": "アカウントが作成され、ログインリンクを記載したメールが送信されます。",
+        "success": "ユーザーを作成しました。ログイン用リンクのメールを送信しました。"
+      },
+      "addToWorkspace": {
+        "button": "Add to workspace",
+        "title": "Add {name} to a workspace",
+        "description": "The user will get immediate access with the selected role. No invitation email is sent.",
+        "workspaceLabel": "Workspace",
+        "roleLabel": "Role",
+        "success": "User added to the workspace.",
+        "loadError": "Could not load workspaces."
+      },
+      "deactivate": {
+        "button": "Deactivate",
+        "title": "Deactivate {name}?",
+        "description": "The user will be signed out everywhere and will no longer be able to sign in. Their data is not deleted — you can reactivate the account at any time.",
+        "removeFromWorkspaces": "Also remove from all workspaces",
+        "removeFromWorkspacesHint": "Deletes the user's memberships. Reactivation will not restore them automatically.",
+        "confirm": "Deactivate",
+        "success": "User deactivated."
+      },
+      "reactivate": {
+        "button": "Reactivate",
+        "success": "User reactivated."
+      },
+      "deactivated": "Deactivated",
+      "editWorkspaces": {
+        "button": "Edit workspaces",
+        "title": "Workspaces of {name}",
+        "description": "Change the role or remove the user from a workspace. Changes apply immediately.",
+        "remove": "Remove from workspace",
+        "success": "Role updated.",
+        "removeSuccess": "User removed from the workspace.",
+        "empty": "This user is not a member of any workspace.",
+        "permissions": "Workspace permissions"
+      },
+      "setSuperAdmin": {
+        "grant": "Grant platform super admin",
+        "revoke": "Revoke platform super admin",
+        "granted": "Platform super admin granted.",
+        "revoked": "Platform super admin revoked."
+      }
+    },
+    "workspaces": {
+      "title": "Workspaces",
+      "searchPlaceholder": "Search by workspace name...",
+      "owner": "Owner",
+      "members": "Members",
+      "tenant": "Tenant",
+      "platformTenant": "Platform",
+      "createdAt": "Created at",
+      "namePlaceholder": "Workspace name",
+      "ownerHint": "Leave empty to become the owner yourself.",
+      "loadUsersError": "Could not load users.",
+      "createSuccess": "Workspace created.",
+      "create": {
+        "button": "Create workspace",
+        "title": "Create workspace",
+        "description": "Creates a platform workspace. You can assign users to it afterwards from the Users page."
+      }
     }
   },
   "platformCredentials": {

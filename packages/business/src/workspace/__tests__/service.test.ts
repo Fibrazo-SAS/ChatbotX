@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   dbTransaction: vi.fn(),
   purgeWorkspaceHeavyData: vi.fn(),
   isPlatformAdmin: vi.fn(),
+  isPlatformSuperAdmin: vi.fn(),
   dispatchAuditRecord: vi.fn(),
 }))
 
@@ -98,6 +99,7 @@ vi.mock("../../keys", () => ({ isCommunity: vi.fn(() => false) }))
 
 vi.mock("../../user", () => ({
   isPlatformAdmin: mocks.isPlatformAdmin,
+  isPlatformSuperAdmin: mocks.isPlatformSuperAdmin,
 }))
 
 vi.mock("../../enterprise/tenant/service", () => ({
@@ -165,6 +167,8 @@ beforeEach(() => {
   mocks.purgeWorkspaceHeavyData.mockResolvedValue(0)
   mocks.isPlatformAdmin.mockReset()
   mocks.isPlatformAdmin.mockResolvedValue(true)
+  mocks.isPlatformSuperAdmin.mockReset()
+  mocks.isPlatformSuperAdmin.mockReturnValue(false)
   mocks.dispatchAuditRecord.mockReset()
 
   mocks.workspaceInsert.mockReturnValue({
@@ -198,6 +202,21 @@ describe("WorkspaceService.create", () => {
 
   test("creates the workspace and its owner membership when the quota allows it", async () => {
     mocks.tryConsume.mockResolvedValue({ ok: true })
+
+    const result = await workspaceService.create({
+      data: { name: "Acme", tenantId: "1" } as never,
+      createdBy: "owner-1",
+    })
+
+    expect(result).toEqual({ id: "new-workspace" })
+    expect(mocks.workspaceInsert).toHaveBeenCalledTimes(1)
+    expect(mocks.createMember).toHaveBeenCalledTimes(1)
+  })
+
+  test("allows creation when the creator is a flag-based platform super admin", async () => {
+    mocks.tryConsume.mockResolvedValue({ ok: true })
+    mocks.isPlatformAdmin.mockResolvedValue(false)
+    mocks.isPlatformSuperAdmin.mockReturnValue(true)
 
     const result = await workspaceService.create({
       data: { name: "Acme", tenantId: "1" } as never,

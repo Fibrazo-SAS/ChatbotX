@@ -372,6 +372,33 @@
       "keyword": "Nyckelord",
       "keywordPlaceholder": "Åtgärd eller detalj",
       "allAdmins": "Alla administratörer"
+    },
+    "details": {
+      "flowCreated": "created a new flow \"{name}\"",
+      "flowUpdated": "updated a flow \"{name}\"",
+      "flowActivated": "activated a flow \"{name}\"",
+      "flowDeactivated": "deactivated a flow \"{name}\"",
+      "flowPublished": "published a flow \"{name}\"",
+      "flowDuplicated": "duplicated a flow \"{name}\"",
+      "flowRestored": "restored a previous version of flow \"{name}\"",
+      "flowReverted": "reverted flow \"{name}\" draft to its published version",
+      "flowDeleted": "deleted flow \"{name}\"",
+      "flowDeletedMany": "deleted flows ({names})",
+      "flowImported": "imported a flow \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "View changes",
+      "title": "Changes",
+      "added": "Added",
+      "removed": "Removed",
+      "changed": "Modified",
+      "before": "Before",
+      "after": "After",
+      "noChanges": "No detailed changes recorded for this action"
+    },
+    "roles": {
+      "owner": "Owner",
+      "agent": "Agent"
     }
   },
   "auth": {
@@ -407,7 +434,10 @@
     "signUpSuccess": "Registreringen lyckades. Kontrollera din e-post för verifiering.",
     "signUpTitle": "Registrera dig på {name}",
     "termsOfService": "Användarvillkor",
-    "trySigningInAgain": "Du kan också försöka logga in igen med en annan e-postadress."
+    "trySigningInAgain": "Du kan också försöka logga in igen med en annan e-postadress.",
+    "showPassword": "Visa lösenord",
+    "hidePassword": "Dölj lösenord",
+    "signInSuccess": "Inloggning lyckades"
   },
   "autoAssignConversation": {
     "rule": {
@@ -3111,7 +3141,10 @@
     "sendText": {
       "tiktokTitleTruncated": "När knappar är kopplade skickar TikTok bara de första 40 tecknen i det här meddelandet — resten klipps bort."
     },
-    "dataWasSaved": "Uppgifterna sparades"
+    "dataWasSaved": "Uppgifterna sparades",
+    "versions": {
+      "systemVersion": "System version"
+    }
   },
   "folders": {
     "heading": {
@@ -3931,6 +3964,76 @@
     },
     "queues": {
       "title": "Köer"
+    },
+    "users": {
+      "title": "Användare",
+      "searchPlaceholder": "Sök efter namn eller e-post...",
+      "platformSuperAdmin": "Plattforms-superadmin",
+      "workspaces": "Arbetsytor",
+      "registeredAt": "Registrerad den",
+      "create": {
+        "button": "Skapa användare",
+        "title": "Skapa användare",
+        "description": "Kontot skapas och får ett e-postmeddelande med inloggningslänken.",
+        "success": "Användare skapad. E-postmeddelandet med inloggningslänken har skickats."
+      },
+      "addToWorkspace": {
+        "button": "Add to workspace",
+        "title": "Add {name} to a workspace",
+        "description": "The user will get immediate access with the selected role. No invitation email is sent.",
+        "workspaceLabel": "Workspace",
+        "roleLabel": "Role",
+        "success": "User added to the workspace.",
+        "loadError": "Could not load workspaces."
+      },
+      "deactivate": {
+        "button": "Deactivate",
+        "title": "Deactivate {name}?",
+        "description": "The user will be signed out everywhere and will no longer be able to sign in. Their data is not deleted — you can reactivate the account at any time.",
+        "removeFromWorkspaces": "Also remove from all workspaces",
+        "removeFromWorkspacesHint": "Deletes the user's memberships. Reactivation will not restore them automatically.",
+        "confirm": "Deactivate",
+        "success": "User deactivated."
+      },
+      "reactivate": {
+        "button": "Reactivate",
+        "success": "User reactivated."
+      },
+      "deactivated": "Deactivated",
+      "editWorkspaces": {
+        "button": "Edit workspaces",
+        "title": "Workspaces of {name}",
+        "description": "Change the role or remove the user from a workspace. Changes apply immediately.",
+        "remove": "Remove from workspace",
+        "success": "Role updated.",
+        "removeSuccess": "User removed from the workspace.",
+        "empty": "This user is not a member of any workspace.",
+        "permissions": "Workspace permissions"
+      },
+      "setSuperAdmin": {
+        "grant": "Grant platform super admin",
+        "revoke": "Revoke platform super admin",
+        "granted": "Platform super admin granted.",
+        "revoked": "Platform super admin revoked."
+      }
+    },
+    "workspaces": {
+      "title": "Workspaces",
+      "searchPlaceholder": "Search by workspace name...",
+      "owner": "Owner",
+      "members": "Members",
+      "tenant": "Tenant",
+      "platformTenant": "Platform",
+      "createdAt": "Created at",
+      "namePlaceholder": "Workspace name",
+      "ownerHint": "Leave empty to become the owner yourself.",
+      "loadUsersError": "Could not load users.",
+      "createSuccess": "Workspace created.",
+      "create": {
+        "button": "Create workspace",
+        "title": "Create workspace",
+        "description": "Creates a platform workspace. You can assign users to it afterwards from the Users page."
+      }
     }
   },
   "platformBranding": {
