@@ -36,6 +36,7 @@ export async function listAuditLogs(
     workspaceId: input.workspaceId,
     createdAt: { gte: dateRange.start, lte: dateRange.end },
     userId: input.userId || undefined,
+    flowId: input.flowId || undefined,
     ...(input.keyword
       ? {
           OR: [

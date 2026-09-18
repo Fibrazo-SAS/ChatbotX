@@ -23,6 +23,7 @@ export const revertToPublishedAction = workspaceActionClient
 
     await auditService.record({
       workspaceId,
+      flowId,
       action: "revert",
       detail: t("auditLogs.details.flowReverted", {
         name: flow?.name ?? flowId,

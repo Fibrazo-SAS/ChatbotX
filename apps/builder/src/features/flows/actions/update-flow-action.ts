@@ -69,6 +69,7 @@ const updateFlow = async (
 
   await auditService.record({
     workspaceId: ctx.workspaceId,
+    flowId: flow.id,
     action,
     detail: t(detailKey, { name: flow.name }),
   })

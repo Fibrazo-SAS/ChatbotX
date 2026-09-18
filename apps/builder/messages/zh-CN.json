@@ -581,6 +581,10 @@
       "before": "Before",
       "after": "After",
       "noChanges": "No detailed changes recorded for this action"
+    },
+    "roles": {
+      "owner": "Owner",
+      "agent": "Agent"
     }
   },
   "auth": {

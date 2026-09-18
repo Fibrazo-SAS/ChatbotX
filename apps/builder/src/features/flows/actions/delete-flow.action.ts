@@ -32,6 +32,7 @@ export const deleteFlowAction = workspaceActionClient
 
         await auditService.record({
           workspaceId,
+          flowId: deleted.length === 1 ? parsedInput.ids[0] : undefined,
           action: "delete",
           detail:
             deleted.length === 1

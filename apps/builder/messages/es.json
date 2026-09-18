@@ -3939,6 +3939,10 @@
       "before": "Antes",
       "after": "Después",
       "noChanges": "No hay cambios detallados registrados para esta acción"
+    },
+    "roles": {
+      "owner": "Dueño",
+      "agent": "Agente"
     }
   },
   "customFields": {

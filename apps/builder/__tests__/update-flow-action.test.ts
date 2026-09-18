@@ -90,6 +90,7 @@ describe("updateFlowAction", () => {
       workspaceId: "workspace-1",
       action: "update",
       detail: "auditLogs.details.flowUpdated",
+      flowId: "flow-1",
     })
   })
 
@@ -111,6 +112,7 @@ describe("updateFlowAction", () => {
       workspaceId: "workspace-1",
       action: "activate",
       detail: "auditLogs.details.flowActivated",
+      flowId: "flow-1",
     })
   })
 
@@ -124,6 +126,7 @@ describe("updateFlowAction", () => {
       workspaceId: "workspace-1",
       action: "deactivate",
       detail: "auditLogs.details.flowDeactivated",
+      flowId: "flow-1",
     })
   })
 })

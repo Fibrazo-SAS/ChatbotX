@@ -7,6 +7,8 @@ import { getAuditActor } from "./context"
 export type AuditRecordInput = {
   action: string
   detail: string
+  role?: string
+  flowId?: string
   changesDetails?: {
     added?: string[]
     removed?: string[]
@@ -49,6 +51,8 @@ class AuditService {
             workspaceId,
             action: input.action,
             detail: input.detail,
+            role: input.role ?? actor?.role,
+            flowId: input.flowId,
             changesDetails: input.changesDetails,
             ipAddress: input.ipAddress ?? actor?.ipAddress,
             userAgent: input.userAgent ?? actor?.userAgent,

@@ -199,6 +199,7 @@ describe("publishFlow", () => {
       workspaceId: "1",
       action: "publish",
       detail: "auditLogs.details.flowPublished",
+      flowId: "10",
       changesDetails: {
         added: ["Current canvas"],
         removed: ["Stale draft"],

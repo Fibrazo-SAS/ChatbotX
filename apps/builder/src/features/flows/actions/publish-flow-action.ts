@@ -117,6 +117,7 @@ export const publishFlow = async (
 
   await auditService.record({
     workspaceId: ctx.workspaceId,
+    flowId: flow.id,
     action: "publish",
     detail: t("auditLogs.details.flowPublished", { name: flow.name }),
     changesDetails,

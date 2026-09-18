@@ -133,6 +133,7 @@ export const runFlowImport = async (row: ImportRow): Promise<void> => {
 
   let createdCustomFieldIds: string[]
   let createdBotFieldIds: string[]
+  let importedFlowId: string
   let warnings: ReturnType<typeof collectFlowReferenceWarnings>
   try {
     const result = await flowService.importFlowExport({
@@ -149,6 +150,7 @@ export const runFlowImport = async (row: ImportRow): Promise<void> => {
     })
     createdCustomFieldIds = result.createdCustomFieldIds
     createdBotFieldIds = result.createdBotFieldIds
+    importedFlowId = result.flowId
     // Custom-field (and bot-field) creation is unconditional, so any
     // reference whose source id has a manifest entry is guaranteed resolved
     // — warn on the *source* graph (ids still recognizable against the
@@ -215,6 +217,7 @@ export const runFlowImport = async (row: ImportRow): Promise<void> => {
     await auditService.record({
       action: "import",
       detail,
+      flowId: importedFlowId,
       userId: row.userId,
       workspaceId: row.workspaceId,
       source: "default:runFlowImport",

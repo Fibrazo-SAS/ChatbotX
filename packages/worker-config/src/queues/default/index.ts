@@ -137,6 +137,8 @@ export type JobSendAuditLog = {
     workspaceId: string
     action: string
     detail: string
+    role?: string
+    flowId?: string
     changesDetails?: {
       added?: string[]
       removed?: string[]

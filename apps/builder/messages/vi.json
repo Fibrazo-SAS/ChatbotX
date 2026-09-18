@@ -3856,6 +3856,10 @@
       "before": "Trước",
       "after": "Sau",
       "noChanges": "Không có thay đổi chi tiết cho hành động này"
+    },
+    "roles": {
+      "owner": "Chủ sở hữu",
+      "agent": "Tác nhân"
     }
   },
   "customFields": {

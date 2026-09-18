@@ -77,6 +77,7 @@ describe("flow audit actions", () => {
       workspaceId: "ws-1",
       action: "duplicate",
       detail: "auditLogs.details.flowDuplicated",
+      flowId: "flow-copy-1",
     })
   })
 
@@ -105,6 +106,7 @@ describe("flow audit actions", () => {
       workspaceId: "ws-1",
       action: "restore",
       detail: "auditLogs.details.flowRestored",
+      flowId: "flow-1",
     })
   })
 
@@ -126,6 +128,7 @@ describe("flow audit actions", () => {
       workspaceId: "ws-1",
       action: "revert",
       detail: "auditLogs.details.flowReverted",
+      flowId: "flow-1",
     })
   })
 })

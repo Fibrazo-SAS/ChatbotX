@@ -16,6 +16,10 @@ export const auditLogModel = pgTable(
     ...sharedColumns,
     action: text().notNull(),
     detail: text().notNull(),
+    // Workspace role of the actor at the moment the action ran (owner | agent).
+    role: text(),
+    // Set by flow mutations so the history of a specific flow can be queried.
+    flowId: bigintAsString(),
     // Structured, machine-readable change list (e.g. flow node diffs) that
     // complements the human-readable `detail`. Optional — only actions that
     // produce a diff fill it.
@@ -52,5 +56,13 @@ export const auditLogModel = pgTable(
         table.id.desc(),
       )
       .where(sql`"userId" IS NOT NULL`),
+    index("AuditLog_flowId_createdAt_id_idx")
+      .using(
+        "btree",
+        table.flowId.asc(),
+        table.createdAt.desc(),
+        table.id.desc(),
+      )
+      .where(sql`"flowId" IS NOT NULL`),
   ],
 )

@@ -76,6 +76,7 @@ export const createFlowAction = workspaceActionClient
 
       await auditService.record({
         workspaceId,
+        flowId: flow.id,
         action: "create",
         detail: t("auditLogs.details.flowCreated", { name: flow.name }),
       })

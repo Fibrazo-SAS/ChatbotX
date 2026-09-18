@@ -7,6 +7,8 @@
 export type AuditRecordDispatcherInput = {
   action: string
   detail: string
+  role?: string
+  flowId?: string
   changesDetails?: {
     added?: string[]
     removed?: string[]

@@ -36,10 +36,19 @@ type TranslationFn = ReturnType<typeof useTranslations>
 
 function AuditUserCell({
   user,
+  role,
 }: {
   user: NonNullable<AuditLogResource["user"]>
+  role?: string | null
 }) {
+  const t = useTranslations()
   const avatarUrl = useUserAvatarUrl(user.image)
+  let roleLabel: string | null = null
+  if (role === "owner") {
+    roleLabel = t("auditLogs.roles.owner")
+  } else if (role === "agent") {
+    roleLabel = t("auditLogs.roles.agent")
+  }
 
   return (
     <div className="flex items-center gap-2">
@@ -47,18 +56,23 @@ function AuditUserCell({
         <AvatarImage alt="userImage" src={avatarUrl ?? ""} />
         <AvatarFallback>{user.name?.[0]}</AvatarFallback>
       </Avatar>
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <div className="inline-block max-w-[200px] truncate">
-              {user.name}
-            </div>
-          }
-        />
-        <TooltipContent>
-          <p>{user.name}</p>
-        </TooltipContent>
-      </Tooltip>
+      <div className="flex flex-col">
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <div className="inline-block max-w-[200px] truncate">
+                {user.name}
+              </div>
+            }
+          />
+          <TooltipContent>
+            <p>{user.name}</p>
+          </TooltipContent>
+        </Tooltip>
+        {roleLabel ? (
+          <span className="text-muted-foreground text-xs">{roleLabel}</span>
+        ) : null}
+      </div>
     </div>
   )
 }
@@ -213,7 +227,7 @@ export function getAuditColumns(
       cell: ({ row }) => (
         <div>
           {row.original.user ? (
-            <AuditUserCell user={row.original.user} />
+            <AuditUserCell role={row.original.role} user={row.original.user} />
           ) : null}
         </div>
       ),

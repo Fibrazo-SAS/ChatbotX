@@ -19,6 +19,7 @@ export const duplicateFlowAction = workspaceActionClient
 
       await auditService.record({
         workspaceId,
+        flowId: newFlowId,
         action: "duplicate",
         detail: t("auditLogs.details.flowDuplicated", {
           name: duplicated.name,

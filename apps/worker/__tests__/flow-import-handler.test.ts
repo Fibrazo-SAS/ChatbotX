@@ -216,6 +216,7 @@ describe("runFlowImport", () => {
     expect(mocks.auditRecord).toHaveBeenCalledWith({
       action: "import",
       detail: 'imported a flow "Onboarding"',
+      flowId: "new-flow-id",
       userId: "user-1",
       workspaceId: "workspace-1",
       source: "default:runFlowImport",
@@ -234,6 +235,7 @@ describe("runFlowImport", () => {
     expect(mocks.auditRecord).toHaveBeenCalledWith({
       action: "import",
       detail: 'importó un flujo "Onboarding"',
+      flowId: "new-flow-id",
       userId: "user-1",
       workspaceId: "workspace-1",
       source: "default:runFlowImport",

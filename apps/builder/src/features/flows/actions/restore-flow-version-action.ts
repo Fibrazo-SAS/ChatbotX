@@ -29,6 +29,7 @@ export const restoreFlowVersionAction = workspaceActionClient
 
     await auditService.record({
       workspaceId,
+      flowId,
       action: "restore",
       detail: t("auditLogs.details.flowRestored", {
         name: flow?.name ?? flowId,
