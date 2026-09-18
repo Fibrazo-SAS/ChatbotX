@@ -9,6 +9,7 @@ import { flowVersionService } from "@chatbotx.io/business"
 import { convertStartNodeToMessengerAdsJson } from "@chatbotx.io/integration-messenger/messenger-ads"
 import { zodBigintAsString } from "@chatbotx.io/utils"
 import z from "zod"
+import { listAuditLogs } from "@/enterprise/features/audit-logs/queries"
 import { flowVersionResource } from "@/features/flow-versions/schema/resource"
 import { withWorkspaceIdSchema } from "@/features/workspaces/schema/resource"
 import { workspaceAuthorizedMidddleware } from "@/middlewares/auth"
@@ -152,5 +153,44 @@ export const privateFlowsAPI = {
         workspaceId: input.workspaceId,
         flowId: input.flowId,
       })
+    }),
+
+  privateListAuditLogsAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/audit-logs",
+      summary: "List workspace audit logs",
+      tags: ["Flows"],
+    })
+    .input(
+      withWorkspaceIdSchema.and(
+        z.object({
+          page: z.number().int().min(1).default(1),
+          perPage: z.number().int().min(1).max(100).default(10),
+          from: z.string().optional(),
+          to: z.string().optional(),
+          keyword: z.string().optional(),
+          userId: z.string().optional(),
+          flowId: zodBigintAsString().optional(),
+        }),
+      ),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .handler(async ({ input }) => {
+      const { workspaceId, ...rest } = input
+
+      const { data, pageCount } = await listAuditLogs({
+        workspaceId,
+        from: rest.from ?? "",
+        to: rest.to ?? "",
+        keyword: rest.keyword ?? "",
+        userId: rest.userId ?? "",
+        flowId: rest.flowId ?? "",
+        page: rest.page,
+        perPage: rest.perPage,
+        sort: [{ id: "createdAt", desc: true }],
+      })
+
+      return { data, pageCount }
     }),
 }

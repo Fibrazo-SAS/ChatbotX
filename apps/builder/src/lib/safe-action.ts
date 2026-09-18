@@ -116,7 +116,11 @@ export const workspaceActionClientAllowExpired = authActionClient.use(
     // loaded here. The `permissions` jsonb defaults to `{}`, so callers must
     // fail closed on missing keys (see `hasWorkspacePermission`).
     return withAuditContext(
-      { ...(getAuditActor() ?? {}), workspaceId: workspace.id },
+      {
+        ...(getAuditActor() ?? {}),
+        workspaceId: workspace.id,
+        role: member.role,
+      },
       () =>
         next({
           ctx: {

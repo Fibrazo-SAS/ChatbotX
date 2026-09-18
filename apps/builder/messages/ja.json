@@ -2369,7 +2369,10 @@
     "sendText": {
       "tiktokTitleTruncated": "ボタンを追加すると、TikTokはこのメッセージの最初の40文字までしか送信しません。残りは切り捨てられます。"
     },
-    "dataWasSaved": "データが保存されました"
+    "dataWasSaved": "データが保存されました",
+    "versions": {
+      "systemVersion": "System version"
+    }
   },
   "folders": {
     "heading": {
@@ -3892,6 +3895,33 @@
       "keyword": "キーワード",
       "keywordPlaceholder": "アクションまたは詳細",
       "allAdmins": "すべての管理者"
+    },
+    "details": {
+      "flowCreated": "created a new flow \"{name}\"",
+      "flowUpdated": "updated a flow \"{name}\"",
+      "flowActivated": "activated a flow \"{name}\"",
+      "flowDeactivated": "deactivated a flow \"{name}\"",
+      "flowPublished": "published a flow \"{name}\"",
+      "flowDuplicated": "duplicated a flow \"{name}\"",
+      "flowRestored": "restored a previous version of flow \"{name}\"",
+      "flowReverted": "reverted flow \"{name}\" draft to its published version",
+      "flowDeleted": "deleted flow \"{name}\"",
+      "flowDeletedMany": "deleted flows ({names})",
+      "flowImported": "imported a flow \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "View changes",
+      "title": "Changes",
+      "added": "Added",
+      "removed": "Removed",
+      "changed": "Modified",
+      "before": "Before",
+      "after": "After",
+      "noChanges": "No detailed changes recorded for this action"
+    },
+    "roles": {
+      "owner": "Owner",
+      "agent": "Agent"
     }
   },
   "customFields": {

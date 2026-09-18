@@ -3,12 +3,19 @@ import { beforeEach, describe, expect, test, vi } from "vitest"
 import type { ImportRow } from "../src/default/handlers/imports/base-import"
 
 const mocks = vi.hoisted(() => ({
+  auditRecord: vi.fn().mockResolvedValue(undefined),
   getObjectStream: vi.fn(),
   headObject: vi.fn(),
   importFlowExport: vi.fn(),
   invalidateCustomFields: vi.fn(),
   invalidateBotFields: vi.fn(),
   updateValues: [] as Record<string, unknown>[],
+}))
+
+vi.mock("@chatbotx.io/business/audit", () => ({
+  auditService: {
+    record: (...args: unknown[]) => mocks.auditRecord(...args),
+  },
 }))
 
 vi.mock("@chatbotx.io/business", () => ({
@@ -199,6 +206,48 @@ describe("runFlowImport", () => {
 
     const passedNodes = mocks.importFlowExport.mock.calls[0]?.[0]?.nodes
     expect(passedNodes).toEqual(exportJson.flows[0].nodes)
+  })
+
+  test("emits an import audit row attributed to the requester on success", async () => {
+    mockStream(buildExportJson())
+
+    await runFlowImport({ ...importRow, userId: "user-1" })
+
+    expect(mocks.auditRecord).toHaveBeenCalledWith({
+      action: "import",
+      detail: 'imported a flow "Onboarding"',
+      flowId: "new-flow-id",
+      userId: "user-1",
+      workspaceId: "workspace-1",
+      source: "default:runFlowImport",
+    })
+  })
+
+  test("uses the localized audit-detail template from the import meta", async () => {
+    mockStream(buildExportJson())
+
+    await runFlowImport({
+      ...importRow,
+      userId: "user-1",
+      meta: { auditDetailTemplate: 'importó un flujo "{name}"' },
+    })
+
+    expect(mocks.auditRecord).toHaveBeenCalledWith({
+      action: "import",
+      detail: 'importó un flujo "Onboarding"',
+      flowId: "new-flow-id",
+      userId: "user-1",
+      workspaceId: "workspace-1",
+      source: "default:runFlowImport",
+    })
+  })
+
+  test("does not emit an import audit row when the row has no attributable userId", async () => {
+    mockStream(buildExportJson())
+
+    await runFlowImport({ ...importRow, userId: null })
+
+    expect(mocks.auditRecord).not.toHaveBeenCalled()
   })
 
   test("fails the import without inserting a flow when formatVersion is unknown", async () => {

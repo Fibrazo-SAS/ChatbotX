@@ -2,6 +2,7 @@
 
 import { importService } from "@chatbotx.io/business"
 import { DefaultJobAction, defaultQueue } from "@chatbotx.io/worker-config"
+import { getTranslations } from "next-intl/server"
 import { returnValidationErrors } from "next-safe-action"
 import {
   type WorkspaceIdRequestParams,
@@ -33,11 +34,17 @@ export const importFlowAction = workspaceActionClient
         })
       }
 
+      const t = await getTranslations()
       const result = await importService.startFlowImport({
         workspaceId,
         userId: user.id,
         fileId: parsedInput.fileId,
         folderId: parsedInput.folderId,
+        // Placeholder replaced with the imported flow's name by the worker —
+        // the worker has no request locale of its own.
+        auditDetailTemplate: t("auditLogs.details.flowImported", {
+          name: "{name}",
+        }),
       })
       if (!result.ok) {
         return returnValidationErrors(importFlowRequest, {

@@ -5,6 +5,8 @@ export const SYSTEM_ACTOR = "system"
 export type AuditActor = {
   userId?: string | typeof SYSTEM_ACTOR
   workspaceId?: string
+  /** Workspace role at the moment the action ran (owner | agent). */
+  role?: string
   ipAddress?: string
   userAgent?: string
   source?: string

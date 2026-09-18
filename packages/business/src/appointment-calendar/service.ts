@@ -379,7 +379,11 @@ export class AppointmentCalendarService extends BaseService {
     return await appointmentCalendarRepository.listForFlow(input, tx)
   }
 
-  async create(input: { workspaceId: string; name: string }) {
+  async create(input: {
+    workspaceId: string
+    name: string
+    publishedById?: string | null
+  }) {
     let confirmationFlowId: string
     let reminderFlowId: string
     let calendarId: string
@@ -408,6 +412,7 @@ export class AppointmentCalendarService extends BaseService {
             startNodeId: confirmationNode.id,
             nodes: [confirmationNode],
             edges: [],
+            publishedById: input.publishedById ?? null,
           })
 
           const reminderNode = buildDefaultBookingFlowNode({
@@ -420,6 +425,7 @@ export class AppointmentCalendarService extends BaseService {
             startNodeId: reminderNode.id,
             nodes: [reminderNode],
             edges: [],
+            publishedById: input.publishedById ?? null,
           })
 
           await appointmentCalendarRepository.update(

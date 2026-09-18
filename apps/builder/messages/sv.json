@@ -372,6 +372,33 @@
       "keyword": "Nyckelord",
       "keywordPlaceholder": "Åtgärd eller detalj",
       "allAdmins": "Alla administratörer"
+    },
+    "details": {
+      "flowCreated": "created a new flow \"{name}\"",
+      "flowUpdated": "updated a flow \"{name}\"",
+      "flowActivated": "activated a flow \"{name}\"",
+      "flowDeactivated": "deactivated a flow \"{name}\"",
+      "flowPublished": "published a flow \"{name}\"",
+      "flowDuplicated": "duplicated a flow \"{name}\"",
+      "flowRestored": "restored a previous version of flow \"{name}\"",
+      "flowReverted": "reverted flow \"{name}\" draft to its published version",
+      "flowDeleted": "deleted flow \"{name}\"",
+      "flowDeletedMany": "deleted flows ({names})",
+      "flowImported": "imported a flow \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "View changes",
+      "title": "Changes",
+      "added": "Added",
+      "removed": "Removed",
+      "changed": "Modified",
+      "before": "Before",
+      "after": "After",
+      "noChanges": "No detailed changes recorded for this action"
+    },
+    "roles": {
+      "owner": "Owner",
+      "agent": "Agent"
     }
   },
   "auth": {
@@ -3114,7 +3141,10 @@
     "sendText": {
       "tiktokTitleTruncated": "När knappar är kopplade skickar TikTok bara de första 40 tecknen i det här meddelandet — resten klipps bort."
     },
-    "dataWasSaved": "Uppgifterna sparades"
+    "dataWasSaved": "Uppgifterna sparades",
+    "versions": {
+      "systemVersion": "System version"
+    }
   },
   "folders": {
     "heading": {

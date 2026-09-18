@@ -196,6 +196,7 @@ describe("listAuditLogs", () => {
       to: "2026-08-16",
       keyword: "",
       userId: "",
+      flowId: "",
       sort: [{ id: "createdAt", desc: true }],
     })
 
@@ -212,6 +213,7 @@ describe("listAuditLogs", () => {
       to: "2026-08-16",
       keyword: "member",
       userId: "user-1",
+      flowId: "",
       sort: [{ id: "createdAt", desc: true }],
     })
 
@@ -227,7 +229,6 @@ describe("listAuditLogs", () => {
           OR: [
             { action: { ilike: "%member%" } },
             { detail: { ilike: "%member%" } },
-            { ipAddress: { ilike: "%member%" } },
           ],
         }),
         orderBy: { createdAt: "desc", id: "desc" },

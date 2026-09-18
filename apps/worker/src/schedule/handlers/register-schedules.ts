@@ -271,6 +271,20 @@ export const registerSchedules = async () => {
   )
 
   await scheduleQueue.upsertJobScheduler(
+    ScheduleJobData.purgeAuditLogs,
+    {
+      pattern: "0 3 * * *",
+    },
+    {
+      name: ScheduleJobData.purgeAuditLogs,
+      data: {
+        type: ScheduleJobData.purgeAuditLogs,
+        data: {},
+      },
+    },
+  )
+
+  await scheduleQueue.upsertJobScheduler(
     ScheduleJobData.purgeWorkspaces,
     {
       pattern: `*/${PURGE_WORKSPACES_INTERVAL_MINUTES} * * * *`,

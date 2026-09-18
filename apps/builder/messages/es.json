@@ -2443,7 +2443,10 @@
     "sendText": {
       "tiktokTitleTruncated": "Cuando se adjuntan botones, TikTok solo envía los primeros 40 caracteres de este mensaje; el resto se recortará."
     },
-    "dataWasSaved": "Datos guardados"
+    "dataWasSaved": "Datos guardados",
+    "versions": {
+      "systemVersion": "Versión del sistema"
+    }
   },
   "folders": {
     "heading": {
@@ -3913,6 +3916,33 @@
       "keyword": "Palabra clave",
       "keywordPlaceholder": "Acción o detalle",
       "allAdmins": "Todos los administradores"
+    },
+    "details": {
+      "flowCreated": "creó un nuevo flujo \"{name}\"",
+      "flowUpdated": "actualizó el flujo \"{name}\"",
+      "flowActivated": "activó el flujo \"{name}\"",
+      "flowDeactivated": "desactivó el flujo \"{name}\"",
+      "flowPublished": "publicó el flujo \"{name}\"",
+      "flowDuplicated": "duplicó el flujo \"{name}\"",
+      "flowRestored": "restauró una versión anterior del flujo \"{name}\"",
+      "flowReverted": "revirtió el borrador del flujo \"{name}\" a su versión publicada",
+      "flowDeleted": "eliminó el flujo \"{name}\"",
+      "flowDeletedMany": "eliminó los flujos ({names})",
+      "flowImported": "importó un flujo \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "Ver cambios",
+      "title": "Cambios",
+      "added": "Agregados",
+      "removed": "Eliminados",
+      "changed": "Modificados",
+      "before": "Antes",
+      "after": "Después",
+      "noChanges": "No hay cambios detallados registrados para esta acción"
+    },
+    "roles": {
+      "owner": "Dueño",
+      "agent": "Agente"
     }
   },
   "customFields": {

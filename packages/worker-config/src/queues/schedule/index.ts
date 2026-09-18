@@ -33,6 +33,7 @@ export const ScheduleJobData = {
   purgeBroadcasts: "purgeBroadcasts",
   purgeAutomationThrottle: "purgeAutomationThrottle",
   purgeErrorLogs: "purgeErrorLogs",
+  purgeAuditLogs: "purgeAuditLogs",
   refreshChannelTokens: "refreshChannelTokens",
   unsubscribeExpiredTrials: "unsubscribeExpiredTrials",
   teardownExpiredTrial: "teardownExpiredTrial",
@@ -56,6 +57,13 @@ export const PURGE_WORKSPACES_INTERVAL_MINUTES = 30
  * pattern remains valid.
  */
 export const PURGE_BROADCASTS_INTERVAL_MINUTES = 5
+
+/**
+ * Audit-log rows older than this many days are deleted by the
+ * `purgeAuditLogs` cron (runs daily). Defaults to 90 days — see the #15141
+ * retention decision.
+ */
+export const AUDIT_LOG_RETENTION_DAYS = 90
 
 /**
  * Per-run concurrency for `purgeBroadcasts`: how many broadcasts have their
@@ -187,6 +195,11 @@ export type ScheduleJobPurgeBroadcasts = {
   data: Record<string, never>
 }
 
+export type ScheduleJobPurgeAuditLogs = {
+  type: typeof ScheduleJobData.purgeAuditLogs
+  data: Record<string, never>
+}
+
 export type ScheduleJobPurgeAutomationThrottle = {
   type: typeof ScheduleJobData.purgeAutomationThrottle
   data: Record<string, never>
@@ -238,6 +251,7 @@ export type ScheduleJobData =
   | ScheduleJobPurgeBroadcasts
   | ScheduleJobPurgeAutomationThrottle
   | ScheduleJobPurgeErrorLogs
+  | ScheduleJobPurgeAuditLogs
   | ScheduleJobRefreshChannelTokens
   | ScheduleJobUnsubscribeExpiredTrials
   | ScheduleJobTeardownExpiredTrial

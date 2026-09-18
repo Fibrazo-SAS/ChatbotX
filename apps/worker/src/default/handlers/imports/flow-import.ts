@@ -4,6 +4,7 @@ import {
   flowService,
   importService,
 } from "@chatbotx.io/business"
+import { auditService } from "@chatbotx.io/business/audit"
 import { ChatbotXException } from "@chatbotx.io/business/errors"
 import { flowImportMetaSchema } from "@chatbotx.io/database/partials"
 import { uploader } from "@chatbotx.io/filesystem"
@@ -132,6 +133,7 @@ export const runFlowImport = async (row: ImportRow): Promise<void> => {
 
   let createdCustomFieldIds: string[]
   let createdBotFieldIds: string[]
+  let importedFlowId: string
   let warnings: ReturnType<typeof collectFlowReferenceWarnings>
   try {
     const result = await flowService.importFlowExport({
@@ -148,6 +150,7 @@ export const runFlowImport = async (row: ImportRow): Promise<void> => {
     })
     createdCustomFieldIds = result.createdCustomFieldIds
     createdBotFieldIds = result.createdBotFieldIds
+    importedFlowId = result.flowId
     // Custom-field (and bot-field) creation is unconditional, so any
     // reference whose source id has a manifest entry is guaranteed resolved
     // — warn on the *source* graph (ids still recognizable against the
@@ -202,4 +205,22 @@ export const runFlowImport = async (row: ImportRow): Promise<void> => {
         ? `Imported with ${warnings.length} unresolved reference${warnings.length === 1 ? "" : "s"} — review and repoint them.`
         : undefined,
   })
+
+  // Mirrors the contacts-import audit gate: only emits when the import row
+  // has an attributable requester (worker jobs carry the system actor). The
+  // detail template was localized by the builder action that started the
+  // import; fall back to English if it is absent (older rows/imports).
+  if (row.userId) {
+    const detail = (
+      parsedMeta.data.auditDetailTemplate ?? 'imported a flow "{name}"'
+    ).replace("{name}", exportedFlow.name)
+    await auditService.record({
+      action: "import",
+      detail,
+      flowId: importedFlowId,
+      userId: row.userId,
+      workspaceId: row.workspaceId,
+      source: "default:runFlowImport",
+    })
+  }
 }
