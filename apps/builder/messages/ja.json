@@ -156,7 +156,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "この操作を行うには、ワークスペースのスーパー管理者である必要があります。"
+    "superAdminRequired": "この操作を行うには、ワークスペースのスーパー管理者である必要があります。",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "成功",
@@ -2959,6 +2960,7 @@
   "messages": {
     "moveFeature": "{feature}を移動",
     "poweredBy": "{name}を利用",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "GIPHY APIキーが見つかりません。プラットフォーム設定で追加してください。",
     "connectedSuccess": "{feature}を接続しました",
     "connectFailed": "{feature}の接続に失敗しました",
@@ -3902,6 +3904,8 @@
       "flowActivated": "activated a flow \"{name}\"",
       "flowDeactivated": "deactivated a flow \"{name}\"",
       "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
       "flowDuplicated": "duplicated a flow \"{name}\"",
       "flowRestored": "restored a previous version of flow \"{name}\"",
       "flowReverted": "reverted flow \"{name}\" draft to its published version",

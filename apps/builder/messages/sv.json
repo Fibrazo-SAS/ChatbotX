@@ -160,7 +160,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "Du måste vara superadministratör för arbetsytan för att göra detta."
+    "superAdminRequired": "Du måste vara superadministratör för arbetsytan för att göra detta.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "activeCampaign": {
     "automations": {
@@ -379,6 +380,8 @@
       "flowActivated": "activated a flow \"{name}\"",
       "flowDeactivated": "deactivated a flow \"{name}\"",
       "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
       "flowDuplicated": "duplicated a flow \"{name}\"",
       "flowRestored": "restored a previous version of flow \"{name}\"",
       "flowReverted": "reverted flow \"{name}\" draft to its published version",
@@ -3631,6 +3634,7 @@
     "noGiphyApiKey": "Ingen GIPHY API-nyckel hittades. Lägg till en i Plattformsinställningar.",
     "noItemsFound": "Inga objekt hittades",
     "noResults": "Inga resultat.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noVersionsFound": "Inga publicerade versioner hittades",
     "poweredBy": "Drivs av {name}",
     "publishVersionSuccess": "En ny version har publicerats",

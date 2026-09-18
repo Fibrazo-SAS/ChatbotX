@@ -156,7 +156,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "עליכם להיות מנהל-על של סביבת העבודה כדי לבצע פעולה זו."
+    "superAdminRequired": "עליכם להיות מנהל-על של סביבת העבודה כדי לבצע פעולה זו.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "הצלחה",
@@ -1142,6 +1143,7 @@
   "messages": {
     "moveFeature": "העברת {feature}",
     "poweredBy": "מופעל על ידי {name}",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "לא נמצא מפתח API של GIPHY. הוסיפו מפתח בהגדרות הפלטפורמה.",
     "connectedSuccess": "{feature} חובר בהצלחה",
     "connectFailed": "החיבור של {feature} נכשל",
@@ -2085,6 +2087,8 @@
       "flowActivated": "activated a flow \"{name}\"",
       "flowDeactivated": "deactivated a flow \"{name}\"",
       "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
       "flowDuplicated": "duplicated a flow \"{name}\"",
       "flowRestored": "restored a previous version of flow \"{name}\"",
       "flowReverted": "reverted flow \"{name}\" draft to its published version",

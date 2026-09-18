@@ -156,7 +156,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "Tem de ser um superadministrador do espaço de trabalho para fazer isto."
+    "superAdminRequired": "Tem de ser um superadministrador do espaço de trabalho para fazer isto.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "Sucesso",
@@ -2980,6 +2981,7 @@
   "messages": {
     "moveFeature": "Mover {feature}",
     "poweredBy": "Com tecnologia de {name}",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "Não foi encontrada nenhuma chave da API do GIPHY. Adicione uma nas Definições da plataforma.",
     "connectedSuccess": "{feature} ligado com sucesso",
     "connectFailed": "Não foi possível ligar {feature}",
@@ -3919,6 +3921,8 @@
       "flowActivated": "activated a flow \"{name}\"",
       "flowDeactivated": "deactivated a flow \"{name}\"",
       "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
       "flowDuplicated": "duplicated a flow \"{name}\"",
       "flowRestored": "restored a previous version of flow \"{name}\"",
       "flowReverted": "reverted flow \"{name}\" draft to its published version",

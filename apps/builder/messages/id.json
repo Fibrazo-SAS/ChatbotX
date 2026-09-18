@@ -156,7 +156,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "Anda harus menjadi super admin workspace untuk melakukan ini."
+    "superAdminRequired": "Anda harus menjadi super admin workspace untuk melakukan ini.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "Berhasil",
@@ -2980,6 +2981,7 @@
   "messages": {
     "moveFeature": "Pindahkan {feature}",
     "poweredBy": "Didukung oleh {name}",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "Kunci API GIPHY tidak ditemukan. Tambahkan di Pengaturan Platform.",
     "connectedSuccess": "{feature} berhasil dihubungkan",
     "connectFailed": "Gagal menghubungkan {feature}",
@@ -3923,6 +3925,8 @@
       "flowActivated": "activated a flow \"{name}\"",
       "flowDeactivated": "deactivated a flow \"{name}\"",
       "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
       "flowDuplicated": "duplicated a flow \"{name}\"",
       "flowRestored": "restored a previous version of flow \"{name}\"",
       "flowReverted": "reverted flow \"{name}\" draft to its published version",

@@ -156,7 +156,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "Bunu yapmak için çalışma alanı süper yöneticisi olmanız gerekir."
+    "superAdminRequired": "Bunu yapmak için çalışma alanı süper yöneticisi olmanız gerekir.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "Başarılı",
@@ -2980,6 +2981,7 @@
   "messages": {
     "moveFeature": "{feature} Taşı",
     "poweredBy": "{name} tarafından desteklenmektedir",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "GIPHY API anahtarı bulunamadı. Lütfen Platform Ayarları'na bir tane ekleyin.",
     "connectedSuccess": "{feature} başarıyla bağlandı",
     "connectFailed": "{feature} bağlantısı kurulamadı",
@@ -3923,6 +3925,8 @@
       "flowActivated": "activated a flow \"{name}\"",
       "flowDeactivated": "deactivated a flow \"{name}\"",
       "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
       "flowDuplicated": "duplicated a flow \"{name}\"",
       "flowRestored": "restored a previous version of flow \"{name}\"",
       "flowReverted": "reverted flow \"{name}\" draft to its published version",

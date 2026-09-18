@@ -30,6 +30,7 @@ import Link from "next/link"
 import type { useTranslations } from "next-intl"
 import { useAction } from "next-safe-action/hooks"
 import type { Dispatch, SetStateAction } from "react"
+import { safeActionErrorHandler } from "@/lib/errors/safe-action-error-handler"
 import { updateFlowAction } from "./actions/update-flow-action"
 import { downloadFlowExport } from "./lib/download-flow-export"
 import type { FlowResource } from "./schema/resource"
@@ -40,12 +41,14 @@ type GetColumnsProps = {
     SetStateAction<DataTableRowAction<FlowResource> | null>
   >
   locale: string
+  canToggleFlowStatus: boolean
 }
 
 export function getFlowColumns({
   t,
   setRowAction,
   locale,
+  canToggleFlowStatus,
 }: GetColumnsProps): ColumnDef<FlowResource>[] {
   return [
     {
@@ -127,16 +130,32 @@ export function getFlowColumns({
             onSuccess: () => {
               row.original.active = !row.original.active
             },
+            onError: safeActionErrorHandler,
           },
         )
-        return (
+        const flowStatusSwitch = (
           <Switch
             checked={row.original.active}
-            disabled={isPending}
+            disabled={isPending || !canToggleFlowStatus}
             onCheckedChange={(value) => {
               execute({ active: value })
             }}
           />
+        )
+        // Ticket 15139: agents (without superAdmin) keep seeing the real
+        // flow status, but the toggle is disabled with an explanation.
+        if (canToggleFlowStatus) {
+          return flowStatusSwitch
+        }
+        return (
+          <Tooltip>
+            <TooltipTrigger
+              render={<span className="inline-flex">{flowStatusSwitch}</span>}
+            />
+            <TooltipContent>
+              {t("messages.flowStatusChangeNotAllowed")}
+            </TooltipContent>
+          </Tooltip>
         )
       },
       meta: {

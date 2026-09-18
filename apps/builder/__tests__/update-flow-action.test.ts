@@ -2,19 +2,30 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
-const mocks = vi.hoisted(() => {
-  const updateReturning = vi.fn()
-  const updateWhere = vi.fn(() => ({ returning: updateReturning }))
-  const updateSet = vi.fn(() => ({ where: updateWhere }))
-  const dbUpdate = vi.fn(() => ({ set: updateSet }))
+const {
+  mockFindOrFail,
+  mockAuditRecord,
+  mockDbUpdate,
+  mockDbUpdateSet,
+  mockDbUpdateWhere,
+  mockDbUpdateReturning,
+  mockIsPlatformSuperAdmin,
+} = vi.hoisted(() => {
+  const mockDbUpdateReturning = vi.fn().mockResolvedValue([{ id: "10" }])
+  const mockDbUpdateWhere = vi
+    .fn()
+    .mockReturnValue({ returning: mockDbUpdateReturning })
+  const mockDbUpdateSet = vi.fn().mockReturnValue({ where: mockDbUpdateWhere })
+  const mockDbUpdate = vi.fn().mockReturnValue({ set: mockDbUpdateSet })
 
   return {
-    auditRecord: vi.fn(),
-    dbUpdate,
-    findOrFail: vi.fn(),
-    updateReturning,
-    updateSet,
-    updateWhere,
+    mockFindOrFail: vi.fn(),
+    mockAuditRecord: vi.fn().mockResolvedValue(undefined),
+    mockDbUpdate,
+    mockDbUpdateSet,
+    mockDbUpdateWhere,
+    mockDbUpdateReturning,
+    mockIsPlatformSuperAdmin: vi.fn().mockReturnValue(false),
   }
 })
 
@@ -26,107 +37,213 @@ vi.mock("@/lib/safe-action", () => {
   return { workspaceActionClient: chain }
 })
 
-vi.mock("@chatbotx.io/business/audit", () => ({
-  auditService: { record: mocks.auditRecord },
+vi.mock("@chatbotx.io/business", () => ({
+  isPlatformSuperAdmin: mockIsPlatformSuperAdmin,
 }))
+
+vi.mock("@chatbotx.io/business/audit", () => ({
+  auditService: { record: mockAuditRecord },
+}))
+
+vi.mock("@chatbotx.io/business/errors", () => {
+  class ChatbotXException extends Error {
+    code = "systemError"
+    httpStatusCode = 400
+
+    constructor(message: string, code?: string, httpStatusCode?: number) {
+      super(message)
+      this.name = "ChatbotXException"
+      if (code) {
+        this.code = code
+      }
+      if (httpStatusCode) {
+        this.httpStatusCode = httpStatusCode
+      }
+    }
+  }
+  return { ChatbotXException }
+})
 
 vi.mock("next-intl/server", () => ({
   getTranslations: vi.fn().mockResolvedValue((key: string) => key),
 }))
 
 vi.mock("@chatbotx.io/database/client", () => ({
-  db: { update: mocks.dbUpdate },
+  db: { update: mockDbUpdate },
   eq: (...args: unknown[]) => ({ eq: args }),
-  findOrFail: mocks.findOrFail,
+  findOrFail: mockFindOrFail,
 }))
 
 vi.mock("@chatbotx.io/database/schema", () => ({
-  flowModel: { id: "flow.id" },
+  flowModel: { id: "flowModel.id" },
 }))
 
-const { updateFlowAction } = await import(
+vi.mock("@chatbotx.io/utils", async (importOriginal) => {
+  const original = (await importOriginal()) as Record<string, unknown>
+  return { ...original }
+})
+
+const { updateFlow } = await import(
   "../src/features/flows/actions/update-flow-action"
 )
 
-type ActionHandler = (args: {
-  bindArgsParsedInputs: [string, string]
-  parsedInput: { name?: string; active?: boolean; enableInInbox?: boolean }
-}) => Promise<unknown>
+const flowRow = {
+  id: "10",
+  workspaceId: "1",
+  name: "Onboarding",
+  active: true,
+  enableInInbox: true,
+}
 
-const callAction = updateFlowAction as unknown as ActionHandler
+const baseUser = {
+  email: "member@example.com",
+  isPlatformSuperAdmin: false,
+}
 
-describe("updateFlowAction", () => {
+const ownerAuth = {
+  role: "owner" as const,
+  permissions: {},
+  user: baseUser,
+}
+
+const agentAuth = {
+  role: "agent" as const,
+  permissions: { flows: true },
+  user: baseUser,
+}
+
+const tenantSuperAdminAgentAuth = {
+  role: "agent" as const,
+  permissions: { superAdmin: true, flows: true },
+  user: baseUser,
+}
+
+describe("updateFlow — flow status toggle authorization (ticket 15139)", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.findOrFail.mockResolvedValue({
-      id: "flow-1",
-      workspaceId: "workspace-1",
-      name: "Welcome",
-      active: true,
-      enableInInbox: true,
-    })
-    mocks.updateReturning.mockResolvedValue([{ id: "flow-1" }])
+    mockFindOrFail.mockResolvedValue(flowRow)
+    mockDbUpdateReturning.mockResolvedValue([{ id: "10" }])
+    mockDbUpdateWhere.mockReturnValue({ returning: mockDbUpdateReturning })
+    mockDbUpdateSet.mockReturnValue({ where: mockDbUpdateWhere })
+    mockDbUpdate.mockReturnValue({ set: mockDbUpdateSet })
+    mockIsPlatformSuperAdmin.mockReturnValue(false)
   })
 
-  test("skips DB update and audit when submitted fields are unchanged", async () => {
-    await callAction({
-      bindArgsParsedInputs: ["workspace-1", "flow-1"],
-      parsedInput: { name: "Welcome", active: true },
-    })
+  test("owner can deactivate a flow and the change is audited as deactivate", async () => {
+    await updateFlow(
+      { workspaceId: "1", id: "10" },
+      { active: false },
+      ownerAuth,
+    )
 
-    expect(mocks.dbUpdate).not.toHaveBeenCalled()
-    expect(mocks.auditRecord).not.toHaveBeenCalled()
-  })
-
-  test("updates and audits when a field changed", async () => {
-    await callAction({
-      bindArgsParsedInputs: ["workspace-1", "flow-1"],
-      parsedInput: { name: "Onboarding" },
-    })
-
-    expect(mocks.updateSet).toHaveBeenCalledWith({ name: "Onboarding" })
-    expect(mocks.updateReturning).toHaveBeenCalledWith({ id: "flow.id" })
-    expect(mocks.auditRecord).toHaveBeenCalledWith({
-      workspaceId: "workspace-1",
-      action: "update",
-      detail: "auditLogs.details.flowUpdated",
-      flowId: "flow-1",
-    })
-  })
-
-  test("audits activation with a distinct activate action", async () => {
-    mocks.findOrFail.mockResolvedValue({
-      id: "flow-1",
-      workspaceId: "workspace-1",
-      name: "Welcome",
-      active: false,
-      enableInInbox: true,
-    })
-
-    await callAction({
-      bindArgsParsedInputs: ["workspace-1", "flow-1"],
-      parsedInput: { active: true },
-    })
-
-    expect(mocks.auditRecord).toHaveBeenCalledWith({
-      workspaceId: "workspace-1",
-      action: "activate",
-      detail: "auditLogs.details.flowActivated",
-      flowId: "flow-1",
-    })
-  })
-
-  test("audits deactivation with a distinct deactivate action", async () => {
-    await callAction({
-      bindArgsParsedInputs: ["workspace-1", "flow-1"],
-      parsedInput: { active: false },
-    })
-
-    expect(mocks.auditRecord).toHaveBeenCalledWith({
-      workspaceId: "workspace-1",
+    expect(mockDbUpdateSet).toHaveBeenCalledWith({ active: false })
+    expect(mockAuditRecord).toHaveBeenCalledWith({
+      workspaceId: "1",
+      flowId: "10",
       action: "deactivate",
       detail: "auditLogs.details.flowDeactivated",
-      flowId: "flow-1",
     })
+  })
+
+  test("agent cannot deactivate a flow: 403, blocked audit, no DB update", async () => {
+    await expect(
+      updateFlow({ workspaceId: "1", id: "10" }, { active: false }, agentAuth),
+    ).rejects.toMatchObject({
+      httpStatusCode: 403,
+      code: "flowStatusChangeNotAllowed",
+      message: "errors.flowStatusChangeNotAllowed",
+    })
+
+    expect(mockAuditRecord).toHaveBeenCalledWith({
+      workspaceId: "1",
+      flowId: "10",
+      action: "flowDeactivationBlocked",
+      detail: "auditLogs.details.flowDeactivationBlocked",
+    })
+    expect(mockDbUpdateSet).not.toHaveBeenCalled()
+  })
+
+  test("agent cannot activate an inactive flow either (whole toggle blocked)", async () => {
+    mockFindOrFail.mockResolvedValue({ ...flowRow, active: false })
+
+    await expect(
+      updateFlow({ workspaceId: "1", id: "10" }, { active: true }, agentAuth),
+    ).rejects.toMatchObject({
+      httpStatusCode: 403,
+      code: "flowStatusChangeNotAllowed",
+    })
+
+    expect(mockAuditRecord).toHaveBeenCalledWith({
+      workspaceId: "1",
+      flowId: "10",
+      action: "flowActivationBlocked",
+      detail: "auditLogs.details.flowActivationBlocked",
+    })
+    expect(mockDbUpdateSet).not.toHaveBeenCalled()
+  })
+
+  test("agent with the tenant-level superAdmin permission can deactivate", async () => {
+    await updateFlow(
+      { workspaceId: "1", id: "10" },
+      { active: false },
+      tenantSuperAdminAgentAuth,
+    )
+
+    expect(mockDbUpdateSet).toHaveBeenCalledWith({ active: false })
+    expect(mockAuditRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "deactivate" }),
+    )
+  })
+
+  test("global platform super admin (agent role) can deactivate", async () => {
+    mockIsPlatformSuperAdmin.mockReturnValue(true)
+
+    await updateFlow(
+      { workspaceId: "1", id: "10" },
+      { active: false },
+      agentAuth,
+    )
+
+    expect(mockDbUpdateSet).toHaveBeenCalledWith({ active: false })
+  })
+
+  test("agent can still rename a flow", async () => {
+    await updateFlow(
+      { workspaceId: "1", id: "10" },
+      { name: "New name" },
+      agentAuth,
+    )
+
+    expect(mockDbUpdateSet).toHaveBeenCalledWith({ name: "New name" })
+    expect(mockAuditRecord).toHaveBeenCalledWith({
+      workspaceId: "1",
+      flowId: "10",
+      action: "update",
+      detail: "auditLogs.details.flowUpdated",
+    })
+  })
+
+  test("agent can still toggle inbox visibility (enableInInbox is not gated)", async () => {
+    await updateFlow(
+      { workspaceId: "1", id: "10" },
+      { enableInInbox: false },
+      agentAuth,
+    )
+
+    expect(mockDbUpdateSet).toHaveBeenCalledWith({ enableInInbox: false })
+    expect(mockAuditRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "update" }),
+    )
+  })
+
+  test("no-op status update records nothing and writes nothing", async () => {
+    await updateFlow(
+      { workspaceId: "1", id: "10" },
+      { active: true },
+      ownerAuth,
+    )
+
+    expect(mockDbUpdateSet).not.toHaveBeenCalled()
+    expect(mockAuditRecord).not.toHaveBeenCalled()
   })
 })
