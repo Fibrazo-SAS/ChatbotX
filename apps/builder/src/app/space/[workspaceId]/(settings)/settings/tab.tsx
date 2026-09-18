@@ -3,7 +3,6 @@ import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useMemo } from "react"
 import { AppTab } from "@/components/app-tab"
-import { isCommunity } from "@/env"
 import { useWorkspaceId } from "@/hooks/routing"
 
 const GENERAL_TAB_VALUE = "general"
@@ -40,18 +39,11 @@ export function SettingsTab({
         label: t("inboxTeams.title"),
         value: "inbox-teams",
       },
-      // {
-      //   label: t("billing.title"),
-      //   value: "billing",
-      // },
-      ...(isCommunity()
-        ? []
-        : [
-            {
-              label: t("auditLogs.title"),
-              value: "audit-logs",
-            },
-          ]),
+      // FORK fibrazo: always enterprise — the Audit Logs tab is unconditional.
+      {
+        label: t("auditLogs.title"),
+        value: "audit-logs",
+      },
     ],
     [t],
   )
