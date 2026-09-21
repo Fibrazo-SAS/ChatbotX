@@ -1,11 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu
 
-# Restore — después de un deploy FALLIDO: saca el maintenance y levanta las apps.
-# Es el respaldo a nivel workflow del trap de deploy.sh (cubre el caso donde el
-# runner muere a mitad de deploy y el trap no llega a correr). Idempotente.
+# Restore — después de un deploy FALLIDO: saca el maintenance y levanta las
+# apps (patrón deploy-v3: UNA sesión SSH).
 #
-# Variables de entorno (las pasa el workflow):
+# Es el respaldo a nivel workflow (cubre el caso donde el runner muere a mitad
+# de deploy). Idempotente: si el build falló, quedan las imágenes viejas y
+# `up` las levanta tal cual estaban.
+#
+# Expected environment variables (provided by the workflow):
 #   SSH_USER, BASTION, SERVER, WORKSPACE, COMPOSE_FILES
 
 : "${BASTION:?BASTION is required}"
@@ -13,15 +16,21 @@ set -eu
 : "${SERVER:?SERVER is required}"
 : "${WORKSPACE:?WORKSPACE is required}"
 
-SSH_JUMP=(-J "${SSH_USER}@${BASTION}" -o StrictHostKeyChecking=no)
-
 echo "Restoring apps after failed deploy on ${SERVER}"
 
-# Maintenance OFF (si el build falló, el trap de deploy.sh ya lo hizo; esto re-asegura)
-ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" "rm -f ${WORKSPACE}/.maintenance"
+ssh -J "${SSH_USER}@${BASTION}" -o StrictHostKeyChecking=no "${SSH_USER}@${SERVER}" "
+  set -eu
+  export TERM=xterm;
 
-# Apps up con las imágenes que haya (si el build falló, quedan las viejas)
-ssh "${SSH_JUMP[@]}" "${SSH_USER}@${SERVER}" \
-  "cd ${WORKSPACE} && docker compose ${COMPOSE_FILES} up -d --no-deps builder worker realtime javascript-executor caddy || true"
+  printf \"Changing to web directory '%s'\n\" ${WORKSPACE};
+  cd ${WORKSPACE} || exit 1;
+
+  echo 'Removing maintenance mode';
+  rm -f ${WORKSPACE}/.maintenance;
+
+  # Apps up con las imágenes que haya (si el build falló, quedan las viejas).
+  echo 'Starting app containers';
+  docker compose ${COMPOSE_FILES} up -d --no-deps builder worker realtime javascript-executor caddy || true;
+"
 
 echo "Restore completed on ${SERVER}"
