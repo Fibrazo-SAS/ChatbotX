@@ -156,7 +156,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "Você precisa ser um superadministrador do espaço de trabalho para fazer isso."
+    "superAdminRequired": "Você precisa ser um superadministrador do espaço de trabalho para fazer isso.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "Sucesso",
@@ -2369,7 +2370,10 @@
     "sendText": {
       "tiktokTitleTruncated": "Quando há botões anexados, o TikTok envia apenas os primeiros 40 caracteres desta mensagem — o restante será cortado."
     },
-    "dataWasSaved": "Dados salvos"
+    "dataWasSaved": "Dados salvos",
+    "versions": {
+      "systemVersion": "System version"
+    }
   },
   "folders": {
     "heading": {
@@ -3331,7 +3335,10 @@
     "signUpTitle": "Cadastre-se em {name}",
     "changePasswordTitle": "Altere sua senha",
     "changePasswordDescription": "Defina uma nova senha antes de continuar.",
-    "passwordChangeSuccess": "Senha alterada"
+    "passwordChangeSuccess": "Senha alterada",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "signInSuccess": "Login realizado com sucesso"
   },
   "emailTopics": {
     "title": "Tópicos de e-mail"
@@ -3803,6 +3810,35 @@
       "keyword": "Palavra-chave",
       "keywordPlaceholder": "Ação ou detalhe",
       "allAdmins": "Todos os admins"
+    },
+    "details": {
+      "flowCreated": "created a new flow \"{name}\"",
+      "flowUpdated": "updated a flow \"{name}\"",
+      "flowActivated": "activated a flow \"{name}\"",
+      "flowDeactivated": "deactivated a flow \"{name}\"",
+      "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDuplicated": "duplicated a flow \"{name}\"",
+      "flowRestored": "restored a previous version of flow \"{name}\"",
+      "flowReverted": "reverted flow \"{name}\" draft to its published version",
+      "flowDeleted": "deleted flow \"{name}\"",
+      "flowDeletedMany": "deleted flows ({names})",
+      "flowImported": "imported a flow \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "View changes",
+      "title": "Changes",
+      "added": "Added",
+      "removed": "Removed",
+      "changed": "Modified",
+      "before": "Before",
+      "after": "After",
+      "noChanges": "No detailed changes recorded for this action"
+    },
+    "roles": {
+      "owner": "Owner",
+      "agent": "Agent"
     }
   },
   "customFields": {
@@ -4516,6 +4552,76 @@
     },
     "queues": {
       "title": "Filas"
+    },
+    "users": {
+      "title": "Usuários",
+      "searchPlaceholder": "Pesquisar por nome ou e-mail...",
+      "platformSuperAdmin": "Super administrador da plataforma",
+      "workspaces": "Espaços de trabalho",
+      "registeredAt": "Registrado em",
+      "create": {
+        "button": "Criar usuário",
+        "title": "Criar usuário",
+        "description": "A conta será criada e receberá um e-mail com o link de acesso.",
+        "success": "Usuário criado. O e-mail com o link de acesso foi enviado."
+      },
+      "addToWorkspace": {
+        "button": "Adicionar ao espaço de trabalho",
+        "title": "Adicionar {name} a um espaço de trabalho",
+        "description": "O usuário terá acesso imediato com a função selecionada. Nenhum e-mail de convite será enviado.",
+        "workspaceLabel": "Espaço de trabalho",
+        "roleLabel": "Função",
+        "success": "Usuário adicionado ao espaço de trabalho.",
+        "loadError": "Não foi possível carregar os espaços de trabalho."
+      },
+      "deactivate": {
+        "button": "Desativar",
+        "title": "Desativar {name}?",
+        "description": "O usuário será desconectado em todos os lugares e não poderá mais entrar. Os dados não são excluídos — você pode reativar a conta a qualquer momento.",
+        "removeFromWorkspaces": "Também remover de todos os espaços de trabalho",
+        "removeFromWorkspacesHint": "Exclui as participações do usuário. A reativação não as restaura automaticamente.",
+        "confirm": "Desativar",
+        "success": "Usuário desativado."
+      },
+      "reactivate": {
+        "button": "Reativar",
+        "success": "Usuário reativado."
+      },
+      "deactivated": "Desativado",
+      "editWorkspaces": {
+        "button": "Editar espaços de trabalho",
+        "title": "Espaços de trabalho de {name}",
+        "description": "Altere a função ou remova o usuário de um espaço de trabalho. As alterações são aplicadas imediatamente.",
+        "remove": "Remover do espaço de trabalho",
+        "success": "Função atualizada.",
+        "removeSuccess": "Usuário removido do espaço de trabalho.",
+        "empty": "Este usuário não pertence a nenhum espaço de trabalho.",
+        "permissions": "Permissões do espaço de trabalho"
+      },
+      "setSuperAdmin": {
+        "grant": "Conceder super admin da plataforma",
+        "revoke": "Revogar super admin da plataforma",
+        "granted": "Super admin da plataforma concedido.",
+        "revoked": "Super admin da plataforma revogado."
+      }
+    },
+    "workspaces": {
+      "title": "Espaços de trabalho",
+      "searchPlaceholder": "Pesquisar por nome do espaço...",
+      "owner": "Proprietário",
+      "members": "Membros",
+      "tenant": "Tenant",
+      "platformTenant": "Plataforma",
+      "createdAt": "Criado em",
+      "namePlaceholder": "Nome do espaço de trabalho",
+      "ownerHint": "Deixe vazio para você mesmo ser o proprietário.",
+      "loadUsersError": "Não foi possível carregar os usuários.",
+      "createSuccess": "Espaço de trabalho criado.",
+      "create": {
+        "button": "Criar espaço de trabalho",
+        "title": "Criar espaço de trabalho",
+        "description": "Cria um workspace da plataforma. Depois você pode atribuir usuários a ele pela página de Usuários."
+      }
     }
   },
   "platformCredentials": {

@@ -156,7 +156,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "Sinun täytyy olla työtilan pääylläpitäjä tehdäksesi tämän."
+    "superAdminRequired": "Sinun täytyy olla työtilan pääylläpitäjä tehdäksesi tämän.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "Onnistui",
@@ -2369,7 +2370,10 @@
     "sendText": {
       "tiktokTitleTruncated": "Kun painikkeita on liitetty, TikTok lähettää vain tämän viestin ensimmäiset 40 merkkiä — loput katkaistaan."
     },
-    "dataWasSaved": "Tiedot tallennettiin"
+    "dataWasSaved": "Tiedot tallennettiin",
+    "versions": {
+      "systemVersion": "System version"
+    }
   },
   "folders": {
     "heading": {
@@ -3352,7 +3356,10 @@
     "signUpTitle": "Rekisteröidy palveluun {name}",
     "changePasswordTitle": "Vaihda salasanasi",
     "changePasswordDescription": "Aseta uusi salasana ennen jatkamista.",
-    "passwordChangeSuccess": "Salasana vaihdettu"
+    "passwordChangeSuccess": "Salasana vaihdettu",
+    "showPassword": "Näytä salasana",
+    "hidePassword": "Piilota salasana",
+    "signInSuccess": "Kirjautuminen onnistui"
   },
   "emailTopics": {
     "title": "Sähköpostiaiheet"
@@ -3910,6 +3917,35 @@
       "keyword": "Avainsana",
       "keywordPlaceholder": "Toiminto tai tiedot",
       "allAdmins": "Kaikki ylläpitäjät"
+    },
+    "details": {
+      "flowCreated": "created a new flow \"{name}\"",
+      "flowUpdated": "updated a flow \"{name}\"",
+      "flowActivated": "activated a flow \"{name}\"",
+      "flowDeactivated": "deactivated a flow \"{name}\"",
+      "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDuplicated": "duplicated a flow \"{name}\"",
+      "flowRestored": "restored a previous version of flow \"{name}\"",
+      "flowReverted": "reverted flow \"{name}\" draft to its published version",
+      "flowDeleted": "deleted flow \"{name}\"",
+      "flowDeletedMany": "deleted flows ({names})",
+      "flowImported": "imported a flow \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "View changes",
+      "title": "Changes",
+      "added": "Added",
+      "removed": "Removed",
+      "changed": "Modified",
+      "before": "Before",
+      "after": "After",
+      "noChanges": "No detailed changes recorded for this action"
+    },
+    "roles": {
+      "owner": "Owner",
+      "agent": "Agent"
     }
   },
   "customFields": {
@@ -4516,6 +4552,76 @@
     },
     "queues": {
       "title": "Jonot"
+    },
+    "users": {
+      "title": "Käyttäjät",
+      "searchPlaceholder": "Hae nimellä tai sähköpostilla...",
+      "platformSuperAdmin": "Alustan pääylläpitäjä",
+      "workspaces": "Työtilat",
+      "registeredAt": "Rekisteröity",
+      "create": {
+        "button": "Luo käyttäjä",
+        "title": "Luo käyttäjä",
+        "description": "Tili luodaan ja se vastaanottaa sähköpostin kirjautumislinkillä.",
+        "success": "Käyttäjä luotu. Sähköposti kirjautumislinkillä on lähetetty."
+      },
+      "addToWorkspace": {
+        "button": "Add to workspace",
+        "title": "Add {name} to a workspace",
+        "description": "The user will get immediate access with the selected role. No invitation email is sent.",
+        "workspaceLabel": "Workspace",
+        "roleLabel": "Role",
+        "success": "User added to the workspace.",
+        "loadError": "Could not load workspaces."
+      },
+      "deactivate": {
+        "button": "Deactivate",
+        "title": "Deactivate {name}?",
+        "description": "The user will be signed out everywhere and will no longer be able to sign in. Their data is not deleted — you can reactivate the account at any time.",
+        "removeFromWorkspaces": "Also remove from all workspaces",
+        "removeFromWorkspacesHint": "Deletes the user's memberships. Reactivation will not restore them automatically.",
+        "confirm": "Deactivate",
+        "success": "User deactivated."
+      },
+      "reactivate": {
+        "button": "Reactivate",
+        "success": "User reactivated."
+      },
+      "deactivated": "Deactivated",
+      "editWorkspaces": {
+        "button": "Edit workspaces",
+        "title": "Workspaces of {name}",
+        "description": "Change the role or remove the user from a workspace. Changes apply immediately.",
+        "remove": "Remove from workspace",
+        "success": "Role updated.",
+        "removeSuccess": "User removed from the workspace.",
+        "empty": "This user is not a member of any workspace.",
+        "permissions": "Workspace permissions"
+      },
+      "setSuperAdmin": {
+        "grant": "Grant platform super admin",
+        "revoke": "Revoke platform super admin",
+        "granted": "Platform super admin granted.",
+        "revoked": "Platform super admin revoked."
+      }
+    },
+    "workspaces": {
+      "title": "Workspaces",
+      "searchPlaceholder": "Search by workspace name...",
+      "owner": "Owner",
+      "members": "Members",
+      "tenant": "Tenant",
+      "platformTenant": "Platform",
+      "createdAt": "Created at",
+      "namePlaceholder": "Workspace name",
+      "ownerHint": "Leave empty to become the owner yourself.",
+      "loadUsersError": "Could not load users.",
+      "createSuccess": "Workspace created.",
+      "create": {
+        "button": "Create workspace",
+        "title": "Create workspace",
+        "description": "Creates a platform workspace. You can assign users to it afterwards from the Users page."
+      }
     }
   },
   "platformCredentials": {

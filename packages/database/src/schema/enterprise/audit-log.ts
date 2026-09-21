@@ -1,8 +1,14 @@
 import { sql } from "drizzle-orm"
-import { index, pgTable, text } from "drizzle-orm/pg-core"
+import { index, jsonb, pgTable, text } from "drizzle-orm/pg-core"
 import { bigintAsString, sharedColumns } from "../../partials/shared"
 import { userModel } from "../auth-user"
 import { workspaceModel } from "../workspace"
+
+export type AuditChangesDetails = {
+  added?: string[]
+  removed?: string[]
+  changed?: { name: string; before?: string; after?: string }[]
+}
 
 export const auditLogModel = pgTable(
   "AuditLog",
@@ -10,6 +16,14 @@ export const auditLogModel = pgTable(
     ...sharedColumns,
     action: text().notNull(),
     detail: text().notNull(),
+    // Workspace role of the actor at the moment the action ran (owner | agent).
+    role: text(),
+    // Set by flow mutations so the history of a specific flow can be queried.
+    flowId: bigintAsString(),
+    // Structured, machine-readable change list (e.g. flow node diffs) that
+    // complements the human-readable `detail`. Optional — only actions that
+    // produce a diff fill it.
+    changesDetails: jsonb().$type<AuditChangesDetails>(),
     ipAddress: text(),
     userAgent: text(),
     source: text(),
@@ -42,5 +56,13 @@ export const auditLogModel = pgTable(
         table.id.desc(),
       )
       .where(sql`"userId" IS NOT NULL`),
+    index("AuditLog_flowId_createdAt_id_idx")
+      .using(
+        "btree",
+        table.flowId.asc(),
+        table.createdAt.desc(),
+        table.id.desc(),
+      )
+      .where(sql`"flowId" IS NOT NULL`),
   ],
 )

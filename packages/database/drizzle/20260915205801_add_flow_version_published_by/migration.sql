@@ -1,0 +1,2 @@
+ALTER TABLE "FlowVersion" ADD COLUMN "publishedById" bigint;--> statement-breakpoint
+ALTER TABLE "FlowVersion" ADD CONSTRAINT "FlowVersion_publishedById_User_id_fkey" FOREIGN KEY ("publishedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

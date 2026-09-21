@@ -1748,7 +1748,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "您需要是工作區的超級管理員才能執行此操作。"
+    "superAdminRequired": "您需要是工作區的超級管理員才能執行此操作。",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "成功",
@@ -2603,7 +2604,10 @@
     "sendText": {
       "tiktokTitleTruncated": "附加按鈕後，TikTok 只會傳送這則訊息的前 40 個字元——其餘部分將被截斷。"
     },
-    "dataWasSaved": "資料已儲存"
+    "dataWasSaved": "資料已儲存",
+    "versions": {
+      "systemVersion": "System version"
+    }
   },
   "folders": {
     "heading": {
@@ -3385,7 +3389,10 @@
     "signUpTitle": "註冊 {name}",
     "changePasswordTitle": "更改密碼",
     "changePasswordDescription": "在繼續之前設定新密碼。",
-    "passwordChangeSuccess": "密碼已更改"
+    "passwordChangeSuccess": "密碼已更改",
+    "showPassword": "顯示密碼",
+    "hidePassword": "隱藏密碼",
+    "signInSuccess": "登入成功"
   },
   "emailTopics": {
     "title": "電子郵件主題"
@@ -3943,6 +3950,35 @@
       "keyword": "關鍵字",
       "keywordPlaceholder": "操作或詳情",
       "allAdmins": "所有管理員"
+    },
+    "details": {
+      "flowCreated": "created a new flow \"{name}\"",
+      "flowUpdated": "updated a flow \"{name}\"",
+      "flowActivated": "activated a flow \"{name}\"",
+      "flowDeactivated": "deactivated a flow \"{name}\"",
+      "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDuplicated": "duplicated a flow \"{name}\"",
+      "flowRestored": "restored a previous version of flow \"{name}\"",
+      "flowReverted": "reverted flow \"{name}\" draft to its published version",
+      "flowDeleted": "deleted flow \"{name}\"",
+      "flowDeletedMany": "deleted flows ({names})",
+      "flowImported": "imported a flow \"{name}\""
+    },
+    "changes": {
+      "viewChanges": "View changes",
+      "title": "Changes",
+      "added": "Added",
+      "removed": "Removed",
+      "changed": "Modified",
+      "before": "Before",
+      "after": "After",
+      "noChanges": "No detailed changes recorded for this action"
+    },
+    "roles": {
+      "owner": "Owner",
+      "agent": "Agent"
     }
   },
   "customFields": {
@@ -4549,6 +4585,76 @@
     },
     "queues": {
       "title": "佇列"
+    },
+    "users": {
+      "title": "用戶",
+      "searchPlaceholder": "按姓名或電子郵件搜尋...",
+      "platformSuperAdmin": "平台超級管理員",
+      "workspaces": "工作空間",
+      "registeredAt": "註冊日期",
+      "create": {
+        "button": "建立使用者",
+        "title": "建立使用者",
+        "description": "將建立該帳號，並向其發送包含登入連結的電子郵件。",
+        "success": "使用者已建立。包含登入連結的電子郵件已寄送。"
+      },
+      "addToWorkspace": {
+        "button": "Add to workspace",
+        "title": "Add {name} to a workspace",
+        "description": "The user will get immediate access with the selected role. No invitation email is sent.",
+        "workspaceLabel": "Workspace",
+        "roleLabel": "Role",
+        "success": "User added to the workspace.",
+        "loadError": "Could not load workspaces."
+      },
+      "deactivate": {
+        "button": "Deactivate",
+        "title": "Deactivate {name}?",
+        "description": "The user will be signed out everywhere and will no longer be able to sign in. Their data is not deleted — you can reactivate the account at any time.",
+        "removeFromWorkspaces": "Also remove from all workspaces",
+        "removeFromWorkspacesHint": "Deletes the user's memberships. Reactivation will not restore them automatically.",
+        "confirm": "Deactivate",
+        "success": "User deactivated."
+      },
+      "reactivate": {
+        "button": "Reactivate",
+        "success": "User reactivated."
+      },
+      "deactivated": "Deactivated",
+      "editWorkspaces": {
+        "button": "Edit workspaces",
+        "title": "Workspaces of {name}",
+        "description": "Change the role or remove the user from a workspace. Changes apply immediately.",
+        "remove": "Remove from workspace",
+        "success": "Role updated.",
+        "removeSuccess": "User removed from the workspace.",
+        "empty": "This user is not a member of any workspace.",
+        "permissions": "Workspace permissions"
+      },
+      "setSuperAdmin": {
+        "grant": "Grant platform super admin",
+        "revoke": "Revoke platform super admin",
+        "granted": "Platform super admin granted.",
+        "revoked": "Platform super admin revoked."
+      }
+    },
+    "workspaces": {
+      "title": "Workspaces",
+      "searchPlaceholder": "Search by workspace name...",
+      "owner": "Owner",
+      "members": "Members",
+      "tenant": "Tenant",
+      "platformTenant": "Platform",
+      "createdAt": "Created at",
+      "namePlaceholder": "Workspace name",
+      "ownerHint": "Leave empty to become the owner yourself.",
+      "loadUsersError": "Could not load users.",
+      "createSuccess": "Workspace created.",
+      "create": {
+        "button": "Create workspace",
+        "title": "Create workspace",
+        "description": "Creates a platform workspace. You can assign users to it afterwards from the Users page."
+      }
     }
   },
   "platformCredentials": {

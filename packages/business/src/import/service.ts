@@ -161,6 +161,7 @@ class ImportService extends BaseService {
     userId: string
     fileId: string
     folderId?: string | null
+    auditDetailTemplate?: string
   }): Promise<
     | { ok: true; importId: string }
     | { ok: false; reason: "fileNotFound" | "notAFlowImport" }
@@ -201,7 +202,10 @@ class ImportService extends BaseService {
         type: importTypes.enum.flow,
         format: "json",
         status: "pending",
-        meta: { folderId: input.folderId ?? null },
+        meta: {
+          folderId: input.folderId ?? null,
+          auditDetailTemplate: input.auditDetailTemplate,
+        },
       })
     })
 

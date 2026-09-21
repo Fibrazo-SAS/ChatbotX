@@ -31,7 +31,7 @@ on:
           - maintenance_off
 
 concurrency:
-  group: chatbotx-devel-v2
+  group: chatbotx-devel
   cancel-in-progress: true
 
 env:
@@ -39,6 +39,7 @@ env:
   WORKSPACE: /var/www/chatbotx-dev
   SERVER: ip-10-6-3-11.us-west-2.compute.internal
   SSH_USER: sysbrazo
+  BASTION: bhdev.fibrazo.com.co
   SECRET_NAME: dev/chatbotx/all-secret
   COMPOSE_FILES: "-f docker-compose.yml -f docker-compose.apps.yml -f docker-compose.dev.yml"
   HUSKY: "0"
@@ -54,19 +55,14 @@ jobs:
       )
     runs-on: [self-hosted, chatbotx]
     timeout-minutes: 15
-    environment:
-      name: devel
-      url: https://dev-chatbotx.fibrazo.com.co/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Init SSH
-        shell: bash
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+          chmod +x ./scripts/deployment/init-ssh.sh
+          ./scripts/deployment/init-ssh.sh
 
       - name: Load SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -79,7 +75,7 @@ jobs:
           ./scripts/deployment/maintenance-on.sh
 
   deploy:
-    name: Deploy + smoke
+    name: Deploy
     needs: [maintenance_on]
     if: |
       always() &&
@@ -87,19 +83,14 @@ jobs:
       needs.maintenance_on.result == 'success'
     runs-on: [self-hosted, chatbotx]
     timeout-minutes: 60
-    environment:
-      name: devel
-      url: https://dev-chatbotx.fibrazo.com.co/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Init SSH
-        shell: bash
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+          chmod +x ./scripts/deployment/init-ssh.sh
+          ./scripts/deployment/init-ssh.sh
 
       - name: Load SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -110,6 +101,29 @@ jobs:
         run: |
           chmod +x ./scripts/deployment/deploy.sh
           ./scripts/deployment/deploy.sh
+
+  smoke:
+    name: Smoke tests
+    needs: [deploy]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      needs.deploy.result == 'success'
+    runs-on: [self-hosted, chatbotx]
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Init SSH
+        run: |
+          chmod +x ./scripts/deployment/init-ssh.sh
+          ./scripts/deployment/init-ssh.sh
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Smoke tests
         run: |
@@ -127,19 +141,14 @@ jobs:
       )
     runs-on: [self-hosted, chatbotx]
     timeout-minutes: 15
-    environment:
-      name: devel
-      url: https://dev-chatbotx.fibrazo.com.co/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Init SSH
-        shell: bash
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+          chmod +x ./scripts/deployment/init-ssh.sh
+          ./scripts/deployment/init-ssh.sh
 
       - name: Load SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -150,3 +159,31 @@ jobs:
         run: |
           chmod +x ./scripts/deployment/maintenance-off.sh
           ./scripts/deployment/maintenance-off.sh
+
+  restore:
+    name: Restore after failed deploy
+    needs: [deploy]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      needs.deploy.result == 'failure'
+    runs-on: [self-hosted, chatbotx]
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Init SSH
+        run: |
+          chmod +x ./scripts/deployment/init-ssh.sh
+          ./scripts/deployment/init-ssh.sh
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Restore apps + maintenance off
+        run: |
+          chmod +x ./scripts/deployment/restore.sh
+          ./scripts/deployment/restore.sh

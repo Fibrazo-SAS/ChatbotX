@@ -26,11 +26,16 @@ x-worker-common: &worker-common
 services:
   builder:
     <<: *service-common
+    mem_limit: 2g
     build:
       context: .
       dockerfile: apps/builder/docker/Dockerfile
     ports:
       - "3123:3000"
+    environment:
+      # Realtime lives in a separate container on the compose network; the
+      # builder's /ws/:path* rewrite must target the service, not localhost.
+      - NEXT_PUBLIC_INTERNAL_WS_URL=http://realtime:1999
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,6 +51,7 @@ services:
 
   worker:
     <<: *worker-common
+    mem_limit: 8g
     networks:
       - chatbotx-network
       - javascript-executor-network
@@ -94,6 +100,7 @@ services:
 
   realtime:
     <<: *service-common
+    mem_limit: 1g
     build:
       context: .
       dockerfile: apps/realtime/docker/Dockerfile

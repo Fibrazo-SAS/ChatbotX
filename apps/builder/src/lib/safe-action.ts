@@ -1,6 +1,6 @@
 import {
   isPlatformAdmin,
-  isSuperAdmin,
+  isPlatformSuperAdmin,
   isWorkspaceScheduledForDeletion,
   quotaEnforcementService,
   userQuotaService,
@@ -85,7 +85,7 @@ export const platformAdminActionClient = authActionClient.use(
 )
 
 export const superAdminActionClient = authActionClient.use(({ ctx, next }) => {
-  if (!isSuperAdmin(ctx.user)) {
+  if (!isPlatformSuperAdmin(ctx.user)) {
     throw new Error("Unauthorized")
   }
   return next({ ctx })
@@ -114,15 +114,23 @@ export const workspaceActionClientAllowExpired = authActionClient.use(
     // `permissions` is exposed so actions can gate on it (e.g. superAdmin)
     // without a second user+member round-trip — the same rows are already
     // loaded here. The `permissions` jsonb defaults to `{}`, so callers must
-    // fail closed on missing keys (see `hasWorkspacePermission`).
+    // fail closed on missing keys (see `hasWorkspacePermission`). `role` and
+    // `user` are exposed for role-based gates (ticket 15139); both are
+    // additive and already in scope here.
     return withAuditContext(
-      { ...(getAuditActor() ?? {}), workspaceId: workspace.id },
+      {
+        ...(getAuditActor() ?? {}),
+        workspaceId: workspace.id,
+        role: member.role,
+      },
       () =>
         next({
           ctx: {
             workspaceId: workspace.id,
             workspace,
             workspaceMemberPermissions: member.permissions,
+            workspaceMemberRole: member.role,
+            user,
           },
         }),
     )

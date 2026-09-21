@@ -8,6 +8,7 @@ import {
   listAuditLogs,
 } from "@/enterprise/features/audit-logs/queries"
 import { listAuditLogsSearchParamsCache } from "@/enterprise/features/audit-logs/schema/query"
+import { SettingsTab } from "../../(settings)/settings/tab"
 
 export default async function AuditLogsPage(props: {
   params: Promise<{ workspaceId: string }>
@@ -31,11 +32,14 @@ export default async function AuditLogsPage(props: {
 
   return (
     <Suspense>
-      <AuditLogsTable
-        promises={promises}
-        search={search}
-        workspaceId={workspaceId}
-      />
+      <div className="space-y-4">
+        <SettingsTab />
+        <AuditLogsTable
+          promises={promises}
+          search={search}
+          workspaceId={workspaceId}
+        />
+      </div>
     </Suspense>
   )
 }

@@ -9,8 +9,18 @@ export const sendAuditLog = async (data: JobSendAuditLog["data"]) => {
   if (env.NEXT_PUBLIC_EDITION === "community") {
     return
   }
-  const { userId, workspaceId, action, detail, ipAddress, userAgent, source } =
-    data
+  const {
+    userId,
+    workspaceId,
+    action,
+    detail,
+    role,
+    flowId,
+    changesDetails,
+    ipAddress,
+    userAgent,
+    source,
+  } = data
   const persistedUserId = userId === SYSTEM_ACTOR ? null : userId
   await db
     .insert(auditLogModel)
@@ -20,6 +30,9 @@ export const sendAuditLog = async (data: JobSendAuditLog["data"]) => {
       workspaceId,
       action,
       detail,
+      role,
+      flowId,
+      changesDetails,
       ipAddress,
       userAgent,
       source,

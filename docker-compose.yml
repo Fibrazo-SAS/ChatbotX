@@ -47,6 +47,10 @@ services:
 
   filesystem:
     <<: *network
+    # Storage has no app-layer deploy step (the app deploy runs `up --no-deps`
+    # for builder/worker/realtime only), so it must self-heal after a daemon or
+    # host restart instead of staying Exited.
+    restart: unless-stopped
     image: rustfs/rustfs:latest
     command: server /data --console-address ":9001"
     ports:

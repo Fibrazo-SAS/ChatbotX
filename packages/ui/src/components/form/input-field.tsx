@@ -2,6 +2,7 @@ import type { ComponentProps } from "react"
 import type { FieldPath, FieldValues } from "react-hook-form"
 import { Input } from "../ui/input"
 import { FormFieldWrapper } from "./field-wrapper"
+import { PasswordInput } from "./password-input"
 
 type InputFieldProps<T extends FieldValues> = ComponentProps<"input"> & {
   name: FieldPath<T>
@@ -9,6 +10,8 @@ type InputFieldProps<T extends FieldValues> = ComponentProps<"input"> & {
   description?: string
   descriptionType?: "inline" | "tooltip"
   formItemClassName?: string
+  showPasswordLabel?: string
+  hidePasswordLabel?: string
 }
 
 export function InputField<T extends FieldValues>({
@@ -18,6 +21,8 @@ export function InputField<T extends FieldValues>({
   description,
   descriptionType = "inline",
   formItemClassName,
+  showPasswordLabel,
+  hidePasswordLabel,
   ...props
 }: InputFieldProps<T>) {
   return (
@@ -29,7 +34,19 @@ export function InputField<T extends FieldValues>({
       name={name}
       required={required}
     >
-      {(field) => <Input {...props} {...field} value={field.value ?? ""} />}
+      {(field) =>
+        props.type === "password" ? (
+          <PasswordInput
+            {...props}
+            {...field}
+            hidePasswordLabel={hidePasswordLabel}
+            showPasswordLabel={showPasswordLabel}
+            value={field.value ?? ""}
+          />
+        ) : (
+          <Input {...props} {...field} value={field.value ?? ""} />
+        )
+      }
     </FormFieldWrapper>
   )
 }

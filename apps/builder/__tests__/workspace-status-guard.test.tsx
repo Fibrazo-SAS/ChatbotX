@@ -37,7 +37,7 @@ describe("workspace status guard", () => {
     mockUseTranslations.mockReturnValue((key: string) => key)
   })
 
-  test("disables the switch for members without super admin access", () => {
+  test("hides the switch for members without super admin access", () => {
     const html = renderToStaticMarkup(
       <WorkspaceStatusSwitch
         canManageStatus={false}
@@ -53,10 +53,11 @@ describe("workspace status guard", () => {
     const container = document.createElement("div")
     container.innerHTML = html
 
+    // Ticket 15139: unauthorized members get no switch at all — the control
+    // is hidden, not rendered disabled.
     const switchElement = container.querySelector('[role="switch"]')
 
-    expect(switchElement).not.toBeNull()
-    expect(switchElement?.getAttribute("data-disabled")).not.toBeNull()
+    expect(switchElement).toBeNull()
   })
 
   test("keeps the switch enabled for super admins", () => {

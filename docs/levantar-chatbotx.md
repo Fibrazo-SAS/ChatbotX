@@ -8,20 +8,29 @@
 Hay un script que hace **los pasos 1→6 de una sola vez** (infra + ngrok + `.env` + webhook de Telegram + apps). Es la vía rápida; los pasos manuales de abajo quedan como referencia para debuguear.
 
 ```bash
-bash scripts/start.sh            # arranca todo (builder ya buildeado, rápido)
-bash scripts/start.sh --build    # rebuild del builder y arranca (1ª vez o tras cambios)
-bash scripts/start.sh --dev      # builder en modo dev (hot-reload, lento)
+bash scripts/start.sh            # apaga lo viejo + arranca todo (builder ya buildeado, rápido)
+bash scripts/start.sh --build    # apaga lo viejo + rebuild del builder + arranca (1ª vez o tras cambios)
+bash scripts/start.sh --dev      # apaga lo viejo + builder en modo dev (hot-reload, lento)
+bash scripts/start.sh --stop     # solo apaga TODO el dev-stack (no arranca nada)
 ```
+
+> **Siempre se limpia primero**: cualquier modo mata las instancias previas del
+> dev-stack (pnpm, next/next-server, los 11 workers `tsx --watch`, partykit/workerd,
+> esbuild huérfanos) con SIGTERM y 6s de gracia antes de SIGKILL, y verifica que
+> los puertos 3123 y 1999 queden libres. Es seguro: NUNCA toca Docker, ngrok, el
+> editor (Cursor), MCPs ni codegraph — solo procesos del proyecto. Por eso no hace
+> falta matar nada a mano antes de un rebuild.
 
 Qué hace por dentro:
 
 | Paso | Acción |
 | --- | --- |
-| 1/6 | `docker compose up -d postgres redis filesystem filesystem-init` |
-| 2/6 | `ngrok start --all` (si no está corriendo) |
-| 3/6 | Lee la URL pública del túnel `chatbotx` desde la API de ngrok (`:4040`) |
-| 4/6 | Reescribe `NEXT_PUBLIC_BROKER_URL` en `.env` con esa URL |
-| 5/6 | Lee el token + `botId` de `IntegrationTelegram` y registra el webhook de Telegram |
+| 0/6 | **Pre-limpieza**: mata instancias previas del dev-stack y libera puertos 3123/1999 |
+| 1/6 | `pnpm install` solo si falta `node_modules` en algún workspace |
+| 2/6 | `docker compose up -d postgres redis filesystem filesystem-init` |
+| 3/6 | `ngrok start --all` (si no está corriendo) |
+| 4/6 | Lee la URL pública del túnel `chatbotx` desde la API de ngrok (`:4040`) |
+| 5/6 | Reescribe `NEXT_PUBLIC_BROKER_URL` en `.env` + registra el webhook de Telegram (token/botId de `IntegrationTelegram`) |
 | 6/6 | Levanta `worker` + `realtime` (dev) y el `builder` (dev / prod según el modo) |
 
 Logs:
@@ -109,25 +118,25 @@ la sesión. No deberías volver a ver el problema.
   script npm `start`), así que el auto-clean no corre ahí — pero `next start` **no
   genera cache**, así que da igual. El modo `--dev` sí pasa por el script npm `dev` → hook activo.
 
-### Matar las apps (antes de rebuild)
+### Apagar las apps
 
-`pkill` acepta un solo patrón por vez, por eso van separados. No matar Docker ni ngrok.
-
-```bash
-pkill -f '[n]ext start'      # builder (producción, next start)
-pkill -f '[t]sx --watch'     # worker (11 procesos)
-pkill -f '[p]artykit dev'    # realtime
-```
-
-Verificación (tiene que quedar vacío):
+La vía normal es el propio script (mata TODO el dev-stack, no solo las 3 apps
+"visibles": también pnpm/concurrently y los esbuild/workerd huérfanos):
 
 ```bash
-ps aux | grep -E 'next start|tsx --watch|partykit dev' | grep -v grep
+bash scripts/start.sh --stop
 ```
 
-> Los corchetes `[n]` evitan que el propio `pkill`/`grep` se maté a sí mismo.
-> Si el builder corre con `pnpm dev` (modo dev, no `next start`), matarlo con
-> `pkill -f '[n]ext-server'` o `pkill -f '[t]urbopack'` según el proceso.
+Verificación (no debe listar procesos del proyecto):
+
+```bash
+ps aux | grep -E 'next start|next-server|tsx --watch|partykit dev' | grep -v grep
+```
+
+> `--stop` NUNCA toca Docker (postgres/redis) ni ngrok. Si por alguna razón el
+> script no alcanza (ej: sesión colgada de otra forma), fallback manual:
+> `pkill -f '[n]ext start'`, `pkill -f '[t]sx --watch'`, `pkill -f '[p]artykit dev'`
+> (los corchetes `[n]` evitan que el propio pkill se mate a sí mismo).
 
 ### Rebuild completo (matar → build → arrancar)
 
@@ -136,20 +145,16 @@ ps aux | grep -E 'next start|tsx --watch|partykit dev' | grep -v grep
 pero conviene matarlos por RAM. **NUNCA** matar Docker (postgres/redis) ni ngrok.
 
 ```bash
-# 1. Matar las 3 apps
-pkill -f '[n]ext start'
-pkill -f '[t]sx --watch'
-pkill -f '[p]artykit dev'
-
-# 2. Build seguro (env AL PRINCIPIO; nice + taskset = no congela la UI)
-NODE_OPTIONS="--max-old-space-size=4096" nice -n 19 taskset -c 0-3 pnpm --filter builder build
-
-# 3. Arrancar todo (builder, worker, realtime + re-registra webhook de Telegram)
-bash scripts/start.sh
+# Mata lo viejo + build seguro + arranca todo (una sola línea):
+bash scripts/start.sh --build
 ```
 
-> Alternativa todo-en-uno (hace build + arranca): `bash scripts/start.sh --build` — pero
-> sin el `nice`/`taskset`, así que si la máquina está justa de RAM, mejor por partes.
+El `--build` del script ya corre el build capado (`NODE_OPTIONS` heap 4096 +
+`nice -n 19` + `taskset -c 0-3` + `turbo build --concurrency=2`) para no congelar
+la UI ni reventar la RAM, y NO arranca el builder si el build falla.
+
+> Por partes (equivalente, para debuguear): `bash scripts/start.sh --stop` →
+> build manual → `bash scripts/start.sh`.
 
 ## 3. ngrok — DOS túneles en UN solo agente
 
