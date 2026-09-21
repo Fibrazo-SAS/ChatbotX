@@ -30,6 +30,7 @@ import Link from "next/link"
 import type { useTranslations } from "next-intl"
 import { useAction } from "next-safe-action/hooks"
 import type { Dispatch, SetStateAction } from "react"
+import { safeActionErrorHandler } from "@/lib/errors/safe-action-error-handler"
 import { updateFlowAction } from "./actions/update-flow-action"
 import { downloadFlowExport } from "./lib/download-flow-export"
 import type { FlowResource } from "./schema/resource"
@@ -40,14 +41,16 @@ type GetColumnsProps = {
     SetStateAction<DataTableRowAction<FlowResource> | null>
   >
   locale: string
+  canToggleFlowStatus: boolean
 }
 
 export function getFlowColumns({
   t,
   setRowAction,
   locale,
+  canToggleFlowStatus,
 }: GetColumnsProps): ColumnDef<FlowResource>[] {
-  return [
+  const columns: ColumnDef<FlowResource>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -127,6 +130,7 @@ export function getFlowColumns({
             onSuccess: () => {
               row.original.active = !row.original.active
             },
+            onError: safeActionErrorHandler,
           },
         )
         return (
@@ -261,4 +265,11 @@ export function getFlowColumns({
       enableHiding: false,
     },
   ]
+
+  // Ticket 15139: members who cannot toggle a flow's active status don't see
+  // the status column at all — hiding the control instead of a disabled
+  // switch that looks blocked.
+  return canToggleFlowStatus
+    ? columns
+    : columns.filter((column) => column.id !== "status")
 }

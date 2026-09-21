@@ -31,12 +31,14 @@ type FlowsTableProps = {
   promises: Promise<[Awaited<ReturnType<typeof listFlowsRSC>>]>
   workspaceId: string
   folderId: string | null
+  canToggleFlowStatus: boolean
 }
 
 export function FlowsTable({
   promises,
   workspaceId,
   folderId,
+  canToggleFlowStatus,
 }: FlowsTableProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -47,8 +49,14 @@ export function FlowsTable({
   const [rowAction, setRowAction] =
     useState<DataTableRowAction<FlowResource> | null>(null)
   const columns = useMemo(
-    () => getFlowColumns({ t, setRowAction, locale }),
-    [t, locale],
+    () =>
+      getFlowColumns({
+        t,
+        setRowAction,
+        locale,
+        canToggleFlowStatus,
+      }),
+    [t, locale, canToggleFlowStatus],
   )
 
   const { table } = useDataTable({

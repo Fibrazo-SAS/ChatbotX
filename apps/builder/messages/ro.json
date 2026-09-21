@@ -941,7 +941,8 @@
     "resume": "Resume"
   },
   "errors": {
-    "superAdminRequired": "Trebuie să fii superadministrator al spațiului de lucru pentru a face acest lucru."
+    "superAdminRequired": "Trebuie să fii superadministrator al spațiului de lucru pentru a face acest lucru.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "Succes",
@@ -3923,6 +3924,8 @@
       "flowActivated": "activated a flow \"{name}\"",
       "flowDeactivated": "deactivated a flow \"{name}\"",
       "flowPublished": "published a flow \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
       "flowDuplicated": "duplicated a flow \"{name}\"",
       "flowRestored": "restored a previous version of flow \"{name}\"",
       "flowReverted": "reverted flow \"{name}\" draft to its published version",

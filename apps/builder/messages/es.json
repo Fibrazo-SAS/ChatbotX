@@ -156,7 +156,8 @@
     "resume": "Reanudar"
   },
   "errors": {
-    "superAdminRequired": "Debes ser superadministrador del espacio de trabajo para hacer esto."
+    "superAdminRequired": "Debes ser superadministrador del espacio de trabajo para hacer esto.",
+    "flowStatusChangeNotAllowed": "Solo el propietario o un superAdmin puede activar o desactivar flujos."
   },
   "states": {
     "success": "Éxito",
@@ -3923,6 +3924,8 @@
       "flowActivated": "activó el flujo \"{name}\"",
       "flowDeactivated": "desactivó el flujo \"{name}\"",
       "flowPublished": "publicó el flujo \"{name}\"",
+      "flowActivationBlocked": "intentó activar el flujo \"{name}\" (bloqueado — no es propietario ni superAdmin)",
+      "flowDeactivationBlocked": "intentó desactivar el flujo \"{name}\" (bloqueado — no es propietario ni superAdmin)",
       "flowDuplicated": "duplicó el flujo \"{name}\"",
       "flowRestored": "restauró una versión anterior del flujo \"{name}\"",
       "flowReverted": "revirtió el borrador del flujo \"{name}\" a su versión publicada",

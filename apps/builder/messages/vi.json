@@ -156,7 +156,8 @@
     "resume": "Tiếp tục"
   },
   "errors": {
-    "superAdminRequired": "Bạn cần là super admin của workspace để thực hiện thao tác này."
+    "superAdminRequired": "Bạn cần là super admin của workspace để thực hiện thao tác này.",
+    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows."
   },
   "states": {
     "success": "Thành công",
@@ -3840,6 +3841,8 @@
       "flowActivated": "đã kích hoạt luồng \"{name}\"",
       "flowDeactivated": "đã vô hiệu hóa luồng \"{name}\"",
       "flowPublished": "đã xuất bản luồng \"{name}\"",
+      "flowActivationBlocked": "attempted to activate flow \"{name}\" (blocked — not an owner or superAdmin)",
+      "flowDeactivationBlocked": "attempted to deactivate flow \"{name}\" (blocked — not an owner or superAdmin)",
       "flowDuplicated": "đã nhân bản luồng \"{name}\"",
       "flowRestored": "đã khôi phục phiên bản trước của luồng \"{name}\"",
       "flowReverted": "đã hoàn nguyên bản nháp của luồng \"{name}\" về phiên bản đã xuất bản",

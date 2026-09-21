@@ -114,7 +114,9 @@ export const workspaceActionClientAllowExpired = authActionClient.use(
     // `permissions` is exposed so actions can gate on it (e.g. superAdmin)
     // without a second user+member round-trip — the same rows are already
     // loaded here. The `permissions` jsonb defaults to `{}`, so callers must
-    // fail closed on missing keys (see `hasWorkspacePermission`).
+    // fail closed on missing keys (see `hasWorkspacePermission`). `role` and
+    // `user` are exposed for role-based gates (ticket 15139); both are
+    // additive and already in scope here.
     return withAuditContext(
       {
         ...(getAuditActor() ?? {}),
@@ -127,6 +129,8 @@ export const workspaceActionClientAllowExpired = authActionClient.use(
             workspaceId: workspace.id,
             workspace,
             workspaceMemberPermissions: member.permissions,
+            workspaceMemberRole: member.role,
+            user,
           },
         }),
     )
