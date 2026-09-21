@@ -2960,7 +2960,6 @@
   "messages": {
     "moveFeature": "{feature}を移動",
     "poweredBy": "{name}を利用",
-    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "GIPHY APIキーが見つかりません。プラットフォーム設定で追加してください。",
     "connectedSuccess": "{feature}を接続しました",
     "connectFailed": "{feature}の接続に失敗しました",

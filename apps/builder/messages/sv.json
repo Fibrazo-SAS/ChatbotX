@@ -3634,7 +3634,6 @@
     "noGiphyApiKey": "Ingen GIPHY API-nyckel hittades. Lägg till en i Plattformsinställningar.",
     "noItemsFound": "Inga objekt hittades",
     "noResults": "Inga resultat.",
-    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noVersionsFound": "Inga publicerade versioner hittades",
     "poweredBy": "Drivs av {name}",
     "publishVersionSuccess": "En ny version har publicerats",

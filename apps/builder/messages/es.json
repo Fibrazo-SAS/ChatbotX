@@ -2981,7 +2981,6 @@
   "messages": {
     "moveFeature": "Mover {feature}",
     "poweredBy": "Con tecnología de {name}",
-    "flowStatusChangeNotAllowed": "Solo el propietario o un superAdmin puede activar o desactivar flujos.",
     "noGiphyApiKey": "No GIPHY API clave found. Por favor, Añadir one en Platform Ajustes.",
     "connectedSuccess": "{feature} connected correctamente",
     "connectFailed": "Failed un Conectar {feature}",

@@ -2981,7 +2981,6 @@
   "messages": {
     "moveFeature": "Di chuyển {feature}",
     "poweredBy": "Được cung cấp bởi {name}",
-    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "Không tìm thấy khóa API GIPHY. Vui lòng thêm vào Cài đặt Nền tảng.",
     "connectedSuccess": "{feature} đã được kết nối thành công",
     "connectFailed": "Không thể kết nối {feature}",

@@ -3632,7 +3632,6 @@
     "noItemsFound": "找不到项目",
     "noResults": "无结果。",
     "noVersionsFound": "找不到已发布的版本",
-    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "none": "无",
     "poweredBy": "由 {name} 提供技术支持",
     "publishVersionSuccess": "新版本已发布",

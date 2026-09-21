@@ -2981,7 +2981,6 @@
   "messages": {
     "moveFeature": "{feature} verplaatsen",
     "poweredBy": "Mogelijk gemaakt door {name}",
-    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "Geen GIPHY API-sleutel gevonden. Voeg er een toe in Platforminstellingen.",
     "connectedSuccess": "{feature} gekoppeld",
     "connectFailed": "Koppelen van {feature} is mislukt",

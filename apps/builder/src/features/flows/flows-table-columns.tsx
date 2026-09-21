@@ -50,7 +50,7 @@ export function getFlowColumns({
   locale,
   canToggleFlowStatus,
 }: GetColumnsProps): ColumnDef<FlowResource>[] {
-  return [
+  const columns: ColumnDef<FlowResource>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -133,29 +133,14 @@ export function getFlowColumns({
             onError: safeActionErrorHandler,
           },
         )
-        const flowStatusSwitch = (
+        return (
           <Switch
             checked={row.original.active}
-            disabled={isPending || !canToggleFlowStatus}
+            disabled={isPending}
             onCheckedChange={(value) => {
               execute({ active: value })
             }}
           />
-        )
-        // Ticket 15139: agents (without superAdmin) keep seeing the real
-        // flow status, but the toggle is disabled with an explanation.
-        if (canToggleFlowStatus) {
-          return flowStatusSwitch
-        }
-        return (
-          <Tooltip>
-            <TooltipTrigger
-              render={<span className="inline-flex">{flowStatusSwitch}</span>}
-            />
-            <TooltipContent>
-              {t("messages.flowStatusChangeNotAllowed")}
-            </TooltipContent>
-          </Tooltip>
         )
       },
       meta: {
@@ -280,4 +265,11 @@ export function getFlowColumns({
       enableHiding: false,
     },
   ]
+
+  // Ticket 15139: members who cannot toggle a flow's active status don't see
+  // the status column at all — hiding the control instead of a disabled
+  // switch that looks blocked.
+  return canToggleFlowStatus
+    ? columns
+    : columns.filter((column) => column.id !== "status")
 }

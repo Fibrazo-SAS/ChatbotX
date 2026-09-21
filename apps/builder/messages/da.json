@@ -2981,7 +2981,6 @@
   "messages": {
     "moveFeature": "Flyt {feature}",
     "poweredBy": "Powered af {name}",
-    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "Ingen GIPHY API-nøgle found. Venligst tilføj one i Platform Indstillinger.",
     "connectedSuccess": "{feature} forbundet successfully",
     "connectFailed": "Mislykkedes til forbind {feature}",

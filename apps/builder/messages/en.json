@@ -3092,7 +3092,6 @@
   "messages": {
     "moveFeature": "Move {feature}",
     "poweredBy": "Powered by {name}",
-    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "No GIPHY API key found. Please add one in Platform Settings.",
     "connectedSuccess": "{feature} connected successfully",
     "connectFailed": "Failed to connect {feature}",

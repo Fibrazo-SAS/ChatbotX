@@ -2981,7 +2981,6 @@
   "messages": {
     "moveFeature": "Mută {feature}",
     "poweredBy": "Susținut de {name}",
-    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "Nu a fost găsită nicio cheie API GIPHY. Te rugăm să adaugi una în Setările platformei.",
     "connectedSuccess": "{feature} conectat cu succes",
     "connectFailed": "Conectarea {feature} a eșuat",

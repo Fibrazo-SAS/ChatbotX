@@ -2981,7 +2981,6 @@
   "messages": {
     "moveFeature": "Sposta {feature}",
     "poweredBy": "Offerto da {name}",
-    "flowStatusChangeNotAllowed": "Only the owner or a superAdmin can activate or deactivate flows.",
     "noGiphyApiKey": "Nessuna chiave API GIPHY trovata. Aggiungine una nelle Impostazioni della piattaforma.",
     "connectedSuccess": "{feature} collegato correttamente",
     "connectFailed": "Impossibile collegare {feature}",

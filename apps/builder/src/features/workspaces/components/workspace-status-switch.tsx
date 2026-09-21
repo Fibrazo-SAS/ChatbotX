@@ -71,37 +71,38 @@ export function WorkspaceStatusSwitch({
     }
   }
 
+  // Ticket 15139: members who cannot manage the workspace status (no
+  // superAdmin permission) get no switch at all — hiding the control instead
+  // of showing a disabled switch with a "blocked" tooltip.
+  if (!canManageStatus) {
+    return null
+  }
+
   const switchElement = (
     <Switch
       checked={isActive}
       className="absolute start-3 top-3 z-10"
-      disabled={!canManageStatus || scheduledForDeletion}
-      onCheckedChange={
-        canManageStatus && !scheduledForDeletion
-          ? handleCheckedChange
-          : undefined
-      }
+      disabled={scheduledForDeletion}
+      onCheckedChange={scheduledForDeletion ? undefined : handleCheckedChange}
       onClick={(e) => e.stopPropagation()}
     />
   )
 
-  const disabledTooltip = scheduledForDeletion
-    ? t("workspace.deletion.navDisabledTooltip")
-    : t("workspace.schedule.permissionRequired")
-
   return (
     <>
-      {canManageStatus && !scheduledForDeletion ? (
-        switchElement
-      ) : (
+      {scheduledForDeletion ? (
         <Tooltip>
           <TooltipTrigger
             render={
               <span className="absolute z-10 inline-flex">{switchElement}</span>
             }
           />
-          <TooltipContent>{disabledTooltip}</TooltipContent>
+          <TooltipContent>
+            {t("workspace.deletion.navDisabledTooltip")}
+          </TooltipContent>
         </Tooltip>
+      ) : (
+        switchElement
       )}
 
       <WorkspaceScheduleDialog

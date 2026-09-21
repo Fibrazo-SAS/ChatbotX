@@ -16,7 +16,7 @@ Today any workspace member with the `flows` permission flag can toggle a flow's 
 - [ ] Server-side: an agent with the tenant-level `superAdmin` permission flag can activate/deactivate flows.
 - [ ] Server-side: a global super admin (`isPlatformSuperAdmin`) can activate/deactivate flows.
 - [ ] Server-side: renaming a flow via `updateFlowAction` remains allowed for agents (the restriction only applies to the `active` status change).
-- [ ] UI: the flows table status Switch is disabled for agents that are not allowed, with an explanatory tooltip (i18n keys added to `apps/builder/messages/en.json`).
+- [ ] UI: the flows table status column is **hidden** for agents that are not allowed (no disabled-looking toggle, no tooltip). The workspace card status switch ("active hours") follows the same rule: hidden for members without the superAdmin permission.
 - [ ] Audit: every blocked attempt records an audit log entry identifying the action (e.g. `flowActivationBlocked` / `flowDeactivationBlocked`), the user, their role, timestamp, and the target flow.
 - [ ] Tests: `pnpm lint` + typecheck pass and new unit tests cover owner allowed, agent blocked, tenant superAdmin allowed, blocked-attempt audit record, and agent rename still allowed.
 
