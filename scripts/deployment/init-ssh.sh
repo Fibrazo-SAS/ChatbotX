@@ -6,7 +6,7 @@ SSH_DIR="${HOME}/.ssh"
 
 mkdir -p "${SSH_DIR}"
 chmod 700 "${SSH_DIR}"
-echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > "${SSH_DIR}/config"
+echo -e "Host *\n\tStrictHostKeyChecking no\n\tIdentityFile ~/.ssh/id_ed25519\n\tIdentitiesOnly yes\n\n" > "${SSH_DIR}/config"
 
 if [ -w /etc/resolv.conf ] || sudo -n true 2>/dev/null; then
   echo "nameserver 8.8.4.4" | sudo tee /etc/resolv.conf >/dev/null
