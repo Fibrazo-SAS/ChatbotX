@@ -2,10 +2,7 @@
 
 import { completePasswordSetup } from "@chatbotx.io/auth/password-setup"
 import { ChatbotXException } from "@chatbotx.io/business/errors"
-import { APIError } from "better-auth"
-import { headers } from "next/headers"
 import { getTranslations } from "next-intl/server"
-import { auth } from "@/lib/auth/auth"
 import { actionClient } from "@/lib/safe-action"
 import { setPasswordRequest } from "../schema/action"
 
@@ -16,20 +13,20 @@ import { setPasswordRequest } from "../schema/action"
  * identifies the account, so there is no tenant or user input to trust here
  * beyond the token's strength (256-bit, hashed at rest, 24h expiry).
  *
- * On success the user is signed in with the credentials they just defined
- * (better-auth's `nextCookies` plugin relays the session cookie), so they
- * land directly in the app — no extra login step after onboarding.
+ * Returns the onboarded user's email so the client can sign them in through
+ * the standard `/api/auth/sign-in/email` route: the session cookies reach the
+ * browser reliably there, unlike the server-action cookie-relay path
+ * (`auth.api.signInEmail` creates the session but `nextCookies` does not
+ * forward the Set-Cookie out of a server action).
  */
 export const setPasswordAction = actionClient
   .inputSchema(setPasswordRequest)
-  .action(async ({ parsedInput }) => {
-    let email: string
+  .action(async ({ parsedInput }): Promise<{ email: string }> => {
     try {
-      const result = await completePasswordSetup({
+      return await completePasswordSetup({
         token: parsedInput.token,
         password: parsedInput.newPassword,
       })
-      email = result.email
     } catch (error) {
       if (
         error instanceof ChatbotXException &&
@@ -51,25 +48,4 @@ export const setPasswordAction = actionClient
         400,
       )
     }
-
-    // The password is set and the email verified at this point — sign in with
-    // the exact credentials from this request. A failure here is unexpected
-    // (the credential row was just written) and is surfaced as an error.
-    try {
-      await auth.api.signInEmail({
-        body: { email, password: parsedInput.newPassword },
-        headers: await headers(),
-      })
-    } catch (error) {
-      if (error instanceof APIError) {
-        throw new ChatbotXException(
-          error.body?.message ?? "Failed to sign in after password setup",
-          "setPasswordSignInFailed",
-          400,
-        )
-      }
-      throw error
-    }
-
-    return { ok: true }
   })

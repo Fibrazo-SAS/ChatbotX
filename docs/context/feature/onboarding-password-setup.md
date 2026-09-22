@@ -6,7 +6,7 @@
 
 When the platform admin creates a new user (`/admin/users` →
 `createPlatformUserAction`), the user **no longer receives a sign-in magic
-link**. Instead they get a dedicated **set-password email** with a link to
+link**. Instead they get the signup-verification email with a link to
 `/auth/set-password?token=…`, where they define their password for the first
 time. Setting the password:
 
@@ -17,10 +17,15 @@ time. Setting the password:
    `packages/auth/src/provisioning.ts`),
 4. consumes the token.
 
-From then on they sign in normally with email + password. The magic-link flow
-is **unchanged for every existing user** (they were backfilled to
-`onboardingCompletedAt = createdAt` by the migration, so they keep the legacy
-magic-link path byte-for-byte).
+The setup action then returns the email and **the client signs the user in**
+through the standard `/api/auth/sign-in/email` route (same code path as the
+email/password sign-in form) and reloads into the app. The server-action
+cookie-relay path is deliberately NOT used: `auth.api.signInEmail` creates the
+session row but better-auth's `nextCookies` plugin does not forward the
+`Set-Cookie` out of a server action, leaving the browser without a session.
+The magic-link flow is **unchanged for every existing user** (they were
+backfilled to `onboardingCompletedAt = createdAt` by the migration, so they
+keep the legacy magic-link path byte-for-byte).
 
 ## Onboarding gate
 

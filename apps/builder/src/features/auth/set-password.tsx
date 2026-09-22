@@ -11,11 +11,12 @@ import { Form } from "@chatbotx.io/ui/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon } from "lucide-react"
 import Link from "next/link"
-import { redirect, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useAction } from "next-safe-action/hooks"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { authClient } from "@/lib/auth/auth-client"
 import { setPasswordAction } from "./actions/set-password.action"
 import { AuthHeader } from "./components/shared"
 import { type SetPasswordRequest, setPasswordRequest } from "./schema/action"
@@ -35,11 +36,23 @@ export const SetPassword = () => {
   })
 
   const { execute, isPending } = useAction(setPasswordAction, {
-    onSuccess: () => {
-      toast.success(t("auth.setPasswordSuccess"))
-      // The action signs the user in after completing the setup, so they land
-      // directly in the app — no extra sign-in step.
-      redirect("/")
+    onSuccess: async ({ data, input }) => {
+      // The setup succeeded; sign the user in through the standard credential
+      // route so the session cookies reach the browser (the server-action
+      // cookie-relay path does not forward better-auth's Set-Cookie). Full
+      // reload afterwards so the fresh session re-renders the app shell.
+      const result = await authClient.signIn.email({
+        email: data.email,
+        password: input.newPassword,
+        rememberMe: true,
+      })
+
+      if (result.data) {
+        toast.success(t("auth.setPasswordSuccess"))
+        window.location.assign("/")
+      } else {
+        toast.error(result.error.message)
+      }
     },
     onError: ({ error }) => {
       if (error.serverError) {
