@@ -4955,10 +4955,10 @@
     "title": "Email Templates",
     "description": "Leave subject and body blank to use the system default template.",
     "sections": {
-    "signup": {
-      "title": "Signup Verification Email",
-      "description": "Sent when a new user is created — they verify their email and set their password"
-    },
+      "signup": {
+        "title": "Signup Verification Email",
+        "description": "Sent when a new user is created — they verify their email and set their password"
+      },
       "forgotPassword": {
         "title": "Forgot Password Email",
         "description": "Sent when a user requests a password reset"

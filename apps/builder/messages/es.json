@@ -4666,22 +4666,22 @@
     "title": "Correo Plantillas",
     "description": "Leave subject y body blank un use el system predeterminado plantilla.",
     "sections": {
-    "signup": {
-      "title": "Signup Verification Correo",
-      "description": "Se envía al crear un usuario nuevo: verifica su correo y define su contraseña"
-    },
-    "forgotPassword": {
-      "title": "Forgot Password Correo",
-      "description": "Se envía cuando un usuario solicita restablecer su contraseña"
-    },
-    "magicLink": {
-      "title": "Magic Enlace Sign-in Correo",
-      "description": "Se envía cuando un usuario solicita un enlace mágico para iniciar sesión"
-    },
-    "accountCredentials": {
-      "title": "Sub-cuenta Credentials Correo",
-      "description": "Se envía cuando un revendedor aprovisiona una subcuenta nueva"
-    }
+      "signup": {
+        "title": "Signup Verification Correo",
+        "description": "Se envía al crear un usuario nuevo: verifica su correo y define su contraseña"
+      },
+      "forgotPassword": {
+        "title": "Forgot Password Correo",
+        "description": "Se envía cuando un usuario solicita restablecer su contraseña"
+      },
+      "magicLink": {
+        "title": "Magic Enlace Sign-in Correo",
+        "description": "Se envía cuando un usuario solicita un enlace mágico para iniciar sesión"
+      },
+      "accountCredentials": {
+        "title": "Sub-cuenta Credentials Correo",
+        "description": "Se envía cuando un revendedor aprovisiona una subcuenta nueva"
+      }
     },
     "fields": {
       "subject": {
