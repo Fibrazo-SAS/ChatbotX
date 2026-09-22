@@ -7,6 +7,7 @@ import { PublicEnvScript } from "@/components/public-env-script"
 import { SupportChatScript } from "@/components/support-chat-script"
 import { TimezoneSync } from "@/components/timezone-sync"
 import { env } from "@/env"
+import { SetPasswordSuccessToast } from "@/features/auth/set-password-success-toast"
 import { TenantProvider } from "@/features/tenant"
 import { getTenantSettings } from "@/features/tenant/utils"
 import { getDirection } from "@/i18n/direction"
@@ -73,6 +74,7 @@ export default async function RootLayout({ children }: Props) {
             <UiProvider>
               <NextIntlClientProvider>
                 <TimezoneSync timezone={timezone} />
+                <SetPasswordSuccessToast />
                 {children}
               </NextIntlClientProvider>
             </UiProvider>

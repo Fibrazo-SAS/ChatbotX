@@ -40,7 +40,9 @@ export const SetPassword = () => {
       // The setup succeeded; sign the user in through the standard credential
       // route so the session cookies reach the browser (the server-action
       // cookie-relay path does not forward better-auth's Set-Cookie). Full
-      // reload afterwards so the fresh session re-renders the app shell.
+      // reload afterwards so the fresh session re-renders the app shell; the
+      // success toast is fired on the next page load (in-memory toasts don't
+      // survive the reload) via sessionStorage + SetPasswordSuccessToast.
       const result = await authClient.signIn.email({
         email: data.email,
         password: input.newPassword,
@@ -48,7 +50,7 @@ export const SetPassword = () => {
       })
 
       if (result.data) {
-        toast.success(t("auth.setPasswordSuccess"))
+        sessionStorage.setItem("setPasswordSuccess", "1")
         window.location.assign("/")
       } else {
         toast.error(result.error.message)
