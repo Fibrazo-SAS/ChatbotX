@@ -3355,7 +3355,7 @@
     "resetPasswordDescription": "Introduce tu nuevo password below.",
     "setPasswordTitle": "Establece tu contraseña",
     "setPasswordDescription": "¡Bienvenido! Define una contraseña para activar tu cuenta. A partir de ahora iniciarás sesión con ella.",
-    "setPasswordSuccess": "Contraseña establecida correctamente. Ya puedes iniciar sesión.",
+    "setPasswordSuccess": "Contraseña establecida correctamente. ¡Bienvenido!",
     "setPasswordLinkInvalid": "Este enlace no es válido o ha expirado. Contacta a tu administrador para solicitar uno nuevo.",
     "signUpTitle": "Sign up un {name}",
     "changePasswordTitle": "Change tu password",

@@ -37,7 +37,9 @@ export const SetPassword = () => {
   const { execute, isPending } = useAction(setPasswordAction, {
     onSuccess: () => {
       toast.success(t("auth.setPasswordSuccess"))
-      redirect("/auth/sign-in")
+      // The action signs the user in after completing the setup, so they land
+      // directly in the app — no extra sign-in step.
+      redirect("/")
     },
     onError: ({ error }) => {
       if (error.serverError) {

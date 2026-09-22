@@ -166,13 +166,14 @@ export async function requestPasswordSetup(input: {
 export async function completePasswordSetup(input: {
   token: string
   password: string
-}): Promise<void> {
+}): Promise<{ email: string }> {
   const tokenHash = sha256(input.token)
 
   const user = await db.query.userModel.findFirst({
     where: { passwordSetupTokenHash: tokenHash },
     columns: {
       id: true,
+      email: true,
       tenantId: true,
       passwordSetupTokenExpiresAt: true,
     },
@@ -243,4 +244,8 @@ export async function completePasswordSetup(input: {
       })
     }
   })
+
+  // The caller signs the user in with the password they just defined, so it
+  // needs the email for the credential sign-in.
+  return { email: user.email }
 }

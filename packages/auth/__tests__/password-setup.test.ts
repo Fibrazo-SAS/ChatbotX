@@ -285,12 +285,15 @@ describe("completePasswordSetup", () => {
     const token = "raw-token-value"
     userFindFirst.mockResolvedValue({
       id: "u-1",
+      email: "nuevo@example.com",
       tenantId: "1",
       passwordSetupTokenExpiresAt: new Date(Date.now() + 60_000),
     })
     accountFindFirst.mockResolvedValue(undefined)
 
-    await completePasswordSetup({ token, password: "password123" })
+    await expect(
+      completePasswordSetup({ token, password: "password123" }),
+    ).resolves.toEqual({ email: "nuevo@example.com" })
 
     // Claim: verified + onboarded + token cleared, constrained on the hash.
     expect(updateSet).toHaveBeenCalledWith(
@@ -316,6 +319,7 @@ describe("completePasswordSetup", () => {
   test("updates the password when a credential account already exists", async () => {
     userFindFirst.mockResolvedValue({
       id: "u-1",
+      email: "nuevo@example.com",
       tenantId: "1",
       passwordSetupTokenExpiresAt: new Date(Date.now() + 60_000),
     })

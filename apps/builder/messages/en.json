@@ -3466,7 +3466,7 @@
     "resetPasswordDescription": "Enter your new password below.",
     "setPasswordTitle": "Set your password",
     "setPasswordDescription": "Welcome! Set a password below to activate your account. You'll sign in with this password from now on.",
-    "setPasswordSuccess": "Password set successfully. You can now sign in.",
+    "setPasswordSuccess": "Password set successfully. Welcome!",
     "setPasswordLinkInvalid": "This link is invalid or has expired. Contact your administrator to request a new one.",
     "signUpTitle": "Sign up to {name}",
     "changePasswordTitle": "Change your password",
