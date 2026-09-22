@@ -3353,6 +3353,10 @@
     "passwordResetSuccess": "Password reEstablecer correctamente",
     "resetPasswordTitle": "ReEstablecer tu password",
     "resetPasswordDescription": "Introduce tu nuevo password below.",
+    "setPasswordTitle": "Establece tu contraseña",
+    "setPasswordDescription": "¡Bienvenido! Define una contraseña para activar tu cuenta. A partir de ahora iniciarás sesión con ella.",
+    "setPasswordSuccess": "Contraseña establecida correctamente. Ya puedes iniciar sesión.",
+    "setPasswordLinkInvalid": "Este enlace no es válido o ha expirado. Contacta a tu administrador para solicitar uno nuevo.",
     "signUpTitle": "Sign up un {name}",
     "changePasswordTitle": "Change tu password",
     "changePasswordDescription": "Establecer un nuevo password antes continuing.",
@@ -4662,22 +4666,22 @@
     "title": "Correo Plantillas",
     "description": "Leave subject y body blank un use el system predeterminado plantilla.",
     "sections": {
-      "signup": {
-        "title": "Signup Verification Correo",
-        "description": "Sent cuando un nuevo usuario registers un cuenta"
-      },
-      "forgotPassword": {
-        "title": "Forgot Password Correo",
-        "description": "Sent cuando un usuario requests un password reset"
-      },
-      "magicLink": {
-        "title": "Magic Enlace Sign-in Correo",
-        "description": "Sent cuando un usuario requests un magic enlace un sign in"
-      },
-      "accountCredentials": {
-        "title": "Sub-cuenta Credentials Correo",
-        "description": "Sent cuando un reseller provisions un nuevo sub-cuenta"
-      }
+    "signup": {
+      "title": "Signup Verification Correo",
+      "description": "Se envía al crear un usuario nuevo: verifica su correo y define su contraseña"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password Correo",
+      "description": "Se envía cuando un usuario solicita restablecer su contraseña"
+    },
+    "magicLink": {
+      "title": "Magic Enlace Sign-in Correo",
+      "description": "Se envía cuando un usuario solicita un enlace mágico para iniciar sesión"
+    },
+    "accountCredentials": {
+      "title": "Sub-cuenta Credentials Correo",
+      "description": "Se envía cuando un revendedor aprovisiona una subcuenta nueva"
+    }
     },
     "fields": {
       "subject": {

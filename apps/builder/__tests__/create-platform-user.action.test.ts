@@ -5,12 +5,12 @@ import { beforeEach, describe, expect, test, vi } from "vitest"
 const {
   mockCreatePlatformUser,
   mockDeleteUnverified,
-  mockSignInMagicLink,
+  mockRequestPasswordSetup,
   mockHeaders,
 } = vi.hoisted(() => ({
   mockCreatePlatformUser: vi.fn(),
   mockDeleteUnverified: vi.fn().mockResolvedValue(undefined),
-  mockSignInMagicLink: vi.fn().mockResolvedValue(undefined),
+  mockRequestPasswordSetup: vi.fn().mockResolvedValue(undefined),
   mockHeaders: vi.fn().mockResolvedValue(new Headers()),
 }))
 
@@ -21,16 +21,20 @@ vi.mock("@/lib/safe-action", () => {
   return { superAdminActionClient: chain }
 })
 
+vi.mock("@/env", () => ({
+  env: { NEXT_PUBLIC_BUILDER_URL: "https://builder.test" },
+}))
+
+vi.mock("@chatbotx.io/auth/password-setup", () => ({
+  requestPasswordSetup: mockRequestPasswordSetup,
+}))
+
 vi.mock("@chatbotx.io/business", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@chatbotx.io/business")>()),
   userService: {
     createPlatformUser: mockCreatePlatformUser,
     deleteUnverifiedPlatformUser: mockDeleteUnverified,
   },
-}))
-
-vi.mock("@/lib/auth/auth", () => ({
-  auth: { api: { signInMagicLink: mockSignInMagicLink } },
 }))
 
 vi.mock("next/headers", () => ({
@@ -52,11 +56,11 @@ const ctx = { user: { id: "admin-1", email: "admin@example.com" } }
 beforeEach(() => {
   vi.clearAllMocks()
   mockDeleteUnverified.mockResolvedValue(undefined)
-  mockSignInMagicLink.mockResolvedValue(undefined)
+  mockRequestPasswordSetup.mockResolvedValue(undefined)
 })
 
 describe("createPlatformUserAction", () => {
-  test("happy path: creates unverified user, sends magic link, audits", async () => {
+  test("happy path: creates unverified user and requests the set-password email", async () => {
     mockCreatePlatformUser.mockResolvedValue({
       id: "u-1",
       email: "nuevo@fibrazo.com",
@@ -77,15 +81,19 @@ describe("createPlatformUserAction", () => {
       email: "Nuevo@Fibrazo.com",
       name: "  Nuevo  ",
     })
-    expect(mockSignInMagicLink).toHaveBeenCalledTimes(1)
-    expect(mockSignInMagicLink).toHaveBeenCalledWith({
-      body: { email: "nuevo@fibrazo.com" },
-      headers: expect.anything(),
+    expect(mockRequestPasswordSetup).toHaveBeenCalledTimes(1)
+    // A synthetic request built from the incoming headers, based on the
+    // platform builder URL.
+    expect(mockRequestPasswordSetup).toHaveBeenCalledWith({
+      email: "nuevo@fibrazo.com",
+      request: expect.any(Request),
     })
+    const { request } = mockRequestPasswordSetup.mock.calls[0][0]
+    expect(request.url).toBe("https://builder.test/")
     expect(mockDeleteUnverified).not.toHaveBeenCalled()
   })
 
-  test("duplicate email: service rejects, no magic link sent", async () => {
+  test("duplicate email: service rejects, no password-setup email requested", async () => {
     mockCreatePlatformUser.mockRejectedValue(
       new Error("A user with email x@y.com already exists"),
     )
@@ -94,7 +102,7 @@ describe("createPlatformUserAction", () => {
       handler({ ctx, parsedInput: { email: "x@y.com" } }),
     ).rejects.toThrow("already exists")
 
-    expect(mockSignInMagicLink).not.toHaveBeenCalled()
+    expect(mockRequestPasswordSetup).not.toHaveBeenCalled()
     expect(mockDeleteUnverified).not.toHaveBeenCalled()
   })
 
@@ -104,7 +112,7 @@ describe("createPlatformUserAction", () => {
       email: "fallo@fibrazo.com",
       name: null,
     })
-    mockSignInMagicLink.mockRejectedValue(new Error("SMTP down"))
+    mockRequestPasswordSetup.mockRejectedValue(new Error("SMTP down"))
 
     await expect(
       handler({ ctx, parsedInput: { email: "fallo@fibrazo.com" } }),

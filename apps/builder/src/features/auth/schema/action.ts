@@ -67,3 +67,19 @@ export const changePasswordRequest = z
     path: ["newPassword"],
   })
 export type ChangePasswordRequest = z.infer<typeof changePasswordRequest>
+
+export const setPasswordRequest = z
+  .object({
+    token: z.string(),
+    newPassword: z.string().min(8).max(100),
+    passwordConfirmation: z.string().min(8).max(100),
+  })
+  .refine(
+    (data) =>
+      data.newPassword && data.newPassword === data.passwordConfirmation,
+    {
+      message: "Passwords do not match",
+      path: ["passwordConfirmation"],
+    },
+  )
+export type SetPasswordRequest = z.infer<typeof setPasswordRequest>

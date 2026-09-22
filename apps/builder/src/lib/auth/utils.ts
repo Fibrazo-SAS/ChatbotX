@@ -15,7 +15,16 @@ import { auth } from "./auth"
 // `tenantId` is the white-label tenant key. It is deliberately never returned by
 // the auth session (see `additionalFields.tenantId.returned = false` in
 // `@chatbotx.io/auth/server`), so the session-derived user never carries it.
-export type SessionUser = Omit<UserModel, "tenantId" | "deactivatedAt">
+// The onboarding/token columns (ticket 15137) are internal and likewise never
+// leave better-auth's session payload.
+export type SessionUser = Omit<
+  UserModel,
+  | "tenantId"
+  | "deactivatedAt"
+  | "onboardingCompletedAt"
+  | "passwordSetupTokenHash"
+  | "passwordSetupTokenExpiresAt"
+>
 
 export const getCurrentUserId = async (): Promise<string | null> => {
   const session = await auth.api.getSession({

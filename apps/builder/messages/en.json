@@ -3464,6 +3464,10 @@
     "passwordResetSuccess": "Password reset successfully",
     "resetPasswordTitle": "Reset your password",
     "resetPasswordDescription": "Enter your new password below.",
+    "setPasswordTitle": "Set your password",
+    "setPasswordDescription": "Welcome! Set a password below to activate your account. You'll sign in with this password from now on.",
+    "setPasswordSuccess": "Password set successfully. You can now sign in.",
+    "setPasswordLinkInvalid": "This link is invalid or has expired. Contact your administrator to request a new one.",
     "signUpTitle": "Sign up to {name}",
     "changePasswordTitle": "Change your password",
     "changePasswordDescription": "Set a new password before continuing.",
@@ -4951,10 +4955,10 @@
     "title": "Email Templates",
     "description": "Leave subject and body blank to use the system default template.",
     "sections": {
-      "signup": {
-        "title": "Signup Verification Email",
-        "description": "Sent when a new user registers an account"
-      },
+    "signup": {
+      "title": "Signup Verification Email",
+      "description": "Sent when a new user is created — they verify their email and set their password"
+    },
       "forgotPassword": {
         "title": "Forgot Password Email",
         "description": "Sent when a user requests a password reset"

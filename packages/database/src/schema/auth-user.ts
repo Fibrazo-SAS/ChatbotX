@@ -35,6 +35,17 @@ export const userModel = pgTable(
     // in packages/auth) and existing sessions are revoked on deactivation.
     // NULL = active. Reactivation clears it.
     deactivatedAt: timestamp(timestampConfig),
+    // Onboarding gate for newly created users (ticket 15137): NULL means the
+    // user still has to set their password via the set-password link — they
+    // only receive the set-password email, never a magic link. Backfilled to
+    // `createdAt` for pre-existing users so the legacy magic-link flow keeps
+    // working untouched for them.
+    onboardingCompletedAt: timestamp(timestampConfig),
+    // Single-use, 24h token for the initial password-setup link. Only the
+    // SHA-256 hex digest is stored; the raw token goes out in the email.
+    // NULL when no setup is pending.
+    passwordSetupTokenHash: text(),
+    passwordSetupTokenExpiresAt: timestamp(timestampConfig),
     // Tenant key for white-label isolation. Defaults to the root tenant (the
     // platform / main site). When it points at a reseller's `Tenant`, this row
     // is an end-customer (sub-account) isolated inside that tenant. Email is
@@ -51,6 +62,12 @@ export const userModel = pgTable(
     // Per-tenant email uniqueness: the same email may exist once per tenant
     // (platform or any reseller), all as fully isolated rows.
     uniqueIndex("User_email_tenant_key").on(table.email, table.tenantId),
+    // O(1) lookup of a pending password-setup token by its hash. PostgreSQL
+    // unique indexes allow multiple NULLs, so users without a pending setup
+    // are unaffected.
+    uniqueIndex("User_passwordSetupTokenHash_key").on(
+      table.passwordSetupTokenHash,
+    ),
     index("User_tenantId_idx").on(table.tenantId),
   ],
 )
