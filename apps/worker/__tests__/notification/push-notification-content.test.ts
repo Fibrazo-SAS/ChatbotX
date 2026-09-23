@@ -102,9 +102,18 @@ describe("buildNotificationContent", () => {
     const result = buildNotificationContent({
       job: incomingMessageJob({ contentType: "location" }),
       contactFullName: "Jane",
-      workspaceLanguage: "vi",
+      workspaceLanguage: "es",
     })
-    expect(result.body).toBe("Đã chia sẻ vị trí")
+    expect(result.body).toBe("Compartió una ubicación")
+  })
+
+  test("returns Brazilian Portuguese copy for pt-BR", () => {
+    const result = buildNotificationContent({
+      job: incomingMessageJob({ contentType: "location" }),
+      contactFullName: "Jane",
+      workspaceLanguage: "pt-BR",
+    })
+    expect(result.body).toBe("Compartilhou uma localização")
   })
 
   test("falls back to en when workspace language is undefined", () => {

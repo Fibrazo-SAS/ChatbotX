@@ -32,9 +32,7 @@ export async function GET(
     return new Response(null, { status: 404 })
   }
 
-  const csv = buildContactsImportTemplateCsv(
-    userAndWorkspace.targetWorkspace.language,
-  )
+  const csv = buildContactsImportTemplateCsv()
 
   return new Response(csv, {
     headers: {

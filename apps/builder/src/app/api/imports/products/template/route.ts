@@ -6,9 +6,8 @@ import { getLocale, getTranslations } from "next-intl/server"
 
 export async function GET() {
   const locale = await getLocale()
-  const supportedLocale = locale === "vi" ? "vi" : "en"
   const t = await getTranslations({
-    locale: supportedLocale,
+    locale,
     namespace: "productImport.template",
   })
   const labels: ProductTemplateLabels = {
@@ -58,7 +57,7 @@ export async function GET() {
     headers: {
       "Content-Type":
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": `attachment; filename="product-import-${supportedLocale}.xlsx"`,
+      "Content-Disposition": `attachment; filename="product-import-${locale}.xlsx"`,
       "Cache-Control": "private, max-age=300",
     },
   })

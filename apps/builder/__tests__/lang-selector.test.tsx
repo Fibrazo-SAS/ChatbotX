@@ -26,7 +26,7 @@ vi.mock("next/navigation", () => ({
 }))
 
 vi.mock("next-intl", () => ({
-  useLocale: () => "zh-TW",
+  useLocale: () => "es",
   useTranslations: () => (key: string) => key,
 }))
 
@@ -114,18 +114,18 @@ describe("LangSelector", () => {
 
   test("refreshes after the locale cookie write resolves", async () => {
     const option = container.querySelector<HTMLButtonElement>(
-      'button[aria-label="简体中文"]',
+      'button[aria-label="Português (Brasil)"]',
     )
 
     if (!option) {
-      throw new Error("simplified chinese option not rendered")
+      throw new Error("brazilian portuguese option not rendered")
     }
 
     act(() => {
       option.click()
     })
 
-    expect(localeAction.setUserLocale).toHaveBeenCalledWith("zh-CN")
+    expect(localeAction.setUserLocale).toHaveBeenCalledWith("pt-BR")
     expect(navigation.refresh).not.toHaveBeenCalled()
 
     await act(() => {
@@ -140,7 +140,7 @@ describe("LangSelector", () => {
       'button[role="combobox"]',
     )
     const option = container.querySelector<HTMLButtonElement>(
-      'button[aria-label="简体中文"]',
+      'button[aria-label="Português (Brasil)"]',
     )
 
     if (!(trigger && option)) {
