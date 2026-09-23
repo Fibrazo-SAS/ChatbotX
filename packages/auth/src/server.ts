@@ -1,8 +1,4 @@
-import {
-  customDomainService,
-  platformCredentialService,
-  resolveTenantSettingsByDomain,
-} from "@chatbotx.io/business"
+import { customDomainService } from "@chatbotx.io/business"
 import { db } from "@chatbotx.io/database/client"
 import {
   accountModel,
@@ -19,7 +15,6 @@ import {
   sendResetPassword,
   sendSignUpVerification,
 } from "@chatbotx.io/mail"
-import type { SmtpTransportOptions } from "@chatbotx.io/mail/transport"
 import { createId, getPublicOriginFromRequest } from "@chatbotx.io/utils"
 import { APIError, betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
@@ -27,60 +22,9 @@ import { nextCookies } from "better-auth/next-js"
 import { anonymous, bearer, magicLink, oneTimeToken } from "better-auth/plugins"
 import { PHASE_PRODUCTION_BUILD } from "next/constants"
 import { env, getBrokerUrl } from "./keys"
-import { logger } from "./logger"
+import { requestPasswordSetup } from "./password-setup"
 import { getTenantId, resolveTenantOwnerId } from "./tenant-context"
-
-const getTenantSettings = async (request: Request) => {
-  const domain = request.headers.get("x-domain") ?? ""
-  return await resolveTenantSettingsByDomain(domain)
-}
-
-type SmtpResolution =
-  | { kind: "default" }
-  | {
-      kind: "transport"
-      transport: SmtpTransportOptions & {
-        fromEmail: string
-        fromName?: string
-      }
-    }
-  | { kind: "blocked" }
-
-const resolveSmtpForTenant = async (): Promise<SmtpResolution> => {
-  const tenantId = getTenantId()
-  const ownerId = await resolveTenantOwnerId(tenantId)
-  // The platform's own tenant (root, self-hosted) always sends through the
-  // default SMTP from the environment (e.g. MailHog in local dev). The
-  // `blocked` arm below is only for white-label resellers that have an owner
-  // but no SMTP credential of their own — never blocking the platform itself.
-  if (!ownerId || tenantId === ROOT_TENANT_ID) {
-    return { kind: "default" }
-  }
-
-  const smtp = await platformCredentialService.findDecryptedForUser({
-    userId: ownerId,
-    type: "smtp",
-  })
-  if (!smtp) {
-    logger.warn(
-      { tenantId, ownerId },
-      "Reseller has no SMTP credential configured; skipping auth email send",
-    )
-    return { kind: "blocked" }
-  }
-
-  return {
-    kind: "transport",
-    transport: {
-      host: smtp.config.host,
-      port: smtp.config.port,
-      username: smtp.config.username,
-      password: smtp.config.password,
-      fromEmail: smtp.config.fromEmail,
-      fromName: smtp.config.fromName,
-    },
-  }
-}
+import { getTenantSettings, resolveSmtpForTenant } from "./tenant-email"
 
 type AdapterFactory = ReturnType<typeof drizzleAdapter>
 type AuthAdapter = ReturnType<AdapterFactory>
@@ -692,6 +636,7 @@ export function createAuth(config: AuthConfig) {
             name: brandName,
             logoLightUrl,
             magicLinkEmailTemplate,
+            signupEmailTemplate,
           } = platformInfo
 
           const tenantId = getTenantId()
@@ -721,6 +666,32 @@ export function createAuth(config: AuthConfig) {
             throw new APIError(400, {
               message: `Your email is not registered with ${brandName}`,
             })
+          }
+
+          // New-user onboarding (ticket 15137): a user still pending their
+          // initial password setup must never receive a magic link — clicking
+          // it would verify them without credentials and skip the mandatory
+          // onboarding. Re-send the set-password email instead, which is also
+          // their self-serve recovery path if they lost the original email.
+          // Pre-existing users were backfilled to `onboardingCompletedAt` by
+          // the migration, so they always take the legacy magic-link path
+          // below, unchanged.
+          if (user.onboardingCompletedAt === null) {
+            await requestPasswordSetup({
+              email,
+              request: request as unknown as Request,
+              context: {
+                originUrl,
+                platformInfo: {
+                  name: brandName,
+                  logoLightUrl,
+                  signupEmailTemplate,
+                },
+                smtpResolution,
+              },
+              user: { id: user.id, name: user.name },
+            })
+            return
           }
 
           const props = {

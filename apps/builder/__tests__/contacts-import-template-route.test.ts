@@ -21,9 +21,6 @@ const UTF8_BOM_BYTES = [0xef, 0xbb, 0xbf]
 const EN_TEMPLATE =
   '"Contact ID","Phone number","Email","First name","Last name","WhatsApp User ID"\n' +
   '"1234567890","+14155550100","john.doe@example.com","John","Doe","user.9187654321098765"\n'
-const VI_TEMPLATE =
-  '"ID Liên hệ","Số điện thoại","Email","Tên","Họ","ID người dùng WhatsApp"\n' +
-  '"1234567890","+84155550100","an.nguyen@example.com","An","Nguyễn","user.9187654321098765"\n'
 
 const { GET } = await import(
   "../src/app/(no-sidebar)/space/[workspaceId]/contacts/import/template/route"
@@ -50,7 +47,7 @@ describe("contacts import template download route", () => {
     mockCanAccessContactsSection.mockReturnValue(true)
   })
 
-  test("returns an English CSV attachment for a non-Vietnamese workspace", async () => {
+  test("returns an English CSV attachment for an English workspace", async () => {
     mockGetUserAndWorkspace.mockResolvedValue(workspaceWithLanguage("en"))
 
     const res = await callRoute("ws-1")
@@ -66,7 +63,7 @@ describe("contacts import template download route", () => {
     expect(mockGetUserAndWorkspace).toHaveBeenCalledWith("ws-1")
   })
 
-  test("returns a Vietnamese CSV attachment for a Vietnamese workspace", async () => {
+  test("returns the English CSV for a workspace with any other language", async () => {
     mockGetUserAndWorkspace.mockResolvedValue(workspaceWithLanguage("vi"))
 
     const res = await callRoute("ws-1")
@@ -74,7 +71,7 @@ describe("contacts import template download route", () => {
 
     expect(res.status).toBe(200)
     expect([...bytes.subarray(0, 3)]).toEqual(UTF8_BOM_BYTES)
-    expect(bytes.subarray(3).toString("utf-8")).toBe(VI_TEMPLATE)
+    expect(bytes.subarray(3).toString("utf-8")).toBe(EN_TEMPLATE)
   })
 
   test("404s when the caller is not a member of the workspace", async () => {

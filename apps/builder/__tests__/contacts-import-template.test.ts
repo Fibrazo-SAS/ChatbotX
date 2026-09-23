@@ -12,41 +12,16 @@ describe("buildContactsImportTemplateCsv", () => {
   const EN_TEMPLATE =
     '"Contact ID","Phone number","Email","First name","Last name","WhatsApp User ID"\n' +
     '"1234567890","+14155550100","john.doe@example.com","John","Doe","user.9187654321098765"\n'
-  const VI_TEMPLATE =
-    '"ID Liên hệ","Số điện thoại","Email","Tên","Họ","ID người dùng WhatsApp"\n' +
-    '"1234567890","+84155550100","an.nguyen@example.com","An","Nguyễn","user.9187654321098765"\n'
 
-  test("returns quoted English headers and an example row with a UTF-8 BOM for the en language", () => {
-    const csv = buildContactsImportTemplateCsv("en")
+  test("returns quoted English headers and an example row with a UTF-8 BOM", () => {
+    const csv = buildContactsImportTemplateCsv()
 
     expect(csv.startsWith(UTF8_BOM)).toBe(true)
     expect(csv.slice(UTF8_BOM.length)).toBe(EN_TEMPLATE)
   })
 
-  test("returns quoted Vietnamese headers and example row for the vi language", () => {
-    const csv = buildContactsImportTemplateCsv("vi")
-
-    expect(csv.slice(UTF8_BOM.length)).toBe(VI_TEMPLATE)
-  })
-
-  test("falls back to the English template for any language other than vi", () => {
-    const fr = buildContactsImportTemplateCsv("fr")
-    const empty = buildContactsImportTemplateCsv("")
-
-    expect(fr.slice(UTF8_BOM.length)).toBe(EN_TEMPLATE)
-    expect(empty.slice(UTF8_BOM.length)).toBe(EN_TEMPLATE)
-  })
-
-  test("resolves regional variants to their base language", () => {
-    // "vi-VN" must resolve like "vi"; en-* variants (and unmapped locales) fall
-    // back to English — this guards the resolveLocale() delegation.
-    const csv = buildContactsImportTemplateCsv("vi-VN")
-
-    expect(csv.slice(UTF8_BOM.length)).toBe(VI_TEMPLATE)
-  })
-
   test("emits a header row and exactly one example data row", () => {
-    const csv = buildContactsImportTemplateCsv("en")
+    const csv = buildContactsImportTemplateCsv()
     const rows = csv.slice(UTF8_BOM.length).trimEnd().split("\n")
 
     expect(CONTACTS_IMPORT_TEMPLATE_COLUMNS).toEqual([

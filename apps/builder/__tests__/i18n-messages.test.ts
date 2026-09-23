@@ -1,13 +1,7 @@
 // @vitest-environment node
 import { readdirSync } from "node:fs"
 import { describe, expect, test } from "vitest"
-import {
-  isLocale,
-  type Locale,
-  localeMeta,
-  locales,
-  resolveLocale,
-} from "@/i18n/config"
+import { localeMeta, locales, resolveLocale } from "@/i18n/config"
 import { getDirection } from "@/i18n/direction"
 import { messagesByLocale } from "@/i18n/messages"
 
@@ -32,16 +26,10 @@ const flattenMessages = (
 const englishMessages = flattenMessages(messagesByLocale.en)
 const englishKeys = Object.keys(englishMessages).sort()
 const placeholderPattern = /\{[A-Za-z][\w.-]*\}/g
-const forbiddenGeneratedTokenPattern = /⟪TK\d+⟫|\bTK\d+\b|ROW_/
 const icuHeaderPattern =
   /\{([A-Za-z][\w.-]*),\s*(plural|select|selectordinal)\s*,/g
 const icuCategoryPattern = /^\s*(=?[\w-]+)\s*\{/
-const zeroWidthPattern = /\u200b|\u200c|\u200d|\ufeff/
-const completeCatalogLocales = ["en", "vi"] as const
-const cjkCatalogLocales = ["zh-TW", "zh-CN"].filter((locale) =>
-  isLocale(locale),
-)
-const expectedSimplifiedChineseLocale = isLocale("zh-CN") ? "zh-CN" : "en"
+const completeCatalogLocales = ["en", "es", "pt-BR", "pt-PT"] as const
 
 type IcuStructure = {
   argument: string
@@ -192,67 +180,23 @@ describe("builder message catalogs", () => {
     expect(Object.keys(messagesByLocale).sort()).toEqual([...locales])
   })
 
-  test.each(
-    cjkCatalogLocales,
-  )("%s preserves newline counts from English", (locale) => {
-    const translatedMessages = flattenMessages(messagesByLocale[locale])
-
-    for (const [key, translatedValue] of Object.entries(translatedMessages)) {
-      expect(typeof englishMessages[key], key).toBe("string")
-      expect(typeof translatedValue, key).toBe("string")
-      expect((translatedValue as string).split("\n").length, key).toBe(
-        (englishMessages[key] as string).split("\n").length,
-      )
-    }
-  })
-
-  test.each(
-    cjkCatalogLocales,
-  )("%s contains no generated token markers or zero-width characters", (locale) => {
-    const translatedMessages = flattenMessages(messagesByLocale[locale])
-
-    for (const [key, translatedValue] of Object.entries(translatedMessages)) {
-      expect(typeof translatedValue, key).toBe("string")
-      expect(translatedValue as string, key).not.toMatch(
-        forbiddenGeneratedTokenPattern,
-      )
-      expect(translatedValue as string, key).not.toMatch(zeroWidthPattern)
-    }
+  test.each(locales)("%s renders left-to-right", (locale) => {
+    expect(getDirection(locale)).toBe("ltr")
   })
 })
 
 describe("locale resolution", () => {
   test.each([
     ["pt", "pt-BR"],
+    ["pt-BR", "pt-BR"],
+    ["pt-PT", "pt-PT"],
     ["en-US", "en"],
-    ["zh-Hant", "zh-TW"],
-    ["zh-hant", "zh-TW"],
-    ["ZH-HANT", "zh-TW"],
-    ["zh-Hant-TW", "zh-TW"],
-    ["zh-HK", "zh-TW"],
-    ["zh-hk", "zh-TW"],
-    ["zh-HK-x-private", "zh-TW"],
-    ["zh-MO", "zh-TW"],
-    ["zh-mo", "zh-TW"],
-    ["zh-MO-x-private", "zh-TW"],
-    ["zh-TW", "zh-TW"],
-    ["zh-tw", "zh-TW"],
-    ["zh-TW-x-private", "zh-TW"],
-    ["zh-tw-x-private", "zh-TW"],
-    ["zh-CN", expectedSimplifiedChineseLocale],
-    ["zh-CN-x-private", expectedSimplifiedChineseLocale],
-    ["zh-cn", expectedSimplifiedChineseLocale],
-    ["ZH-CN", expectedSimplifiedChineseLocale],
-    ["zh-Hans", expectedSimplifiedChineseLocale],
-    ["zh-hans", expectedSimplifiedChineseLocale],
-    ["zh-Hans-CN", expectedSimplifiedChineseLocale],
-    ["zh", expectedSimplifiedChineseLocale],
+    ["es-AR", "es"],
+    ["zh-CN", "en"],
+    ["zh-TW", "en"],
+    ["zh", "en"],
     ["xx", "en"],
   ] as const)("resolves %s to %s", (input, expected) => {
     expect(resolveLocale(input)).toBe(expected)
-  })
-
-  test("Hebrew uses right-to-left direction", () => {
-    expect(getDirection("he" satisfies Locale)).toBe("rtl")
   })
 })

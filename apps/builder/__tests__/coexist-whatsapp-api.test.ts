@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 import enMessages from "../messages/en.json"
-import viMessages from "../messages/vi.json"
+import esMessages from "../messages/es.json"
 
 // ---- mock: database client -----------------------------------------------
 // Chainable update builder: set → where → returning.
@@ -302,7 +302,7 @@ describe("disconnectWhatsappAction — workspace membership guard (H11)", () => 
 // These assertions verify that the keys referenced in the coexist toggle
 // components (and whatsapp-create.tsx) exist in BOTH locale files.
 describe("i18n key presence (H12)", () => {
-  test("coexist.toggleHelperMessenger is defined in en.json and vi.json", () => {
+  test("coexist.toggleHelperMessenger is defined in en.json and es.json", () => {
     expect(
       (
         enMessages as unknown as Record<string, unknown> & {
@@ -312,14 +312,14 @@ describe("i18n key presence (H12)", () => {
     ).toBeDefined()
     expect(
       (
-        viMessages as unknown as Record<string, unknown> & {
+        esMessages as unknown as Record<string, unknown> & {
           coexist: Record<string, unknown>
         }
       ).coexist.toggleHelperMessenger,
     ).toBeDefined()
   })
 
-  test("coexist.toggleHelperWhatsapp is defined in en.json and vi.json", () => {
+  test("coexist.toggleHelperWhatsapp is defined in en.json and es.json", () => {
     expect(
       (
         enMessages as unknown as Record<string, unknown> & {
@@ -329,14 +329,14 @@ describe("i18n key presence (H12)", () => {
     ).toBeDefined()
     expect(
       (
-        viMessages as unknown as Record<string, unknown> & {
+        esMessages as unknown as Record<string, unknown> & {
           coexist: Record<string, unknown>
         }
       ).coexist.toggleHelperWhatsapp,
     ).toBeDefined()
   })
 
-  test("coexist.aiReadsSyncedHistoryLabel is defined in en.json and vi.json", () => {
+  test("coexist.aiReadsSyncedHistoryLabel is defined in en.json and es.json", () => {
     expect(
       (
         enMessages as unknown as Record<string, unknown> & {
@@ -346,14 +346,14 @@ describe("i18n key presence (H12)", () => {
     ).toBeDefined()
     expect(
       (
-        viMessages as unknown as Record<string, unknown> & {
+        esMessages as unknown as Record<string, unknown> & {
           coexist: Record<string, unknown>
         }
       ).coexist.aiReadsSyncedHistoryLabel,
     ).toBeDefined()
   })
 
-  test("coexist.aiReadsSyncedHistoryHelper is defined in en.json and vi.json", () => {
+  test("coexist.aiReadsSyncedHistoryHelper is defined in en.json and es.json", () => {
     expect(
       (
         enMessages as unknown as Record<string, unknown> & {
@@ -363,14 +363,14 @@ describe("i18n key presence (H12)", () => {
     ).toBeDefined()
     expect(
       (
-        viMessages as unknown as Record<string, unknown> & {
+        esMessages as unknown as Record<string, unknown> & {
           coexist: Record<string, unknown>
         }
       ).coexist.aiReadsSyncedHistoryHelper,
     ).toBeDefined()
   })
 
-  test("whatsapp.fillRequiredFields is defined in en.json and vi.json", () => {
+  test("whatsapp.fillRequiredFields is defined in en.json and es.json", () => {
     expect(
       (
         enMessages as Record<string, unknown> & {
@@ -380,14 +380,14 @@ describe("i18n key presence (H12)", () => {
     ).toBeDefined()
     expect(
       (
-        viMessages as Record<string, unknown> & {
+        esMessages as Record<string, unknown> & {
           whatsapp: Record<string, unknown>
         }
       ).whatsapp.fillRequiredFields,
     ).toBeDefined()
   })
 
-  test("whatsapp.continueManualConnect is defined in en.json and vi.json", () => {
+  test("whatsapp.continueManualConnect is defined in en.json and es.json", () => {
     expect(
       (
         enMessages as Record<string, unknown> & {
@@ -397,7 +397,7 @@ describe("i18n key presence (H12)", () => {
     ).toBeDefined()
     expect(
       (
-        viMessages as Record<string, unknown> & {
+        esMessages as Record<string, unknown> & {
           whatsapp: Record<string, unknown>
         }
       ).whatsapp.continueManualConnect,

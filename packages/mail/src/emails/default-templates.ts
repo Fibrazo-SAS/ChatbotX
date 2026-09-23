@@ -16,19 +16,21 @@ function buildDefaultMjml(subject: string, bodyMjml: string): string {
   )
 }
 
-export const DEFAULT_SIGNUP_SUBJECT = "Verify your email address"
+export const DEFAULT_SIGNUP_SUBJECT =
+  "Welcome to {{brandName}} — set your password"
 
 export const SIGNUP_BODY_MJML = `<mj-section padding="0 0 16px 0">
       <mj-column>
         <mj-text padding="0 0 8px 0">Hi {{userName}},</mj-text>
         <mj-text padding="0">
-          Thanks for signing up! Please verify your email address by clicking the button below.
+          Your {{brandName}} account has been created. Click the button below
+          to verify your email address and set your password.
         </mj-text>
       </mj-column>
     </mj-section>
     <mj-section padding="0 0 16px 0">
       <mj-column>
-        <mj-button href="{{verificationUrl}}" align="left">Verify Email Address</mj-button>
+        <mj-button href="{{verificationUrl}}" align="left">Verify email & set password</mj-button>
         <mj-text padding="8px 0 0 0" font-size="13px" color="#888888">
           Or use this link: <a href="{{verificationUrl}}" style="color:#3b82f6">{{verificationUrl}}</a>
         </mj-text>
@@ -37,7 +39,8 @@ export const SIGNUP_BODY_MJML = `<mj-section padding="0 0 16px 0">
     <mj-section padding="0 0 16px 0">
       <mj-column>
         <mj-text padding="0" font-size="14px" color="#888888">
-          This link will expire in 24 hours. If you didn't create an account, you can ignore this email.
+          This link will expire in 24 hours and can only be used once.
+          If you didn't expect this email, you can safely ignore it.
         </mj-text>
       </mj-column>
     </mj-section>`

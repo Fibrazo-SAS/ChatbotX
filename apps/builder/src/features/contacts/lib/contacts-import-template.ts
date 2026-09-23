@@ -1,4 +1,3 @@
-import { resolveLocale } from "@/i18n/config"
 import { messagesByLocale } from "@/i18n/messages"
 
 export const CONTACTS_IMPORT_TEMPLATE_FILENAME = "contacts-import-template.csv"
@@ -22,13 +21,6 @@ export const CONTACTS_IMPORT_TEMPLATE_COLUMNS = [
 type ContactsImportTemplateColumn =
   (typeof CONTACTS_IMPORT_TEMPLATE_COLUMNS)[number]
 
-// Only Vietnamese and English template headers are supported today.
-const TEMPLATE_LOCALES = ["vi", "en"] as const
-type TemplateLocale = (typeof TEMPLATE_LOCALES)[number]
-
-const resolveTemplateLocale = (language: string): TemplateLocale =>
-  resolveLocale(language) === "vi" ? "vi" : "en"
-
 // Maps a template column to the i18n `fields.*` key that carries its label.
 // Only `sourceUserId` differs from its own name — it reuses the existing
 // `waUserId` key shipped with the BSUID feature rather than adding a new one.
@@ -48,43 +40,21 @@ type FieldLabelMessages = {
   fields?: Partial<Record<string, { label?: string }>>
 }
 
-const resolveColumnLabel = (
-  locale: TemplateLocale,
-  column: ContactsImportTemplateColumn,
-): string => {
+const resolveColumnLabel = (column: ContactsImportTemplateColumn): string => {
   const messageKey = TEMPLATE_COLUMN_MESSAGE_KEY[column]
-  const localizedFields = (messagesByLocale[locale] as FieldLabelMessages)
-    .fields
   const englishFields = (messagesByLocale.en as FieldLabelMessages).fields
-  return (
-    localizedFields?.[messageKey]?.label ??
-    englishFields?.[messageKey]?.label ??
-    column
-  )
+  return englishFields?.[messageKey]?.label ?? column
 }
 
 // A single filled-in row so users see the expected format for each column
 // rather than an empty template.
-const TEMPLATE_EXAMPLE_ROW: Record<
-  TemplateLocale,
-  Record<ContactsImportTemplateColumn, string>
-> = {
-  en: {
-    contactId: "1234567890",
-    phoneNumber: "+14155550100",
-    email: "john.doe@example.com",
-    firstName: "John",
-    lastName: "Doe",
-    sourceUserId: "user.9187654321098765",
-  },
-  vi: {
-    contactId: "1234567890",
-    phoneNumber: "+84155550100",
-    email: "an.nguyen@example.com",
-    firstName: "An",
-    lastName: "Nguyễn",
-    sourceUserId: "user.9187654321098765",
-  },
+const TEMPLATE_EXAMPLE_ROW: Record<ContactsImportTemplateColumn, string> = {
+  contactId: "1234567890",
+  phoneNumber: "+14155550100",
+  email: "john.doe@example.com",
+  firstName: "John",
+  lastName: "Doe",
+  sourceUserId: "user.9187654321098765",
 }
 
 // Always quotes and doubles embedded quotes, mirroring the `escapeCsvValue`
@@ -99,22 +69,21 @@ const buildCsvRow = (values: readonly string[]): string =>
   values.map(escapeCsvValue).join(",")
 
 /**
- * Builds the contacts-import CSV template: a localized header row covering
- * every channel's import columns followed by one example data row, prefixed
- * with a UTF-8 BOM so spreadsheet apps (Excel, Sheets) render non-ASCII
- * labels correctly.
+ * Builds the contacts-import CSV template: a header row covering every
+ * channel's import columns followed by one example data row, prefixed with a
+ * UTF-8 BOM so spreadsheet apps (Excel, Sheets) render non-ASCII labels
+ * correctly.
  */
-export const buildContactsImportTemplateCsv = (language: string): string => {
-  const locale = resolveTemplateLocale(language)
-  const example = TEMPLATE_EXAMPLE_ROW[locale]
-
+export const buildContactsImportTemplateCsv = (): string => {
   const headerRow = buildCsvRow(
     CONTACTS_IMPORT_TEMPLATE_COLUMNS.map((column) =>
-      resolveColumnLabel(locale, column),
+      resolveColumnLabel(column),
     ),
   )
   const exampleRow = buildCsvRow(
-    CONTACTS_IMPORT_TEMPLATE_COLUMNS.map((column) => example[column]),
+    CONTACTS_IMPORT_TEMPLATE_COLUMNS.map(
+      (column) => TEMPLATE_EXAMPLE_ROW[column],
+    ),
   )
 
   return `﻿${headerRow}\n${exampleRow}\n`
