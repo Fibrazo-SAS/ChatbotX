@@ -4625,6 +4625,37 @@
         "button": "Crear espacio de trabajo",
         "title": "Crear espacio de trabajo",
         "description": "Crea un workspace de plataforma. Después podés asignarle usuarios desde la página Usuarios."
+      },
+      "owners": {
+        "count": "{count, plural, one {# propietario} other {# propietarios}}",
+        "title": "Miembros de {name}",
+        "description": "Agregá miembros, cambiá roles o remové miembros de este espacio de trabajo.",
+        "empty": "Este espacio de trabajo no tiene miembros.",
+        "add": "Agregar miembro",
+        "searchPlaceholder": "Buscar usuarios por nombre o email...",
+        "added": "Miembro agregado.",
+        "removed": "Miembro removido.",
+        "roleChanged": "Rol actualizado.",
+        "remove": "Remover miembro"
+      },
+      "actions": {
+        "manageOwners": "Gestionar miembros",
+        "activate": "Activar",
+        "deactivate": "Desactivar",
+        "activated": "Espacio de trabajo activado.",
+        "deactivated": "Espacio de trabajo desactivado.",
+        "scheduleDeletion": "Eliminar espacio de trabajo",
+        "cancelDeletion": "Cancelar eliminación",
+        "deletionScheduled": "Espacio de trabajo programado para eliminación.",
+        "deletionCancelled": "Eliminación del espacio de trabajo cancelada.",
+        "scheduleDeletionConfirm": {
+          "title": "Eliminar espacio de trabajo",
+          "description": "\"{name}\" se desactivará de inmediato y se eliminará definitivamente después de un período de gracia de 24 horas. Podés cancelar la eliminación desde este listado durante el período de gracia."
+        }
+      },
+      "state": {
+        "scheduledForDeletion": "Programado para eliminación",
+        "inactive": "Inactivo"
       }
     }
   },

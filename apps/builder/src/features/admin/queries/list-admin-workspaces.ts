@@ -37,6 +37,8 @@ export async function listAdminWorkspaces(
         name: true,
         createdAt: true,
         tenantId: true,
+        isActive: true,
+        scheduledDeletionAt: true,
       },
       with: {
         workspaceMembers: {
@@ -55,20 +57,33 @@ export async function listAdminWorkspaces(
   const pageCount = Math.ceil(totalRows / pagination.limit)
 
   return {
-    data: data.map((workspace) => ({
-      id: workspace.id,
-      name: workspace.name,
-      createdAt: workspace.createdAt,
-      tenantId: workspace.tenantId,
-      owners: workspace.workspaceMembers
+    data: data.map((workspace) => {
+      const owners = workspace.workspaceMembers
         .filter((member) => member.role === "owner")
         .map((member) => ({
           id: member.user.id,
           name: member.user.name,
           email: member.user.email,
+        }))
+
+      return {
+        id: workspace.id,
+        name: workspace.name,
+        createdAt: workspace.createdAt,
+        tenantId: workspace.tenantId,
+        isActive: workspace.isActive,
+        scheduledDeletionAt: workspace.scheduledDeletionAt,
+        owners,
+        members: workspace.workspaceMembers.map((member) => ({
+          id: member.user.id,
+          name: member.user.name,
+          email: member.user.email,
+          role: member.role,
         })),
-      memberCount: workspace.workspaceMembers.length,
-    })),
+        ownerCount: owners.length,
+        memberCount: workspace.workspaceMembers.length,
+      }
+    }),
     pageCount,
   }
 }

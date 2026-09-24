@@ -4625,6 +4625,37 @@
         "button": "Criar espaço de trabalho",
         "title": "Criar espaço de trabalho",
         "description": "Cria um workspace da plataforma. Depois você pode atribuir usuários a ele pela página de Usuários."
+      },
+      "owners": {
+        "count": "{count, plural, one {# proprietário} other {# proprietários}}",
+        "title": "Membros de {name}",
+        "description": "Adicione membros, altere funções ou remova membros deste espaço de trabalho.",
+        "empty": "Este espaço de trabalho não tem membros.",
+        "add": "Adicionar membro",
+        "searchPlaceholder": "Pesquisar usuários por nome ou e-mail...",
+        "added": "Membro adicionado.",
+        "removed": "Membro removido.",
+        "roleChanged": "Função atualizada.",
+        "remove": "Remover membro"
+      },
+      "actions": {
+        "manageOwners": "Gerenciar membros",
+        "activate": "Ativar",
+        "deactivate": "Desativar",
+        "activated": "Espaço de trabalho ativado.",
+        "deactivated": "Espaço de trabalho desativado.",
+        "scheduleDeletion": "Excluir espaço de trabalho",
+        "cancelDeletion": "Cancelar exclusão",
+        "deletionScheduled": "Espaço de trabalho agendado para exclusão.",
+        "deletionCancelled": "Exclusão do espaço de trabalho cancelada.",
+        "scheduleDeletionConfirm": {
+          "title": "Excluir espaço de trabalho",
+          "description": "\"{name}\" será desativado imediatamente e excluído permanentemente após um período de carência de 24 horas. Você pode cancelar a exclusão nesta lista durante o período de carência."
+        }
+      },
+      "state": {
+        "scheduledForDeletion": "Agendado para exclusão",
+        "inactive": "Inativo"
       }
     }
   },

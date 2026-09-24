@@ -4914,6 +4914,37 @@
         "button": "Create workspace",
         "title": "Create workspace",
         "description": "Creates a platform workspace. You can assign users to it afterwards from the Users page."
+      },
+      "owners": {
+        "count": "{count, plural, one {# owner} other {# owners}}",
+        "title": "Members of {name}",
+        "description": "Add members, change roles, or remove members from this workspace.",
+        "empty": "This workspace has no members.",
+        "add": "Add member",
+        "searchPlaceholder": "Search users by name or email...",
+        "added": "Member added.",
+        "removed": "Member removed.",
+        "roleChanged": "Role updated.",
+        "remove": "Remove member"
+      },
+      "actions": {
+        "manageOwners": "Manage members",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "activated": "Workspace activated.",
+        "deactivated": "Workspace deactivated.",
+        "scheduleDeletion": "Delete workspace",
+        "cancelDeletion": "Cancel deletion",
+        "deletionScheduled": "Workspace scheduled for deletion.",
+        "deletionCancelled": "Workspace deletion cancelled.",
+        "scheduleDeletionConfirm": {
+          "title": "Delete workspace",
+          "description": "\"{name}\" will be deactivated immediately and permanently deleted after a 24-hour grace period. You can cancel the deletion from this list during the grace period."
+        }
+      },
+      "state": {
+        "scheduledForDeletion": "Scheduled for deletion",
+        "inactive": "Inactive"
       }
     }
   },
