@@ -1,3 +1,4 @@
+import { workspaceMemberRoles } from "@chatbotx.io/database/partials"
 import {
   createSearchParamsCache,
   parseAsInteger,
@@ -26,12 +27,23 @@ const adminWorkspaceOwnerResource = z.object({
   email: z.string(),
 })
 
+const adminWorkspaceMemberResource = z.object({
+  id: z.string(),
+  name: z.string().nullish(),
+  email: z.string(),
+  role: workspaceMemberRoles,
+})
+
 export const adminWorkspaceResource = z.object({
   id: z.string(),
   name: z.string(),
   createdAt: z.date(),
   tenantId: z.string(),
+  isActive: z.boolean(),
+  scheduledDeletionAt: z.date().nullish(),
   owners: z.array(adminWorkspaceOwnerResource),
+  members: z.array(adminWorkspaceMemberResource),
+  ownerCount: z.number(),
   memberCount: z.number(),
 })
 export type AdminWorkspaceResource = z.infer<typeof adminWorkspaceResource>
@@ -52,4 +64,28 @@ export const createAdminWorkspaceRequest = z.object({
 })
 export type CreateAdminWorkspaceRequest = z.infer<
   typeof createAdminWorkspaceRequest
+>
+
+// ── Row actions (ticket 15136): status toggle + soft delete ──
+
+export const updateAdminWorkspaceStatusRequest = z.object({
+  workspaceId: z.string().min(1),
+  isActive: z.boolean(),
+})
+export type UpdateAdminWorkspaceStatusRequest = z.infer<
+  typeof updateAdminWorkspaceStatusRequest
+>
+
+export const scheduleAdminWorkspaceDeletionRequest = z.object({
+  workspaceId: z.string().min(1),
+})
+export type ScheduleAdminWorkspaceDeletionRequest = z.infer<
+  typeof scheduleAdminWorkspaceDeletionRequest
+>
+
+export const cancelAdminWorkspaceDeletionRequest = z.object({
+  workspaceId: z.string().min(1),
+})
+export type CancelAdminWorkspaceDeletionRequest = z.infer<
+  typeof cancelAdminWorkspaceDeletionRequest
 >
