@@ -21,6 +21,7 @@ import { logger } from "../../lib/logger"
 import { syncActiveCampaignContact } from "./active-campaign-handler"
 import { handleAIAnalyzeImage } from "./analyze-image"
 import { appointmentScheduling } from "./appointment-scheduling"
+import { handleCheckBusinessHours } from "./check-business-hours"
 import { handleCondition } from "./condition"
 import {
   addContactNotes,
@@ -395,6 +396,7 @@ export const flowStepHandlers: Record<
   [stepTypes.enum.autoAssignConversation]: stepAutoAssignConversation,
   [stepTypes.enum.blockContact]: stepBlockContact,
   [stepTypes.enum.callApi]: externalRequest,
+  [stepTypes.enum.checkBusinessHours]: handleCheckBusinessHours,
   [stepTypes.enum.make]: handleMakeStep,
   [stepTypes.enum.triggerN8n]: handleTriggerN8nStep,
   [stepTypes.enum.executeJavascript]: handleExecuteJavascript,

@@ -42,6 +42,11 @@ export const router = {
       default: m.broadcastAPIs,
     })),
   ),
+  businessHoursAPI: lazy(() =>
+    import("@/features/business-hours/api").then((m) => ({
+      default: m.businessHoursAPI,
+    })),
+  ),
   channelApiAPIs: lazy(() =>
     import("@/features/integration-api/api").then((m) => ({
       default: m.channelApiAPIs,

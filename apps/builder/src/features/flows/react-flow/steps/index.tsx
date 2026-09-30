@@ -18,6 +18,7 @@ import { archiveConversationStep } from "./archive-conversation"
 import { assignConversationStep } from "./assign-conversation"
 import { autoAssignConversationStep } from "./auto-assign-conversation"
 import { blockContactStep } from "./block-contact"
+import { checkBusinessHoursStep } from "./check-business-hours"
 import { chooseChannelStep } from "./choose-channel"
 import { clearCustomFieldStep } from "./clear-custom-field"
 import { conditionStep } from "./condition"
@@ -144,6 +145,7 @@ export const allSteps: Record<StepType, StepDefinition<any> | undefined> = {
   [stepTypes.enum.formatDate]: formatDateStep,
   [stepTypes.enum.generateCode]: generateCodeStep,
   [stepTypes.enum.countCharacters]: countCharactersStep,
+  [stepTypes.enum.checkBusinessHours]: checkBusinessHoursStep,
   [stepTypes.enum.splitTraffic]: splitTrafficStep,
   [stepTypes.enum.startExternalFlow]: sendExternalFlowStep,
   [stepTypes.enum.startExternalNode]: sendExternalNodeStep,

@@ -25,6 +25,7 @@ export type AppointmentCalendarAvailabilityModel =
   typeof schema.appointmentCalendarAvailabilityModel.$inferSelect
 export type AppointmentCalendarReminderModel =
   typeof schema.appointmentCalendarReminderModel.$inferSelect
+export type BusinessHoursModel = typeof schema.businessHoursModel.$inferSelect
 export type AppointmentReminderDispatchModel =
   typeof schema.appointmentReminderDispatchModel.$inferSelect
 export type FlowModel = typeof schema.flowModel.$inferSelect

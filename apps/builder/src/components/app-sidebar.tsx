@@ -12,6 +12,7 @@ import {
   BrainIcon,
   ChartPieIcon,
   ChevronsRight,
+  ClockIcon,
   LightbulbIcon,
   type LucideIcon,
   MessageCircleMoreIcon,
@@ -127,6 +128,12 @@ export function AppSidebar({
         url: `/space/${workspaceId}/sequences`,
         icon: ChevronsRight,
         permission: PERMISSION_NAV.sequences,
+      },
+      {
+        title: t("businessHours.sidebarTitle"),
+        url: `/space/${workspaceId}/business-hours`,
+        icon: ClockIcon,
+        permission: PERMISSION_NAV.flows,
       },
       {
         title: t("triggers.title"),

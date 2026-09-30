@@ -15,6 +15,7 @@ import { archiveConversationStepSchema } from "./steps/archive-conversation"
 import { assignConversationStepSchema } from "./steps/assign-conversation"
 import { autoAssignConversationStepSchema } from "./steps/auto-assign-conversation"
 import { blockContactStepSchema } from "./steps/block-contact"
+import { checkBusinessHoursStepSchema } from "./steps/check-business-hours"
 import { clearCustomFieldStepSchema } from "./steps/clear-custom-field"
 import { countCharactersStepSchema } from "./steps/count-characters"
 import { markCouponUsedStepSchema, setUpCouponStepSchema } from "./steps/coupon"
@@ -108,6 +109,7 @@ const toolSteps = [
   countCharactersStepSchema,
   externalRequestStepSchema,
   executeJavascriptStepSchema,
+  checkBusinessHoursStepSchema,
 ]
 
 const triggerSteps = [makeStepSchema, triggerN8nStepSchema]
