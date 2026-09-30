@@ -2,6 +2,7 @@
 
 import { ReactFlowProvider } from "@xyflow/react"
 import { AppointmentCalendarStoreProvider } from "@/features/appointment-calendars/provider/appointment-calendar-store-context"
+import { BusinessHoursStoreProvider } from "@/features/business-hours/provider/business-hours-store-context"
 import { PlatformCredentialsStoreProvider } from "@/features/platform-credentials/provider/platform-credentials-store-context"
 import { QuestionnaireStoreProvider } from "@/features/questionnaires/provider/questionnaire-store-context"
 import { AIAgentStoreProvider } from "../ai-agents/provider/ai-agent-store-context"
@@ -53,32 +54,36 @@ export function FlowDetail({
                   <AppointmentCalendarStoreProvider
                     workspaceId={flow.workspaceId}
                   >
-                    <TagStoreProvider workspaceId={flow.workspaceId}>
-                      <EmailTopicStoreProvider workspaceId={flow.workspaceId}>
-                        <UserStoreProvider workspaceId={flow.workspaceId}>
-                          <CustomFieldStoreProvider
-                            workspaceId={flow.workspaceId}
-                          >
-                            <AIToolsStoreProvider
+                    <BusinessHoursStoreProvider workspaceId={flow.workspaceId}>
+                      <TagStoreProvider workspaceId={flow.workspaceId}>
+                        <EmailTopicStoreProvider workspaceId={flow.workspaceId}>
+                          <UserStoreProvider workspaceId={flow.workspaceId}>
+                            <CustomFieldStoreProvider
                               workspaceId={flow.workspaceId}
                             >
-                              <PlatformCredentialsStoreProvider>
-                                <AIAgentStoreProvider
-                                  workspaceId={flow.workspaceId}
-                                >
-                                  <ReactFlowFrame
-                                    canRevertToPublished={canRevertToPublished}
-                                    flow={flow}
-                                    flowVersion={flowVersion}
-                                    hasPublishedVersion={hasPublishedVersion}
-                                  />
-                                </AIAgentStoreProvider>
-                              </PlatformCredentialsStoreProvider>
-                            </AIToolsStoreProvider>
-                          </CustomFieldStoreProvider>
-                        </UserStoreProvider>
-                      </EmailTopicStoreProvider>
-                    </TagStoreProvider>
+                              <AIToolsStoreProvider
+                                workspaceId={flow.workspaceId}
+                              >
+                                <PlatformCredentialsStoreProvider>
+                                  <AIAgentStoreProvider
+                                    workspaceId={flow.workspaceId}
+                                  >
+                                    <ReactFlowFrame
+                                      canRevertToPublished={
+                                        canRevertToPublished
+                                      }
+                                      flow={flow}
+                                      flowVersion={flowVersion}
+                                      hasPublishedVersion={hasPublishedVersion}
+                                    />
+                                  </AIAgentStoreProvider>
+                                </PlatformCredentialsStoreProvider>
+                              </AIToolsStoreProvider>
+                            </CustomFieldStoreProvider>
+                          </UserStoreProvider>
+                        </EmailTopicStoreProvider>
+                      </TagStoreProvider>
+                    </BusinessHoursStoreProvider>
                   </AppointmentCalendarStoreProvider>
                 </QuestionnaireStoreProvider>
               </FlowStoreProvider>

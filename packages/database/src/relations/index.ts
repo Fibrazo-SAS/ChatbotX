@@ -28,6 +28,7 @@ import { automatedResponseRelations } from "./automated-response"
 import { automationThrottleRelations } from "./automation-throttle"
 import { botFieldRelations } from "./bot-field"
 import { broadcastRelations } from "./broadcast"
+import { businessHoursRelations } from "./business-hours"
 import { coexistSyncRunRelations } from "./coexist-sync-run"
 import { contactRelations } from "./contact"
 import { contactCustomFieldRelations } from "./contact-custom-field"
@@ -199,6 +200,7 @@ export const relations = {
   ...appointmentRelations,
   ...appointmentCalendarRelations,
   ...appointmentReminderDispatchRelations,
+  ...businessHoursRelations,
   ...errorLogRelations,
   ...facebookLeadAdsAutomationRelations,
   ...facebookLeadAdsLeadRelations,
