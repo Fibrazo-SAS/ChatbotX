@@ -12,8 +12,9 @@ dev-chatbotx.fibrazo.com.co {
 	# reescribir) y se preserva el Host original para que la firma AWS de la
 	# URL presignada siga siendo válida al llegar a rustfs.
 	handle /chatbotx/* {
-		header_up Host {host}
-		reverse_proxy filesystem:9000
+		reverse_proxy filesystem:9000 {
+			header_up Host {host}
+		}
 	}
 
 	reverse_proxy builder:3000
