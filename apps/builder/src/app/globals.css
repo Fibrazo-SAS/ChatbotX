@@ -10,3 +10,24 @@
  */
 @source "../../node_modules/@chatbotx.io/ui";
 @source "../../node_modules/@chatbotx.io/minigame-ui";
+
+/* ── Panel Sysbrazo (ticket #15467): accordions con transición suave ──────
+ * Recipe de Base UI Collapsible: el panel expone su alto medido en
+ * `--collapsible-panel-height`; animamos `height` entre 0 y ese valor
+ * usando los atributos data-starting-style / data-ending-style.
+ */
+.sysbrazo-panel [data-slot="collapsible-content"] {
+  height: var(--collapsible-panel-height);
+  overflow: hidden;
+  transition: height 250ms ease-in-out;
+}
+
+.sysbrazo-panel
+  [data-slot="collapsible-content"][hidden]:not([hidden="until-found"]) {
+  display: none;
+}
+
+.sysbrazo-panel [data-slot="collapsible-content"][data-starting-style],
+.sysbrazo-panel [data-slot="collapsible-content"][data-ending-style] {
+  height: 0;
+}

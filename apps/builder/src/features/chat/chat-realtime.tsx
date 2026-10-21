@@ -23,6 +23,7 @@ export function ChatRealtime() {
     updateMessageText,
     updateContact,
     updateConversations,
+    notifyContactCustomFieldChanged,
   } = useChatStore((state) => state)
 
   usePartySocket({
@@ -75,6 +76,9 @@ export function ChatRealtime() {
             updateContact(data.contactId, {
               blockedAt: null,
             })
+            break
+          case RealtimeEventType.contactCustomFieldChanged:
+            notifyContactCustomFieldChanged(data.contactId)
             break
           case RealtimeEventType.conversationAssigned:
             updateConversations(data.conversationIds, {

@@ -53,6 +53,14 @@ import { useAvatarUrl } from "./utils"
 // referral value never becomes an anchor href.
 const HTTP_URL_RE = /^https?:\/\//
 
+/**
+ * Colapso progresivo de los campos del contacto (ticket #15467): se muestran
+ * los primeros N (principales) y "Ver más" revela de a 3; al llegar al final
+ * el botón pasa a "Ver menos" y vuelve al estado inicial.
+ */
+const INITIAL_VISIBLE_FIELDS = 5
+const REVEAL_STEP = 3
+
 const READ_ONLY_VALUE_CLASS =
   "inline-flex h-8 flex-1 items-center justify-start truncate rounded-md px-3 text-[12px]"
 
@@ -213,6 +221,14 @@ export const ContactDetail = ({
     useCustomFieldStore((state) => state)
 
   const [contactFields, setContactFields] = useState<ContactEditableField[]>([])
+  const [visibleFieldsCount, setVisibleFieldsCount] = useState(
+    INITIAL_VISIBLE_FIELDS,
+  )
+
+  // Al cambiar de conversación, los campos vuelven al estado colapsado.
+  useEffect(() => {
+    setVisibleFieldsCount(INITIAL_VISIBLE_FIELDS)
+  }, [])
 
   useEffect(() => {
     setTimezone(getBrowserTimezone())
@@ -471,7 +487,7 @@ export const ContactDetail = ({
         </Avatar>
       </div>
       <div className="flex flex-col gap-1 font-medium text-[12px] text-gray-600">
-        {contactFields.map((editable) => {
+        {contactFields.slice(0, visibleFieldsCount).map((editable) => {
           const fieldValue =
             editable.value && editable.value.length > 0 ? (
               <span className="truncate dark:text-white">{editable.value}</span>
@@ -507,6 +523,25 @@ export const ContactDetail = ({
             </div>
           )
         })}
+        {contactFields.length > INITIAL_VISIBLE_FIELDS ? (
+          <Button
+            className="justify-center font-medium text-[12px] text-muted-foreground"
+            onClick={() =>
+              setVisibleFieldsCount((count) =>
+                count < contactFields.length
+                  ? Math.min(count + REVEAL_STEP, contactFields.length)
+                  : INITIAL_VISIBLE_FIELDS,
+              )
+            }
+            size="sm"
+            type="button"
+            variant="ghost"
+          >
+            {visibleFieldsCount < contactFields.length
+              ? t("actions.showMore")
+              : t("actions.showLess")}
+          </Button>
+        ) : null}
         <ContactCustomFieldManage
           disabledIds={contactFields.map((field) => field.key)}
           onChooseCustomField={handleChooseCustomField}

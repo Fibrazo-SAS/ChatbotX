@@ -37,4 +37,12 @@ export type ReplaceVariableProps = ContactVariableContext & {
    * `contactVariableService.getAll` always populates it in production.
    */
   botFieldsMap?: Map<string, BotFieldValue>
+  /**
+   * The same Account Fields keyed by name, so a `{{name}}` placeholder can
+   * resolve a global variable directly by its name (no `bot_field:<id>` token
+   * needed). Custom fields always win on a name collision: the name-keyed
+   * resolver is ordered after the custom-field resolver, so a contact field
+   * and a global variable sharing a name resolve to the contact field.
+   */
+  botFieldsByNameMap?: Map<string, BotFieldValue>
 }

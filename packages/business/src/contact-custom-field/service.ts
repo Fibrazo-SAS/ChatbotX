@@ -12,6 +12,7 @@ import {
   FieldReferenceKind,
   parseFieldReference,
 } from "@chatbotx.io/flow-config"
+import { RealtimeEventType } from "@chatbotx.io/partysocket-config"
 import { createId, isNumericId } from "@chatbotx.io/utils"
 import {
   canonicalBooleanLiteral,
@@ -25,6 +26,7 @@ import { BaseService } from "../base.service"
 import { botFieldService } from "../bot-field/service"
 import { ChatbotXException, notFoundException } from "../errors"
 import { logger } from "../logger"
+import { broadcastToWorkspaceParty } from "../platform/realtime-broadcast"
 import {
   createSourceTimezoneResolver,
   normalizeCustomFieldValueForStorage,
@@ -405,6 +407,26 @@ class ContactCustomFieldService extends BaseService {
         )
       })
     }
+
+    // Realtime: notifica al inbox abierto para que re-consulte el contacto
+    // (p.ej. el flujo acaba de guardar `document_id` y el panel de Sysbrazo
+    // debe aparecer/actualizarse sin refrescar la página). Fire-and-forget:
+    // un fallo de transporte se loguea y no bloquea la escritura.
+    broadcastToWorkspaceParty(workspaceId, {
+      eventType: RealtimeEventType.contactCustomFieldChanged,
+      data: {
+        contactId,
+        changes: changes.map((change) => ({
+          name: change.customFieldName,
+          value: change.newValue,
+        })),
+      },
+    }).catch((error: unknown) => {
+      logger.warn(
+        { err: error, workspaceId, contactId },
+        "Failed to broadcast contactCustomFieldChanged realtime event",
+      )
+    })
 
     await this.invalidate({ workspaceId, contactId })
   }

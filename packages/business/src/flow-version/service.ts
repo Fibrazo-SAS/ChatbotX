@@ -77,6 +77,22 @@ class FlowVersionService extends BaseService {
   }
 
   /**
+   * Latest published version (nodes included) of every flow in a workspace.
+   *
+   * Source of truth for features that reuse a flow step's configuration, e.g.
+   * the Sysbrazo inbox panel resolving its `callApi` node. Deliberately not
+   * cached: callers run on-demand (advisor opening a panel), and freshness
+   * after a publish matters more than the query cost.
+   */
+  async listLatestPublishedByWorkspace(
+    workspaceId: string,
+  ): Promise<FlowVersionModel[]> {
+    return await db.query.flowVersionModel.findMany({
+      where: { workspaceId, isDraft: false, isLatest: true },
+    })
+  }
+
+  /**
    * The version a tapped button belongs to.
    *
    * A button payload pins a version only when the run that sent it was pinned;

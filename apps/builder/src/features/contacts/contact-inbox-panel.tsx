@@ -21,6 +21,8 @@ import UpdateContactTagField from "./components/update-contact-tag-field"
 import { ContactDetail } from "./contact-detail"
 import { useAutoRefreshContactProfile } from "./hooks/use-auto-refresh-contact-profile"
 import type { GetContactResponse } from "./schema/query"
+import { SYSBRAZO_DOCUMENT_FIELD_NAME } from "./sysbrazo-config"
+import { SysbrazoPanel } from "./sysbrazo-panel/sysbrazo-panel"
 
 type AccordionModule = {
   readonly keyName: string
@@ -37,6 +39,9 @@ export const ContactInboxPanel = ({
   const t = useTranslations()
 
   const { conversations } = useChatStore((state) => state)
+  const customFieldChangeSignal = useChatStore(
+    (state) => state.customFieldChangeSignal,
+  )
 
   const activeConversation = useMemo(
     () => conversations.find((c) => c.id === activeConversationId) ?? null,
@@ -126,6 +131,21 @@ export const ContactInboxPanel = ({
       .catch(() => setAppointments([]))
   }, [activeConversationId, storeContact?.id, workspaceId, fetchContactData])
 
+  // Realtime: cuando un custom field del contacto activo cambia (p.ej. el
+  // flujo guarda `document_id` tras pedírselo al cliente), re-consulta el
+  // contacto para que el panel de Sysbrazo aparezca/actualice al momento, sin
+  // refrescar la página.
+  useEffect(() => {
+    const contactId = storeContact?.id
+    if (!(customFieldChangeSignal && contactId)) {
+      return
+    }
+    if (customFieldChangeSignal.contactId !== contactId) {
+      return
+    }
+    fetchContactData(contactId, true)
+  }, [customFieldChangeSignal, storeContact?.id, fetchContactData])
+
   const accordionModules: AccordionModule[] = useMemo(() => {
     if (!contactData) {
       return []
@@ -203,12 +223,37 @@ export const ContactInboxPanel = ({
     return null
   }
 
+  const documentId =
+    contactData?.customFields
+      ?.find((field) => field.name === SYSBRAZO_DOCUMENT_FIELD_NAME)
+      ?.value?.trim() || null
+
+  const lastInteractionAt =
+    activeConversation?.contactInboxes[0]?.lastIncomingMessageAt ?? null
+
   return (
     <div className="flex w-full flex-col gap-2">
-      <ContactDetail
-        activeConversationId={activeConversationId}
-        contact={contactData}
+      <SysbrazoPanel
+        contactId={storeContact.id}
+        documentId={documentId}
+        lastInteractionAt={lastInteractionAt}
+        workspaceId={workspaceId}
       />
+
+      {/* Card "Contacto" (chat) — separada de la card "Cliente de Sysbrazo" */}
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-slate-100 border-b bg-white px-4 py-3">
+          <span className="font-bold text-slate-900 text-sm tracking-wide">
+            {t("contacts.panelTitle")}
+          </span>
+        </div>
+        <div className="px-4 pb-4">
+          <ContactDetail
+            activeConversationId={activeConversationId}
+            contact={contactData}
+          />
+        </div>
+      </div>
 
       <ContactNotesManage contactNotes={contactData?.contactNotes ?? []} />
 

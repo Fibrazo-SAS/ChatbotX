@@ -90,6 +90,12 @@ vi.mock("@chatbotx.io/database/schema", () => ({
   contactsToTagsModel: {},
   conversationModel: {},
   importModel: { id: "Import.id" },
+  // The worker import path loads UserQuotaService transitively (via
+  // contact-custom-field → platform/realtime-broadcast → platform/settings →
+  // enterprise/tenant → user-quota). Its class initializer reads this model at
+  // import time, so the schema mock must export it.
+  userQuotaModel: {},
+  workspaceUsageModel: {},
 }))
 
 const workspaceFind = vi.fn()

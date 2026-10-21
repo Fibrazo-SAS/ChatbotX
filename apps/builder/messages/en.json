@@ -153,7 +153,9 @@
     "schedule": "Schedule",
     "moveToDraft": "Move to draft",
     "stop": "Stop",
-    "resume": "Resume"
+    "resume": "Resume",
+    "showMore": "Show more",
+    "showLess": "Show less"
   },
   "errors": {
     "superAdminRequired": "You need to be a workspace super admin to do this.",
@@ -4062,7 +4064,8 @@
     "countCapped": "{count}+ contacts",
     "exportAllNotice": "All contacts matching the current filter will be exported.",
     "exportTakingLong": "Export is taking longer than expected",
-    "exportTakingLongDescription": "The export is still processing. You can close this dialog and check back in a few minutes from the export history."
+    "exportTakingLongDescription": "The export is still processing. You can close this dialog and check back in a few minutes from the export history.",
+    "panelTitle": "Contact"
   },
   "auditLogs": {
     "title": "Audit Logs",
@@ -5983,6 +5986,86 @@
     }
   },
   "accountFields": {
-    "title": "Bot Fields"
+    "title": "Global variables"
+  },
+  "sysbrazoPanel": {
+    "notRegistered": "Not registered as a client",
+    "loading": "Looking up the client in Sysbrazo…",
+    "error": "Couldn't load client info",
+    "documentCopied": "Document copied",
+    "phoneCopied": "Phone copied",
+    "emailCopied": "Email copied",
+    "serialCopied": "Serial copied",
+    "lastSessionLabel": "Last session",
+    "noData": "No data",
+    "validation": {
+      "validated": "VALIDATED",
+      "pending": "PENDING",
+      "pendingChange": "Pending change awaiting validation: {value}",
+      "notValidated": "Not validated"
+    },
+    "contact": {
+      "title": "Contact",
+      "primary": "Primary",
+      "alternate": "Alternative",
+      "email": "Email"
+    },
+    "services": {
+      "title": "Services",
+      "goToSysbrazo": "Go to Sysbrazo",
+      "internet": "Internet",
+      "tvBox": "TV Box",
+      "sameCutoffAsInternet": "Same cutoff as Internet",
+      "tvSuspendedByInternet": "Suspended by Internet",
+      "leadTitle": "LEAD",
+      "leadPending": "PENDING VALIDATION",
+      "leadMessage": "Newly created record; pending validation",
+      "noContract": "No service contracted",
+      "remainingTime": "TIME REMAINING",
+      "cutoffDate": "CUTOFF DATE",
+      "suspendedLabel": "SUSPENDED",
+      "sinceLabel": "SINCE",
+      "lost": "LOST",
+      "lostMessage": "Equipment not recovered",
+      "retiro": "WITHDRAWAL",
+      "salidaLabel": "WITHDRAWAL",
+      "uninstallPill": "TO UNINSTALL",
+      "uninstallMessage": "Equipment withdrawal pending",
+      "crewPill": "CREW TO ASSIGN",
+      "daysAgo": "{days} days ago",
+      "balanceDays": "{days} d",
+      "addon": "Addon",
+      "noDateRegistered": "No date on record"
+    },
+    "serviceState": {
+      "active": "ACTIVE",
+      "expiring": "EXPIRING",
+      "suspended": "SUSPENDED",
+      "inactive": "INACTIVE"
+    },
+    "suspendedSince": "Suspended since {since}",
+    "suspendedAgo": "Suspended {days}d ago",
+    "onu": {
+      "title": "ONU status",
+      "refresh": "Refresh",
+      "noData": "No ONU/CPE information",
+      "stateUp": "UP",
+      "stateDown": "DOWN",
+      "stateLos": "LOS",
+      "rxDown": "RX Power (DN)",
+      "rxUp": "RX Power (UP)",
+      "txUp": "TX Power (UP)",
+      "uptimeLabel": "Uptime",
+      "oltLabel": "OLT",
+      "portLabel": "Port",
+      "boardLabel": "Board",
+      "lastDownLabel": "Last down",
+      "connectedDevicesLabel": "Connected devices",
+      "powerOk": "OK",
+      "powerWarning": "WARNING",
+      "powerCritical": "CRITICAL",
+      "loading": "Fetching ONU status…"
+    },
+    "notRegisteredHint": "Not looked up in Sysbrazo yet"
   }
 }

@@ -38,9 +38,13 @@ vi.mock("@chatbotx.io/events", () => ({
   emitCustomFieldChanged: mocks.emitCustomFieldChanged,
 }))
 
-vi.mock("@chatbotx.io/redis", () => ({
-  invalidateCacheByTags: mocks.invalidateCacheByTags,
-}))
+vi.mock("@chatbotx.io/redis", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@chatbotx.io/redis")>()
+  return {
+    ...actual,
+    invalidateCacheByTags: mocks.invalidateCacheByTags,
+  }
+})
 
 vi.mock("../src/contact-custom-field/value-service", () => ({
   contactCustomFieldValueService: { findValue: mocks.findValue },
