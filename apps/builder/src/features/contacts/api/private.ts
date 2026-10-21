@@ -11,6 +11,10 @@ import { removeContactTags } from "../actions/remove-contact-tag.action"
 import { requireContactPermissionScope } from "../permissions"
 import { getContact } from "../queries/get-contact.query"
 import { getExportFile } from "../queries/get-export-file.query"
+import {
+  getSysbrazoClientByDocument,
+  getSysbrazoClientOnu,
+} from "../queries/get-sysbrazo-client.query"
 import { listContactCustomFields } from "../queries/list-contact-fields.query"
 import {
   countContactInboxes,
@@ -44,6 +48,10 @@ import {
   listContactsRequest,
   listContactsResponse,
 } from "../schema/query"
+import {
+  sysbrazoLookupResponseSchema,
+  sysbrazoOnuStatusSchema,
+} from "../schema/sysbrazo-client"
 
 export const contactsAuthenticatedAPI = {
   getContactAuthenticatedAPI: authorizedAPI
@@ -295,6 +303,55 @@ export const contactsAuthenticatedAPI = {
         contactIds: [contactId],
         customFieldId,
         accessScope,
+      })
+    }),
+
+  getSysbrazoClientAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-client",
+      summary: "Get client identity/contact/services from Sysbrazo",
+      tags: ["Contacts"],
+    })
+    .input(getContactRequest)
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(sysbrazoLookupResponseSchema)
+    .handler(async ({ input }) => {
+      const { workspaceId, contactId } = input
+      await requireContactPermissionScope(workspaceId)
+      return await getSysbrazoClientByDocument({
+        workspaceId,
+        contactId,
+      })
+    }),
+
+  // Snapshot ONU/CPE dedicado (endpoint Krill de Sysbrazo), consultado aparte
+  // del lookup principal para no bloquear la card con el estado del equipo.
+  getSysbrazoOnuAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/sysbrazo-onu",
+      summary: "Get client ONU/CPE technical status from Sysbrazo (Krill)",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        // Id del cliente en Sysbrazo (viene del lookup principal).
+        clientId: z.string().min(1),
+        // Salta la cache ONU de 1 h en Sysbrazo (botón "Refrescar" del panel).
+        forceOnu: z.boolean().optional(),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(sysbrazoOnuStatusSchema.nullable())
+    .handler(async ({ input }) => {
+      const { workspaceId, clientId, forceOnu } = input
+      await requireContactPermissionScope(workspaceId)
+      return await getSysbrazoClientOnu({
+        workspaceId,
+        clientId,
+        force: forceOnu,
       })
     }),
 }

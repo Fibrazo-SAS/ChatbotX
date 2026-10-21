@@ -57,18 +57,26 @@ vi.mock("@chatbotx.io/events", () => ({
   emitCustomFieldChanged: mocks.emitCustomFieldChanged,
 }))
 
-vi.mock("@chatbotx.io/redis", () => ({
-  invalidateCacheByTags: mocks.invalidateCacheByTags,
-}))
+vi.mock("@chatbotx.io/redis", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@chatbotx.io/redis")>()
+  return {
+    ...actual,
+    invalidateCacheByTags: mocks.invalidateCacheByTags,
+  }
+})
 
-vi.mock("@chatbotx.io/logger", () => ({
-  getChildLogger: () => ({
-    debug: vi.fn(),
-    error: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-  }),
-}))
+vi.mock("@chatbotx.io/logger", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@chatbotx.io/logger")>()
+  return {
+    ...actual,
+    getChildLogger: () => ({
+      debug: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+    }),
+  }
+})
 
 // Spy on the REAL normalizer (importOriginal) so behavior is unchanged but
 // call count is observable — the "no double-normalization" proof.

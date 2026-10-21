@@ -153,7 +153,9 @@
     "schedule": "Schedule",
     "moveToDraft": "Move to draft",
     "stop": "Stop",
-    "resume": "Resume"
+    "resume": "Resume",
+    "showMore": "Ver mais",
+    "showLess": "Ver menos"
   },
   "errors": {
     "superAdminRequired": "Você precisa ser um superadministrador do espaço de trabalho para fazer isso.",
@@ -3844,7 +3846,8 @@
     "countCapped": "{count}+ contatos",
     "exportAllNotice": "Todos os contatos que correspondem ao filtro atual serão exportados.",
     "exportTakingLong": "A exportação está demorando mais do que o esperado",
-    "exportTakingLongDescription": "A exportação ainda está sendo processada. Você pode fechar esta caixa de diálogo e verificar novamente em alguns minutos no histórico de exportações."
+    "exportTakingLongDescription": "A exportação ainda está sendo processada. Você pode fechar esta caixa de diálogo e verificar novamente em alguns minutos no histórico de exportações.",
+    "panelTitle": "Contato"
   },
   "auditLogs": {
     "title": "Logs de auditoria",
@@ -5983,6 +5986,86 @@
     }
   },
   "accountFields": {
-    "title": "Campos do bot"
+    "title": "Variáveis globais"
+  },
+  "sysbrazoPanel": {
+    "notRegistered": "Não registrado como cliente",
+    "loading": "Consultando dados do cliente no Sysbrazo…",
+    "error": "Não foi possível carregar as informações do cliente",
+    "documentCopied": "Documento copiado",
+    "phoneCopied": "Telefone copiado",
+    "emailCopied": "E-mail copiado",
+    "serialCopied": "Serial copiado",
+    "lastSessionLabel": "Última sessão",
+    "noData": "Sem dados",
+    "validation": {
+      "validated": "VALIDADO",
+      "pending": "PENDENTE",
+      "pendingChange": "Alteração pendente de validação: {value}",
+      "notValidated": "Não validado"
+    },
+    "contact": {
+      "title": "Contato",
+      "primary": "Principal",
+      "alternate": "Alternativo",
+      "email": "E-mail"
+    },
+    "services": {
+      "title": "Serviços",
+      "goToSysbrazo": "Ir para Sysbrazo",
+      "internet": "Internet",
+      "tvBox": "TV Box",
+      "sameCutoffAsInternet": "Mesmo corte que a Internet",
+      "tvSuspendedByInternet": "Suspenso pela Internet",
+      "leadTitle": "LEAD",
+      "leadPending": "VALIDAÇÃO PENDENTE",
+      "leadMessage": "Registro recém-criado; falta validar",
+      "noContract": "Sem serviço contratado",
+      "remainingTime": "TEMPO RESTANTE",
+      "cutoffDate": "DATA DE CORTE",
+      "suspendedLabel": "SUSPENSO",
+      "sinceLabel": "DESDE",
+      "lost": "PERDIDO",
+      "lostMessage": "Equipamento não recuperado",
+      "retiro": "EM RETIRADA",
+      "salidaLabel": "SAÍDA",
+      "uninstallPill": "A DESINSTALAR",
+      "uninstallMessage": "Retirada de equipamentos pendente",
+      "crewPill": "EQUIPE A DESIGNAR",
+      "daysAgo": "há {days} dias",
+      "balanceDays": "{days} d",
+      "addon": "Addon",
+      "noDateRegistered": "Sem data registrada"
+    },
+    "serviceState": {
+      "active": "ATIVO",
+      "expiring": "A VENCER",
+      "suspended": "SUSPENSO",
+      "inactive": "INATIVO"
+    },
+    "suspendedSince": "Suspenso desde {since}",
+    "suspendedAgo": "Suspenso há {days} d",
+    "onu": {
+      "title": "Estado da ONU",
+      "refresh": "Atualizar",
+      "noData": "Sem informação da ONU/CPE",
+      "stateUp": "UP",
+      "stateDown": "DOWN",
+      "stateLos": "LOS",
+      "rxDown": "Potência RX (DN)",
+      "rxUp": "Potência RX (UP)",
+      "txUp": "Potência TX (UP)",
+      "uptimeLabel": "Uptime",
+      "oltLabel": "OLT",
+      "portLabel": "Porta",
+      "boardLabel": "Board",
+      "lastDownLabel": "Última queda",
+      "connectedDevicesLabel": "Equipamentos conectados",
+      "powerOk": "OK",
+      "powerWarning": "ATENÇÃO",
+      "powerCritical": "CRÍTICO",
+      "loading": "Consultando estado da ONU…"
+    },
+    "notRegisteredHint": "Ainda não foi consultado no Sysbrazo"
   }
 }

@@ -74,11 +74,16 @@ vi.mock("@chatbotx.io/database/partials", async (importOriginal) => {
   }
 })
 
-vi.mock("@chatbotx.io/database/schema", () => ({
-  ROOT_TENANT_ID: "1",
-  workspaceMemberModel: {},
-  workspaceModel: {},
-}))
+vi.mock("@chatbotx.io/database/schema", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@chatbotx.io/database/schema")>()
+  return {
+    ...actual,
+    ROOT_TENANT_ID: "1",
+    workspaceMemberModel: {},
+    workspaceModel: {},
+  }
+})
 
 vi.mock("@chatbotx.io/redis", () => ({
   withCache: vi.fn(async (_key: string, resolver: () => unknown) => resolver()),
@@ -174,6 +179,7 @@ beforeEach(() => {
   mocks.workspaceInsert.mockReturnValue({
     values: mocks.workspaceInsertValues.mockReturnValue({
       returning: vi.fn().mockResolvedValue([{ id: "new-workspace" }]),
+      onConflictDoNothing: vi.fn().mockResolvedValue(undefined),
     }),
   })
   mocks.workspaceDelete.mockReturnValue({
@@ -209,7 +215,8 @@ describe("WorkspaceService.create", () => {
     })
 
     expect(result).toEqual({ id: "new-workspace" })
-    expect(mocks.workspaceInsert).toHaveBeenCalledTimes(1)
+    // 1 = workspace, 2 = variable global fija del panel (ticket #15467)
+    expect(mocks.workspaceInsert).toHaveBeenCalledTimes(2)
     expect(mocks.createMember).toHaveBeenCalledTimes(1)
   })
 
@@ -224,7 +231,8 @@ describe("WorkspaceService.create", () => {
     })
 
     expect(result).toEqual({ id: "new-workspace" })
-    expect(mocks.workspaceInsert).toHaveBeenCalledTimes(1)
+    // 1 = workspace, 2 = variable global fija del panel (ticket #15467)
+    expect(mocks.workspaceInsert).toHaveBeenCalledTimes(2)
     expect(mocks.createMember).toHaveBeenCalledTimes(1)
   })
 

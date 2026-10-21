@@ -60,18 +60,26 @@ vi.mock("@chatbotx.io/events", () => ({
   emitCustomFieldChanged: mocks.emitCustomFieldChanged,
 }))
 
-vi.mock("@chatbotx.io/redis", () => ({
-  invalidateCacheByTags: mocks.invalidateCacheByTags,
-}))
+vi.mock("@chatbotx.io/redis", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@chatbotx.io/redis")>()
+  return {
+    ...actual,
+    invalidateCacheByTags: mocks.invalidateCacheByTags,
+  }
+})
 
-vi.mock("@chatbotx.io/logger", () => ({
-  getChildLogger: () => ({
-    debug: vi.fn(),
-    error: vi.fn(),
-    info: vi.fn(),
-    warn: mocks.loggerWarn,
-  }),
-}))
+vi.mock("@chatbotx.io/logger", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@chatbotx.io/logger")>()
+  return {
+    ...actual,
+    getChildLogger: () => ({
+      debug: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+      warn: mocks.loggerWarn,
+    }),
+  }
+})
 
 const { contactCustomFieldService } = await import(
   "../src/contact-custom-field/service"

@@ -59,6 +59,10 @@ export type ChatState = {
 
   // active facebook post (for comment conversations)
   activePost: PostDetails | null
+
+  // Señal realtime de "un custom field del contacto cambió" (p.ej. el flujo
+  // guardó `document_id`). El panel de contacto la observa y re-consulta.
+  customFieldChangeSignal: { contactId: string; nonce: number } | null
 }
 
 export type ChatActions = {
@@ -126,6 +130,7 @@ export type ChatActions = {
 
   // Contact actions
   updateContact: (contactId: string, data: Partial<ContactResource>) => void
+  notifyContactCustomFieldChanged: (contactId: string) => void
 }
 
 export type ChatStore = ChatState & ChatActions
@@ -168,6 +173,7 @@ export const createChatStore = () => {
     hasNextConversationPage: true,
     activeConversationId: null,
     filters: {},
+    customFieldChangeSignal: null,
 
     // default message state
     messages: [],
@@ -791,5 +797,13 @@ export const createChatStore = () => {
         ),
       })
     },
+
+    notifyContactCustomFieldChanged: (contactId: string) =>
+      set((state) => ({
+        customFieldChangeSignal: {
+          contactId,
+          nonce: (state.customFieldChangeSignal?.nonce ?? 0) + 1,
+        },
+      })),
   }))
 }

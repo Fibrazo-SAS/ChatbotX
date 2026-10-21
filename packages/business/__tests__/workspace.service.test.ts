@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, test, vi } from "vitest"
 const returningWorkspace = vi.fn(async () => [
   { id: "ws-1", organizationId: "org-1" },
 ])
-const valuesWorkspace = vi.fn(() => ({ returning: returningWorkspace }))
+const valuesWorkspace = vi.fn(() => ({
+  returning: returningWorkspace,
+  onConflictDoNothing: vi.fn(async () => undefined),
+}))
 const insert = vi.fn(() => ({ values: valuesWorkspace }))
 
 const returningUpdatedWorkspace = vi.fn(async () => [
@@ -29,11 +32,16 @@ vi.mock("@chatbotx.io/database/client", () => ({
   db,
   eq: vi.fn((field: unknown, value: unknown) => ({ field, value })),
 }))
-vi.mock("@chatbotx.io/database/schema", () => ({
-  workspaceModel: {},
-  workspaceUsageModel: { workspaceId: "workspaceId-column" },
-  ROOT_TENANT_ID: "1",
-}))
+vi.mock("@chatbotx.io/database/schema", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@chatbotx.io/database/schema")>()
+  return {
+    ...actual,
+    workspaceModel: {},
+    workspaceUsageModel: { workspaceId: "workspaceId-column" },
+    ROOT_TENANT_ID: "1",
+  }
+})
 
 const tenantService = { findByOwner: vi.fn(async () => undefined as unknown) }
 vi.mock("../src/enterprise/tenant/service", () => ({ tenantService }))

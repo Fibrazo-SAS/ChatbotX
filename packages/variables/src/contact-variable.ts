@@ -101,6 +101,26 @@ const botFieldResolver: VariableResolver = {
   },
 }
 
+// Resolves a global variable (Account Field) directly by its NAME — so a
+// `{{name}}` placeholder works without the `bot_field:<id>` token. Ordered
+// AFTER the custom-field resolver so a contact field always wins on a name
+// collision; ordered after system/raw/bot_field resolvers so reserved tokens
+// never fall through to a name lookup.
+const botFieldByNameResolver: VariableResolver = {
+  matches: (variable, context) =>
+    Boolean(context.botFieldsByNameMap?.has(variable)),
+  resolve: (variable, context, timezone) => {
+    const fieldValue = context.botFieldsByNameMap?.get(variable)
+    return fieldValue
+      ? renderCustomFieldValue(
+          fieldValue.type,
+          fieldValue.value ?? "",
+          timezone,
+        )
+      : ""
+  },
+}
+
 const couponResolver: VariableResolver = {
   matches: (variable) => isCouponVariable(variable),
   resolve: async (variable, context) =>
@@ -112,6 +132,7 @@ const variableResolvers = [
   rawCustomFieldResolver,
   botFieldResolver,
   customFieldResolver,
+  botFieldByNameResolver,
   couponResolver,
 ] as const satisfies readonly VariableResolver[]
 
@@ -201,7 +222,10 @@ const BOT_FIELDS_CACHE_TTL_SECONDS = 5 * 60
 
 const loadBotFields = async (
   workspaceId: string,
-): Promise<Map<string, BotFieldValue>> =>
+): Promise<{
+  byId: Map<string, BotFieldValue>
+  byName: Map<string, BotFieldValue>
+}> =>
   await withCache(
     `bot-fields:${workspaceId}:variable-map`,
     async () => {
@@ -209,9 +233,14 @@ const loadBotFields = async (
         where: { workspaceId },
       })
 
-      return new Map(
+      const byId = new Map(
         rows.map((row) => [row.id, { type: row.type, value: row.value }]),
       )
+      const byName = new Map(
+        rows.map((row) => [row.name, { type: row.type, value: row.value }]),
+      )
+
+      return { byId, byName }
     },
     {
       ttl: BOT_FIELDS_CACHE_TTL_SECONDS,
@@ -226,7 +255,7 @@ export const contactVariableService = {
       loadInbox(input.contactInbox),
       loadFields(input.contactId),
     ])
-    const [workspace, botFieldsMap] = await Promise.all([
+    const [workspace, botFields] = await Promise.all([
       loadWorkspace({
         contact,
         workspace: input.workspace,
@@ -240,7 +269,8 @@ export const contactVariableService = {
       conversation: input.conversation ?? null,
       appointmentId: input.appointmentId,
       customFieldsMap,
-      botFieldsMap,
+      botFieldsMap: botFields.byId,
+      botFieldsByNameMap: botFields.byName,
       workspace,
     }
   },

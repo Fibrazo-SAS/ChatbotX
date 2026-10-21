@@ -9,6 +9,7 @@ import {
 } from "@chatbotx.io/database/client"
 import { workspaceMemberRoles } from "@chatbotx.io/database/partials"
 import {
+  botFieldModel,
   ROOT_TENANT_ID,
   workspaceMemberModel,
   workspaceModel,
@@ -48,6 +49,13 @@ const stableKey = (where: WorkspaceWhere) =>
 const PURGE_WORKSPACE_TEARDOWN_CONCURRENCY = 5
 const COMMUNITY_MAX_WORKSPACES = 1
 const WORKSPACE_LIMIT_LOCK_TIMEOUT_SECONDS = 30
+
+// Fibrazo fork (ticket #15467) — variable global fija del panel de Sysbrazo.
+// El nombre es la convención documentada; el valor lo configura cada entorno
+// (dev/prod/ngrok local) en la UI de "Variables globales".
+const SYSBRAZO_CLIENT_API_URL_VARIABLE_NAME = "SYSBRAZO_CLIENT_API_URL"
+const SYSBRAZO_CLIENT_API_URL_VARIABLE_DESCRIPTION =
+  "URL (o plantilla) de Sysbrazo de donde el panel de contacto y el flujo consultan los datos del cliente. Cambia según el entorno (dev/prod/ngrok local). Admite {{...}} de otras variables globales (p.ej. {{LOCAL_URL}}) y {{document_id}} del contacto."
 
 class WorkspaceService extends BaseService {
   async findOrFail(props: {
@@ -520,6 +528,14 @@ class WorkspaceService extends BaseService {
       tx,
     })
 
+    // Fibrazo fork (ticket #15467): todo workspace nuevo nace con la variable
+    // global fija del panel de Sysbrazo. El VALOR lo configura el workspace
+    // en la UI; sin valor, el panel cae a la URL del nodo `callApi` del flujo.
+    await this.ensureSysbrazoClientApiUrlVariable({
+      workspaceId: newWorkspace.id,
+      tx,
+    })
+
     await this.invalidateCacheTags([workspaceMemberCacheTag(props.createdBy)])
 
     // Sanctioned exception: no workspaceId exists in the ALS actor yet at
@@ -538,6 +554,27 @@ class WorkspaceService extends BaseService {
     }
 
     return newWorkspace
+  }
+
+  /**
+   * Fibrazo fork (ticket #15467): garantiza que la variable global fija del
+   * panel de Sysbrazo exista en todo workspace (creación automática,
+   * idempotente — nunca pisa una fila existente ni su valor). El valor se
+   * configura por entorno en la UI de "Variables globales".
+   */
+  private async ensureSysbrazoClientApiUrlVariable(props: {
+    workspaceId: string
+    tx: DatabaseClient
+  }): Promise<void> {
+    await props.tx
+      .insert(botFieldModel)
+      .values({
+        workspaceId: props.workspaceId,
+        name: SYSBRAZO_CLIENT_API_URL_VARIABLE_NAME,
+        type: "longText",
+        description: SYSBRAZO_CLIENT_API_URL_VARIABLE_DESCRIPTION,
+      })
+      .onConflictDoNothing()
   }
 
   private async ensureMacRollup(props: {

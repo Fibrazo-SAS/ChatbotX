@@ -138,14 +138,40 @@ const createBotFieldsMap = (
     ]),
   )
 
+const createBotFieldsByNameMap = (
+  fields: Array<{
+    id: string
+    name?: string
+    type?: string
+    value: string | null
+  }>,
+) =>
+  new Map(
+    fields
+      .filter((field) => field.name !== undefined)
+      .map((field) => [
+        field.name as string,
+        {
+          type: field.type ?? "text",
+          value: field.value,
+        } as unknown as BotFieldValue,
+      ]),
+  )
+
 const createVariables = (
   fields: Array<Partial<ContactCustomFieldValue> & { key: string }> = [],
-  botFields: Array<{ id: string; type?: string; value: string | null }> = [],
+  botFields: Array<{
+    id: string
+    name?: string
+    type?: string
+    value: string | null
+  }> = [],
 ) => ({
   contact,
   contactInbox,
   customFieldsMap: createCustomFieldsMap(fields),
   botFieldsMap: createBotFieldsMap(botFields),
+  botFieldsByNameMap: createBotFieldsByNameMap(botFields),
   workspace,
 })
 
@@ -357,6 +383,42 @@ describe("contactVariableService.replaceAll bot fields", () => {
         ),
       }),
     ).resolves.toBe("right value")
+  })
+
+  test("resolves a global variable directly by its name (no token)", async () => {
+    await expect(
+      contactVariableService.replaceAll({
+        text: "URL: {{URL_DEV}}",
+        variables: createVariables(
+          [],
+          [{ id: "1", name: "URL_DEV", value: "https://example.com" }],
+        ),
+      }),
+    ).resolves.toBe("URL: https://example.com")
+  })
+
+  test("renders a global variable with no stored value as an empty string", async () => {
+    await expect(
+      contactVariableService.replaceAll({
+        text: "URL: {{URL_DEV}}.",
+        variables: createVariables(
+          [],
+          [{ id: "1", name: "URL_DEV", value: null }],
+        ),
+      }),
+    ).resolves.toBe("URL: .")
+  })
+
+  test("a contact custom field wins over a global variable of the same name", async () => {
+    await expect(
+      contactVariableService.replaceAll({
+        text: "{{URL_DEV}}",
+        variables: createVariables(
+          [{ key: "URL_DEV", value: "contact value" }],
+          [{ id: "1", name: "URL_DEV", value: "global value" }],
+        ),
+      }),
+    ).resolves.toBe("contact value")
   })
 })
 

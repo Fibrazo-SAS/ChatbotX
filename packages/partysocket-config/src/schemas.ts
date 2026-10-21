@@ -7,6 +7,7 @@ export const RealtimeEventType = {
   typing: "typing",
   contactBlocked: "contactBlocked",
   contactUnblocked: "contactUnblocked",
+  contactCustomFieldChanged: "contactCustomFieldChanged",
   conversationAssigned: "conversationAssigned",
   notifyExportResult: "notifyExportResult",
   conversationCreated: "conversationCreated",
@@ -74,6 +75,17 @@ export type RealtimeEventContactCommon = {
   }
 }
 
+export type RealtimeEventContactCustomFieldChanged = {
+  eventType: typeof RealtimeEventType.contactCustomFieldChanged
+  data: {
+    contactId: string
+    changes: Array<{
+      name: string
+      value: string | null
+    }>
+  }
+}
+
 export type RealtimeEventConversationAssigned = {
   eventType: typeof RealtimeEventType.conversationAssigned
   data: {
@@ -124,6 +136,7 @@ export type RealtimeEventData =
   | RealtimeEventMessageUpdated
   | RealtimeEventMessageFailed
   | RealtimeEventContactCommon
+  | RealtimeEventContactCustomFieldChanged
   | RealtimeEventConversationAssigned
   | RealtimeEventTyping
   | RealtimeEventNotifyExportResult
