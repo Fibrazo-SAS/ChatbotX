@@ -202,7 +202,7 @@ const findSysbrazoCallApiConfig = async (
  * cabeceras (Authorization) siempre salen del nodo — es la fuente única de
  * credenciales.
  */
-const resolveSysbrazoRequest = async (
+export const resolveSysbrazoRequest = async (
   workspaceId: string,
   documentId: string,
 ): Promise<{
@@ -244,6 +244,38 @@ const resolveSysbrazoRequest = async (
 }
 
 /**
+ * Documento del contacto normalizado para Sysbrazo (`document_id` custom
+ * field validado con la misma regla del upstream), o `null` si no hay
+ * documento o no cumple la regla. Helper compartido: lo usa el lookup
+ * principal y las consultas de soporte (autodiagnósticos/tickets), que
+ * necesitan el mismo documento para resolver credenciales sin repetir la
+ * lectura del custom field.
+ */
+export const resolveContactSysbrazoDocumentId = async ({
+  workspaceId,
+  contactId,
+}: {
+  workspaceId: string
+  contactId: string
+}): Promise<string | null> => {
+  const { data: fields } = await listContactCustomFields({
+    workspaceId,
+    contactId,
+  })
+
+  const documentField = fields.find(
+    (field) => field.name === SYSBRAZO_DOCUMENT_FIELD_NAME,
+  )
+  const rawDocumentId = documentField?.value?.trim() ?? ""
+
+  if (rawDocumentId === "") {
+    return null
+  }
+
+  return normalizeDocumentId(rawDocumentId)
+}
+
+/**
  * Lookup on-demand del panel contra Sysbrazo, gatillado por el custom field
  * `document_id` del contacto (el "punto de inflexión"). Sin documento → no
  * consulta. `404` → `{ found: false }` (no registra como cliente).
@@ -258,21 +290,11 @@ export const getSysbrazoClientByDocument = async ({
   workspaceId: string
   contactId: string
 }): Promise<SysbrazoLookupResponse> => {
-  const { data: fields } = await listContactCustomFields({
+  const documentId = await resolveContactSysbrazoDocumentId({
     workspaceId,
     contactId,
   })
 
-  const documentField = fields.find(
-    (field) => field.name === SYSBRAZO_DOCUMENT_FIELD_NAME,
-  )
-  const rawDocumentId = documentField?.value?.trim() ?? ""
-
-  if (rawDocumentId === "") {
-    return { found: false }
-  }
-
-  const documentId = normalizeDocumentId(rawDocumentId)
   if (documentId === null) {
     return { found: false }
   }

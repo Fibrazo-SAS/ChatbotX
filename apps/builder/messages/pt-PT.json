@@ -1708,7 +1708,10 @@
       "onlyAssignedContacts": "Apenas contactos atribuídos",
       "emailAndPhone": "E-mail e telefone",
       "broadcast": "Difusão",
-      "ecommerce": "Comércio eletrónico"
+      "ecommerce": "Comércio eletrónico",
+      "runAutodiagnostic": "Realizar autodiagnósticos",
+      "viewBotFields": "Ver variáveis globais",
+      "manageBotFields": "Gerir variáveis globais"
     },
     "member": {
       "label": "Membro"
@@ -4628,7 +4631,8 @@
         "workspaceLabel": "Workspace",
         "roleLabel": "Role",
         "success": "User added to the workspace.",
-        "loadError": "Could not load workspaces."
+        "loadError": "Could not load workspaces.",
+        "allAlreadyMembers": "Este utilizador já é membro de todos os workspaces"
       },
       "deactivate": {
         "button": "Deactivate",
@@ -5988,6 +5992,23 @@
   "accountFields": {
     "title": "Variáveis globais"
   },
+  "botFieldHistory": {
+    "title": "Histórico",
+    "open": "Histórico",
+    "loading": "A consultar histórico…",
+    "error": "Não foi possível carregar o histórico",
+    "empty": "Sem alterações registadas ainda",
+    "by": "Por {user}",
+    "system": "Sistema",
+    "unknownUser": "Utilizador desconhecido",
+    "actions": {
+      "created": "Criada",
+      "updated": "Editada",
+      "deleted": "Eliminada",
+      "valuesReset": "Valores repostos",
+      "unknown": "Alteração"
+    }
+  },
   "sysbrazoPanel": {
     "notRegistered": "Não registrado como cliente",
     "loading": "A consultar dados do cliente no Sysbrazo…",
@@ -6065,6 +6086,92 @@
       "powerWarning": "ATENÇÃO",
       "powerCritical": "CRÍTICO",
       "loading": "A consultar estado da ONU…"
+    },
+    "autodiagnostic": {
+      "title": "Autodiagnóstico",
+      "run": "Realizar Autodiagnóstico",
+      "runShort": "Realizar",
+      "noIssues": "Sem falhas detetadas",
+      "update": "Atualizar",
+      "fullHistory": "Ver histórico completo",
+      "empty": "Ainda sem autodiagnósticos",
+      "notFound": "Não encontrámos este contacto no Sysbrazo",
+      "numberLabel": "Número:",
+      "runIn": "Realizado em:",
+      "loading": "A consultar autodiagnósticos…",
+      "error": "Não foi possível carregar os autodiagnósticos",
+      "startError": "Não foi possível iniciar o autodiagnóstico",
+      "staleCreatedHint": "A execução ficou sem processar no servidor. Atualize manualmente."
+    },
+    "diagnosticStatus": {
+      "created": "Criado",
+      "running": "Em curso",
+      "delayed": "Demorado",
+      "finished": "Finalizado",
+      "failed": "Falhado",
+      "canceled": "Cancelado",
+      "paused": "Pausado",
+      "error": "Erro"
+    },
+    "diagnosticSource": {
+      "portal": "Portal",
+      "bot": "Bot",
+      "sysbrazo": "Sysbrazo",
+      "chatbotx": "ChatbotX"
+    },
+    "diagnosticDialog": {
+      "title": "Autodiagnóstico de Rede",
+      "description": "Progresso e resultado do autodiagnóstico",
+      "loading": "A consultar a execução…",
+      "error": "Não foi possível carregar o detalhe do autodiagnóstico",
+      "close": "Fechar",
+      "executing": "A executar…",
+      "stepDone": "Passo concluído",
+      "stepFailed": "Passo falhado",
+      "stepRunning": "Passo em curso",
+      "stepPaused": "Passo pausado",
+      "allOk": "Está tudo correto!",
+      "allOkMessage": "O serviço está a funcionar sem problemas. Não foram detetadas falhas físicas nem de rede no equipamento do cliente.",
+      "duration": "Duração total: {duration}",
+      "failed": "O diagnóstico falhou",
+      "reason": "Motivo: {reason}",
+      "canceled": "Diagnóstico cancelado",
+      "noSteps": "Não foi executado nenhum passo.",
+      "paused": "Autodiagnóstico pausado"
+    },
+    "diagnosticHistory": {
+      "title": "Histórico de autodiagnósticos",
+      "loading": "A carregar histórico…",
+      "columns": {
+        "id": "ID",
+        "odoo": "Odoo",
+        "redmine": "Redmine",
+        "user": "Utilizador",
+        "status": "Estado",
+        "reason": "Motivo",
+        "start": "Data de início",
+        "end": "Data de fim",
+        "details": "Detalhes"
+      },
+      "showing": "A mostrar {from} a {to} de {total} resultados",
+      "na": "N/A",
+      "dash": "—"
+    },
+    "tickets": {
+      "title": "Tickets",
+      "numberLabel": "Número:",
+      "teamLabel": "Equipa de suporte:",
+      "affectedClients": "{count} clientes afetados",
+      "individual": "Individual",
+      "updatedAgo": "Atualizado há {minutes} min",
+      "seeMore": "Ver mais ({count} restantes)",
+      "empty": "Sem tickets registados",
+      "notVerified": "Não verificado",
+      "notFound": "Não encontrámos este contacto no Sysbrazo",
+      "inProgress": "Em curso",
+      "finished": "FINALIZADO",
+      "loading": "A consultar tickets…",
+      "error": "Não foi possível carregar os tickets"
     },
     "notRegisteredHint": "Ainda não foi consultado no Sysbrazo"
   }
