@@ -1,0 +1,2 @@
+ALTER TABLE "AuditLog" ADD COLUMN "botFieldId" bigint;--> statement-breakpoint
+CREATE INDEX "AuditLog_botFieldId_createdAt_id_idx" ON "AuditLog" ("botFieldId","createdAt" DESC NULLS LAST,"id" DESC NULLS LAST) WHERE "botFieldId" IS NOT NULL;

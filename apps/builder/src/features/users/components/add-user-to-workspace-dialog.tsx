@@ -48,17 +48,24 @@ export function AddUserToWorkspaceDialog({
     }
     try {
       const { data } = await listWorkspacesForAdmin({ keyword: null })
+      // No ofrecer workspaces donde el usuario YA es miembro: el servidor
+      // rechaza el duplicado, pero mejor prevenir en la UI.
+      const existingIds = new Set(
+        user.workspaceMembers.map((member) => member.workspaceId),
+      )
       setWorkspaceOptions(
-        data.map((workspace) => ({
-          value: workspace.id,
-          label: workspace.name,
-        })),
+        data
+          .filter((workspace) => !existingIds.has(workspace.id))
+          .map((workspace) => ({
+            value: workspace.id,
+            label: workspace.name,
+          })),
       )
       setWorkspacesLoaded(true)
     } catch {
       toast.error(t("platformAdmin.users.addToWorkspace.loadError"))
     }
-  }, [t, workspacesLoaded])
+  }, [t, workspacesLoaded, user.workspaceMembers])
 
   // El dialog se monta YA ABIERTO (la tabla lo renderiza con open=true al
   // elegir un usuario), así que onOpenChange(true) nunca dispara: cargar al
@@ -119,24 +126,32 @@ export function AddUserToWorkspaceDialog({
         </DialogHeader>
         <Form {...form}>
           <form className="space-y-6" onSubmit={handleSubmitWithAction}>
-            <ComboboxField
-              emptyText={t("actions.noRecordFound")}
-              label={t("platformAdmin.users.addToWorkspace.workspaceLabel")}
-              name="workspaceId"
-              options={workspaceOptions}
-              placeholder={t("actions.pleaseSelect")}
-              required
-            />
-            <SelectField
-              label={t("platformAdmin.users.addToWorkspace.roleLabel")}
-              name="role"
-              // Rol libre (owner incluido). El guard de "no dejar el
-              // workspace sin owner" vive en el servicio.
-              options={workspaceMemberRoles.options.map((role) => ({
-                value: role,
-                label: t(`fields.role.${role}`),
-              }))}
-            />
+            {workspacesLoaded && workspaceOptions.length === 0 ? (
+              <p className="text-muted-foreground text-sm">
+                {t("platformAdmin.users.addToWorkspace.allAlreadyMembers")}
+              </p>
+            ) : (
+              <>
+                <ComboboxField
+                  emptyText={t("actions.noRecordFound")}
+                  label={t("platformAdmin.users.addToWorkspace.workspaceLabel")}
+                  name="workspaceId"
+                  options={workspaceOptions}
+                  placeholder={t("actions.pleaseSelect")}
+                  required
+                />
+                <SelectField
+                  label={t("platformAdmin.users.addToWorkspace.roleLabel")}
+                  name="role"
+                  // Rol libre (owner incluido). El guard de "no dejar el
+                  // workspace sin owner" vive en el servicio.
+                  options={workspaceMemberRoles.options.map((role) => ({
+                    value: role,
+                    label: t(`fields.role.${role}`),
+                  }))}
+                />
+              </>
+            )}
             <div className="flex items-center justify-end gap-2">
               <Button
                 onClick={() => onOpenChange(false)}

@@ -32,6 +32,7 @@ import {
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  HistoryIcon,
   MoreHorizontalIcon,
   PencilIcon,
   SearchIcon,
@@ -43,6 +44,7 @@ import { use, useEffect, useMemo, useState } from "react"
 import { getBrowserTimezone } from "../contact-filter/lib/timezone"
 import CustomFieldTypeLabel from "../custom-fields/components/custom-field-label"
 import { formatCustomFieldDisplayValue } from "../custom-fields/lib/format-custom-field-display-value"
+import { BotFieldHistoryDialog } from "./bot-field-history-dialog"
 import { CreateBotFieldDialog } from "./create-bot-field-dialog"
 import { DeleteBotFieldsDialog } from "./delete-bot-fields-dialog"
 import type { listBotFieldsRSC } from "./queries"
@@ -68,7 +70,7 @@ type AccountFieldsCardProps = {
 
 type AccountFieldRowAction = {
   record: BotFieldResource
-  variant: "update" | "delete"
+  variant: "update" | "delete" | "history"
 }
 
 function TruncatedCell({ value }: { value: string | null | undefined }) {
@@ -104,6 +106,10 @@ function AccountFieldRowActions({
         }
       />
       <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => onSelect("history")}>
+          <HistoryIcon />
+          {t("botFieldHistory.open")}
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onSelect("update")}>
           <PencilIcon />
           {t("actions.edit")}
@@ -383,6 +389,15 @@ export function AccountFieldsCard({
           open={rowAction?.variant === "update"}
           workspaceId={workspaceId}
         />
+
+        {rowAction?.variant === "history" && rowAction.record ? (
+          <BotFieldHistoryDialog
+            botFieldId={rowAction.record.id}
+            botFieldName={rowAction.record.name}
+            onClose={() => setRowAction(null)}
+            workspaceId={workspaceId}
+          />
+        ) : null}
       </CardContent>
     </Card>
   )

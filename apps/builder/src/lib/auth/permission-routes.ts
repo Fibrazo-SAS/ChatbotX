@@ -7,6 +7,7 @@ export const PERMISSION_NAV = {
   broadcasts: "broadcast",
   sequences: "broadcast",
   products: "ecommerce",
+  variables: "viewBotFields",
 } as const satisfies Record<string, keyof WorkspaceMemberPermissions>
 
 export type WorkspacePermissionKey = keyof WorkspaceMemberPermissions
@@ -46,6 +47,7 @@ const WORKSPACE_LANDING_SEGMENTS = [
   "broadcasts",
   "sequences",
   "products",
+  "variables",
 ] as const satisfies ReadonlyArray<keyof typeof PERMISSION_NAV | "inbox">
 
 function canAccessLandingSegment(

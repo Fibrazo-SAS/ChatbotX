@@ -5,6 +5,7 @@ import { isDatabaseError } from "@chatbotx.io/database/client"
 import { returnValidationErrors } from "next-safe-action"
 import { workspaceIdrequestParams } from "@/features/common/schema"
 import { workspaceActionClient } from "@/lib/safe-action"
+import { assertCanManageBotFields } from "../permissions"
 import { createBotFieldRequest } from "../schema/action"
 
 const UNIQUE_VIOLATION_CODE = "23505"
@@ -16,10 +17,17 @@ export const createBotFieldAction = workspaceActionClient
     const {
       bindArgsParsedInputs: [workspaceId],
       parsedInput,
+      ctx,
     } = props
 
+    assertCanManageBotFields(ctx.workspaceMemberPermissions)
+
     try {
-      return await botFieldService.create({ workspaceId, data: parsedInput })
+      return await botFieldService.create({
+        workspaceId,
+        data: parsedInput,
+        actorId: ctx.user.id,
+      })
     } catch (error) {
       // Unique (workspaceId, type, name) — surface a field-level error under
       // Name instead of the generic toast (mirrors createCustomFieldAction).

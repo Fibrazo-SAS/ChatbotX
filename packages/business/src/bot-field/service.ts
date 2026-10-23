@@ -12,8 +12,13 @@ import {
   type CustomFieldType,
   rootFolderId,
 } from "@chatbotx.io/database/partials"
-import { botFieldModel } from "@chatbotx.io/database/schema"
-import type { BotFieldModel } from "@chatbotx.io/database/types"
+import {
+  type AuditChangesDetails,
+  auditLogModel,
+  botFieldModel,
+  type userModel,
+} from "@chatbotx.io/database/schema"
+import type { AuditLogModel, BotFieldModel } from "@chatbotx.io/database/types"
 import {
   likeContains,
   parseOrderByAsObject,
@@ -61,6 +66,17 @@ type CreateBotFieldData = {
 type UpdateBotFieldData = Partial<CreateBotFieldData>
 
 const REGEX_BOT_FIELD_ID = /^\d+$/
+
+/** Acciones de auditoría de variables globales (#15466) en `AuditLog.action`. */
+const BOT_FIELD_AUDIT_ACTIONS = {
+  created: "bot_field.created",
+  updated: "bot_field.updated",
+  deleted: "bot_field.deleted",
+  valuesReset: "bot_field.values_reset",
+} as const
+
+/** Campos cuyo cambio se registra en `changesDetails.changed`. */
+const BOT_FIELD_AUDIT_FIELDS = ["name", "type", "value", "description"] as const
 
 /**
  * Which `CustomFieldType`s each `FieldOperationType` is valid against.
@@ -473,9 +489,10 @@ class BotFieldService extends BaseService {
   async create(props: {
     workspaceId: string
     data: CreateBotFieldData
+    actorId?: string | null
     tx?: DatabaseClient
   }): Promise<BotFieldModel> {
-    const { workspaceId, data, tx = db } = props
+    const { workspaceId, data, actorId = null, tx = db } = props
 
     if (data.folderId) {
       await folderService.ensureExists({
@@ -496,6 +513,15 @@ class BotFieldService extends BaseService {
       .values({ id: createId(), workspaceId, ...preparedData })
       .returning()
 
+    await this.recordAudit({
+      workspaceId,
+      action: BOT_FIELD_AUDIT_ACTIONS.created,
+      botFieldId: botField.id,
+      detail: `Variable global "${botField.name}" creada`,
+      actorId,
+      tx,
+    })
+
     await this.invalidate({ workspaceId })
     return botField
   }
@@ -504,9 +530,10 @@ class BotFieldService extends BaseService {
     workspaceId: string
     key: string
     data: UpdateBotFieldData
+    actorId?: string | null
     tx?: DatabaseClient
   }): Promise<BotFieldModel> {
-    const { workspaceId, key, data, tx = db } = props
+    const { workspaceId, key, data, actorId = null, tx = db } = props
     const existing = await this.findByKeyOrFail({ workspaceId, key, tx })
 
     const preparedData = await this.prepareValuePatch(
@@ -515,12 +542,36 @@ class BotFieldService extends BaseService {
       data,
     )
 
-    return await this.persistUpdate({
+    const updated = await this.persistUpdate({
       workspaceId,
       existing,
       data: preparedData,
       tx,
     })
+
+    const changed = BOT_FIELD_AUDIT_FIELDS.filter((field) => {
+      const before = existing[field]
+      const after = preparedData[field]
+      return after !== undefined && after !== before
+    }).map((field) => ({
+      name: field,
+      before: existing[field] ?? undefined,
+      after: preparedData[field] ?? undefined,
+    }))
+
+    if (changed.length > 0) {
+      await this.recordAudit({
+        workspaceId,
+        action: BOT_FIELD_AUDIT_ACTIONS.updated,
+        botFieldId: existing.id,
+        detail: `Variable global "${existing.name}" editada`,
+        changes: { changed },
+        actorId,
+        tx,
+      })
+    }
+
+    return updated
   }
 
   /**
@@ -709,12 +760,23 @@ class BotFieldService extends BaseService {
   async bulkClearValues(props: {
     workspaceId: string
     ids: string[]
+    actorId?: string | null
     tx?: DatabaseClient
   }): Promise<void> {
-    const { workspaceId, ids, tx = db } = props
+    const { workspaceId, ids, actorId = null, tx = db } = props
     if (ids.length === 0) {
       return
     }
+
+    const affectedRows = await tx
+      .select({ id: botFieldModel.id, name: botFieldModel.name })
+      .from(botFieldModel)
+      .where(
+        and(
+          eq(botFieldModel.workspaceId, workspaceId),
+          inArray(botFieldModel.id, ids),
+        ),
+      )
 
     await tx
       .update(botFieldModel)
@@ -725,6 +787,17 @@ class BotFieldService extends BaseService {
           inArray(botFieldModel.id, ids),
         ),
       )
+
+    for (const row of affectedRows) {
+      await this.recordAudit({
+        workspaceId,
+        action: BOT_FIELD_AUDIT_ACTIONS.valuesReset,
+        botFieldId: row.id,
+        detail: `Valores de la variable global "${row.name}" restablecidos`,
+        actorId,
+        tx,
+      })
+    }
 
     await this.invalidate({ workspaceId, ids })
   }
@@ -762,15 +835,28 @@ class BotFieldService extends BaseService {
   async bulkDelete(props: {
     workspaceId: string
     ids: string[]
+    actorId?: string | null
     tx?: DatabaseClient
   }): Promise<void> {
-    const { workspaceId, ids, tx = db } = props
+    const { workspaceId, ids, actorId = null, tx = db } = props
 
     await assertDeletable({
       workspaceId,
       resourceKind: "botField",
       resourceIds: ids,
     })
+
+    // Snapshot previo para la auditoría: la fila del AuditLog sobrevive al
+    // borrado (botFieldId queda null) y el nombre viaja en el detalle.
+    const deletedRows = await tx
+      .select({ id: botFieldModel.id, name: botFieldModel.name })
+      .from(botFieldModel)
+      .where(
+        and(
+          eq(botFieldModel.workspaceId, workspaceId),
+          inArray(botFieldModel.id, ids),
+        ),
+      )
 
     await tx
       .delete(botFieldModel)
@@ -781,7 +867,98 @@ class BotFieldService extends BaseService {
         ),
       )
 
+    for (const row of deletedRows) {
+      await this.recordAudit({
+        workspaceId,
+        action: BOT_FIELD_AUDIT_ACTIONS.deleted,
+        botFieldId: row.id,
+        detail: `Variable global "${row.name}" eliminada`,
+        actorId,
+        tx,
+      })
+    }
+
     await this.invalidate({ workspaceId, ids })
+  }
+
+  /**
+   * Historial de auditoría de UNA variable global (#15466): filas de
+   * `AuditLog` con `botFieldId`, más recientes primero, con el actor.
+   */
+  async listHistory(props: {
+    workspaceId: string
+    botFieldId: string
+    page?: number | null
+    perPage?: number | null
+  }): Promise<
+    PaginatedResult<
+      AuditLogModel & { user: typeof userModel.$inferSelect | null }
+    >
+  > {
+    const { workspaceId, botFieldId } = props
+    const pagination = parsePagination(props)
+
+    const [data, total] = await Promise.all([
+      db.query.auditLogModel.findMany({
+        where: { workspaceId, botFieldId },
+        with: { user: true },
+        orderBy: (fields, { desc }) => [
+          desc(fields.createdAt),
+          desc(fields.id),
+        ],
+        ...pagination,
+      }),
+      db.$count(
+        auditLogModel,
+        and(
+          eq(auditLogModel.workspaceId, workspaceId),
+          eq(auditLogModel.botFieldId, botFieldId),
+        ),
+      ),
+    ])
+
+    const pageCount = pagination?.limit
+      ? Math.ceil(total / pagination.limit)
+      : 1
+
+    return { data, pageCount }
+  }
+
+  /**
+   * Auditoría de variables globales (#15466): inserta en la MISMA tabla
+   * `AuditLog` que consume la página de auditoría del workspace, dentro de
+   * la transacción de la mutación para que el historial nunca se pierda.
+   * `botFieldId` queda null al borrar el campo (FK set null) y el nombre
+   * sobrevive en el `detail`.
+   */
+  private async recordAudit(props: {
+    workspaceId: string
+    action: string
+    botFieldId: string
+    detail: string
+    changes?: AuditChangesDetails
+    actorId?: string | null
+    tx: DatabaseClient
+  }): Promise<void> {
+    const {
+      workspaceId,
+      action,
+      botFieldId,
+      detail,
+      changes,
+      actorId = null,
+      tx,
+    } = props
+
+    await tx.insert(auditLogModel).values({
+      id: createId(),
+      workspaceId,
+      userId: actorId,
+      botFieldId,
+      action,
+      detail,
+      changesDetails: changes,
+    })
   }
 
   async invalidate(props: {

@@ -9,6 +9,7 @@ import {
 } from "@chatbotx.io/ui/components/ui/sidebar"
 import {
   AtomIcon,
+  BracesIcon,
   BrainIcon,
   ChartPieIcon,
   ChevronsRight,
@@ -152,6 +153,12 @@ export function AppSidebar({
         url: `/space/${workspaceId}/tools`,
         icon: WrenchIcon,
         permission: PERMISSION_NAV.flows,
+      },
+      {
+        title: t("accountFields.title"),
+        url: `/space/${workspaceId}/variables`,
+        icon: BracesIcon,
+        permission: PERMISSION_NAV.variables,
       },
       {
         title: t("settings.title"),
