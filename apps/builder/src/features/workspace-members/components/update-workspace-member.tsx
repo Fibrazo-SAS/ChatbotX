@@ -175,6 +175,29 @@ export function UpdateWorkspaceMemberForm({
               name="permissions.superAdmin"
               required
             />
+            {/* Permiso operativo del panel Sysbrazo (#15466): se muestra
+                siempre (también para superAdmin/owner), porque es explícito y
+                no lo implica ningún otro flag. */}
+            <SwitchField
+              disabled={isCommunity()}
+              formItemClassName="flex flex-row-reverse items-center justify-end gap-2"
+              label={t("fields.permissions.runAutodiagnostic")}
+              name="permissions.runAutodiagnostic"
+            />
+            {/* Variables globales (#15466): ver y gestionar, explícitos y
+                siempre visibles (no los implica superAdmin/owner). */}
+            <SwitchField
+              disabled={isCommunity()}
+              formItemClassName="flex flex-row-reverse items-center justify-end gap-2"
+              label={t("fields.permissions.viewBotFields")}
+              name="permissions.viewBotFields"
+            />
+            <SwitchField
+              disabled={isCommunity()}
+              formItemClassName="flex flex-row-reverse items-center justify-end gap-2"
+              label={t("fields.permissions.manageBotFields")}
+              name="permissions.manageBotFields"
+            />
             {!isSuperAdmin && (
               <>
                 <SwitchField

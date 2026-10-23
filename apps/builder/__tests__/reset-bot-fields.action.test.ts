@@ -13,6 +13,10 @@ vi.mock("@chatbotx.io/business", () => ({
   botFieldService: { bulkClearValues: mocks.bulkClearValues },
 }))
 
+vi.mock("@/lib/auth/utils", () => ({
+  getCurrentUserAndTargetWorkspace: async () => null,
+}))
+
 vi.mock("@/lib/safe-action", () => ({
   workspaceActionClient: {
     bindArgsSchemas: () => ({
@@ -35,6 +39,7 @@ describe("resetBotFields", () => {
     expect(mocks.bulkClearValues).toHaveBeenCalledWith({
       workspaceId: "ws-1",
       ids: ["11", "22"],
+      actorId: undefined,
     })
   })
 })

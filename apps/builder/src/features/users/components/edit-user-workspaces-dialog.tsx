@@ -59,6 +59,11 @@ const PERMISSION_FIELDS = [
   "emailAndPhone",
   "broadcast",
   "ecommerce",
+  // Permiso operativo del panel Sysbrazo (#15466): ejecutar autodiagnósticos.
+  "runAutodiagnostic",
+  // Variables globales (#15466): ver / gestionar, explícitos y separados.
+  "viewBotFields",
+  "manageBotFields",
 ] as const
 
 const initialMemberships = (user: PlatformUserResource): MembershipState[] =>
@@ -243,6 +248,7 @@ export function EditUserWorkspacesDialog({
                         {t("platformAdmin.users.editWorkspaces.permissions")}
                       </p>
                       {PERMISSION_FIELDS.map((field) => {
+                        // i18n-check t('fields.permissions.runAutodiagnostic')
                         // Acople contacts ↔ onlyAssigned (misma regla que el
                         // flujo normal): onlyAssigned solo aplica con contacts.
                         const onToggle = (checked: boolean) => {

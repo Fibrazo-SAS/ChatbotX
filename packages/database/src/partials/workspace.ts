@@ -39,6 +39,22 @@ export const workspaceMemberPermissionsSchema = z.object({
   emailAndPhone: z.boolean(),
   broadcast: z.boolean(),
   ecommerce: z.boolean(),
+  /**
+   * Ejecutar autodiagnósticos de red desde el panel Sysbrazo (#15466).
+   * Permiso operativo explícito: no lo implica `superAdmin`, el rol owner ni
+   * la normalización por edición. Opcional para que los JSON existentes
+   * sigan parseando; su ausencia se lee como denegado (fail-closed).
+   */
+  runAutodiagnostic: z.boolean().optional(),
+  /**
+   * Variables globales (#15466): `viewBotFields` habilita ver la sección y
+   * el historial; `manageBotFields` habilita crear/editar/borrar/
+   * restablecer. Explícitos y separados: no los implica superAdmin ni el
+   * rol owner. Opcionales para que los JSON existentes sigan parseando; su
+   * ausencia se lee como denegado (fail-closed).
+   */
+  viewBotFields: z.boolean().optional(),
+  manageBotFields: z.boolean().optional(),
 })
 export type WorkspaceMemberPermissions = z.infer<
   typeof workspaceMemberPermissionsSchema

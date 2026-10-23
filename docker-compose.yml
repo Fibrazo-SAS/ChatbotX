@@ -7,6 +7,9 @@ x-network: &network
 x-rustfs-environment: &rustfs-environment
   RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-chatbotx}
   RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-secretkey}
+  # rustfs >= 1.0.0-rc.5 reads RUSTFS_CORS_ALLOWED_ORIGINS (the *API* var name
+  # is no longer honored). Local-only fix — do not commit.
+  RUSTFS_CORS_ALLOWED_ORIGINS: ${RUSTFS_CORS_ALLOWED_ORIGINS:-*}
   RUSTFS_API_CORS_ALLOW_ORIGIN: ${RUSTFS_API_CORS_ALLOW_ORIGIN:-*}
 
 services:

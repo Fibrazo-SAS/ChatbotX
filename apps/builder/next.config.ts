@@ -55,9 +55,11 @@ const nextConfig: NextConfig = {
     // drags the dev server into swap thrash (builds stall, page hangs). We keep
     // the in-memory cache (fast during a session) but never persist to disk.
     turbopackFileSystemCacheForDev: false,
-    // The Docker build starts from a clean layer and `.next/cache` is not
-    // persisted across CI runs, so this cache is written and never read.
-    turbopackFileSystemCacheForBuild: false,
+    // Build: ON in local dev — reusing `.next/cache/turbopack` between
+    // `start.sh --build` runs cuts the 15 min full recompile to minutes.
+    // CI/Docker starts from a clean layer, where the cache is written and
+    // never read (harmless: only local machines benefit).
+    turbopackFileSystemCacheForBuild: true,
   },
   poweredByHeader: false,
   async rewrites() {

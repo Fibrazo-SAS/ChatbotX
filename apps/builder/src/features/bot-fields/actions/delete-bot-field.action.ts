@@ -6,6 +6,7 @@ import {
   workspaceIdrequestParams,
 } from "@/features/common/schema"
 import { workspaceActionClient } from "@/lib/safe-action"
+import { assertCanManageBotFields } from "../permissions"
 
 export const deleteBotFieldsAction = workspaceActionClient
   .bindArgsSchemas(workspaceIdrequestParams)
@@ -14,7 +15,14 @@ export const deleteBotFieldsAction = workspaceActionClient
     const {
       bindArgsParsedInputs: [workspaceId],
       parsedInput,
+      ctx,
     } = props
 
-    await botFieldService.bulkDelete({ workspaceId, ids: parsedInput.ids })
+    assertCanManageBotFields(ctx.workspaceMemberPermissions)
+
+    await botFieldService.bulkDelete({
+      workspaceId,
+      ids: parsedInput.ids,
+      actorId: ctx.user.id,
+    })
   })

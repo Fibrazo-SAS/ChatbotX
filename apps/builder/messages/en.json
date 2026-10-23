@@ -1791,7 +1791,10 @@
       "onlyAssignedContacts": "Only Assigned Contacts",
       "emailAndPhone": "Email and Phone",
       "broadcast": "Broadcast",
-      "ecommerce": "Ecommerce"
+      "ecommerce": "Ecommerce",
+      "runAutodiagnostic": "Run auto-diagnostics",
+      "viewBotFields": "View global variables",
+      "manageBotFields": "Manage global variables"
     },
     "member": {
       "label": "Member"
@@ -4917,7 +4920,8 @@
         "workspaceLabel": "Workspace",
         "roleLabel": "Role",
         "success": "User added to the workspace.",
-        "loadError": "Could not load workspaces."
+        "loadError": "Could not load workspaces.",
+        "allAlreadyMembers": "This user is already a member of every workspace"
       },
       "deactivate": {
         "button": "Deactivate",
@@ -5988,6 +5992,23 @@
   "accountFields": {
     "title": "Global variables"
   },
+  "botFieldHistory": {
+    "title": "History",
+    "open": "History",
+    "loading": "Fetching history…",
+    "error": "Could not load the history",
+    "empty": "No changes recorded yet",
+    "by": "By {user}",
+    "system": "System",
+    "unknownUser": "Unknown user",
+    "actions": {
+      "created": "Created",
+      "updated": "Edited",
+      "deleted": "Deleted",
+      "valuesReset": "Values reset",
+      "unknown": "Change"
+    }
+  },
   "sysbrazoPanel": {
     "notRegistered": "Not registered as a client",
     "loading": "Looking up the client in Sysbrazo…",
@@ -6065,6 +6086,92 @@
       "powerWarning": "WARNING",
       "powerCritical": "CRITICAL",
       "loading": "Fetching ONU status…"
+    },
+    "autodiagnostic": {
+      "title": "Auto-diagnostic",
+      "run": "Run Auto-diagnostic",
+      "runShort": "Run",
+      "noIssues": "No issues detected",
+      "update": "Refresh",
+      "fullHistory": "View full history",
+      "empty": "No auto-diagnostics yet",
+      "notFound": "We could not find this contact in Sysbrazo",
+      "numberLabel": "Number:",
+      "runIn": "Run in:",
+      "loading": "Fetching auto-diagnostics…",
+      "error": "Could not load auto-diagnostics",
+      "startError": "Could not start the auto-diagnostic",
+      "staleCreatedHint": "The run was never processed by the server. Refresh manually."
+    },
+    "diagnosticStatus": {
+      "created": "Created",
+      "running": "Running",
+      "delayed": "Delayed",
+      "finished": "Finished",
+      "failed": "Failed",
+      "canceled": "Canceled",
+      "paused": "Paused",
+      "error": "Error"
+    },
+    "diagnosticSource": {
+      "portal": "Portal",
+      "bot": "Bot",
+      "sysbrazo": "Sysbrazo",
+      "chatbotx": "ChatbotX"
+    },
+    "diagnosticDialog": {
+      "title": "Network Auto-diagnostic",
+      "description": "Auto-diagnostic progress and result",
+      "loading": "Fetching the run…",
+      "error": "Could not load the auto-diagnostic detail",
+      "close": "Close",
+      "executing": "Running…",
+      "stepDone": "Step completed",
+      "stepFailed": "Step failed",
+      "stepRunning": "Step in progress",
+      "stepPaused": "Step paused",
+      "allOk": "Everything is working!",
+      "allOkMessage": "The service is running without issues. No physical or network failures were detected on the client's equipment.",
+      "duration": "Total duration: {duration}",
+      "failed": "The diagnostic failed",
+      "reason": "Reason: {reason}",
+      "canceled": "Diagnostic canceled",
+      "noSteps": "No step was executed.",
+      "paused": "Auto-diagnostic paused"
+    },
+    "diagnosticHistory": {
+      "title": "Auto-diagnostic history",
+      "loading": "Loading history…",
+      "columns": {
+        "id": "ID",
+        "odoo": "Odoo",
+        "redmine": "Redmine",
+        "user": "User",
+        "status": "Status",
+        "reason": "Reason",
+        "start": "Start date",
+        "end": "End date",
+        "details": "Details"
+      },
+      "showing": "Showing {from} to {to} of {total} results",
+      "na": "N/A",
+      "dash": "—"
+    },
+    "tickets": {
+      "title": "Tickets",
+      "numberLabel": "Number:",
+      "teamLabel": "Support team:",
+      "affectedClients": "{count} affected clients",
+      "individual": "Individual",
+      "updatedAgo": "Updated {minutes} min ago",
+      "seeMore": "See more ({count} remaining)",
+      "empty": "No tickets registered",
+      "notVerified": "Not verified",
+      "notFound": "We could not find this contact in Sysbrazo",
+      "inProgress": "In progress",
+      "finished": "FINISHED",
+      "loading": "Fetching tickets…",
+      "error": "Could not load tickets"
     },
     "notRegisteredHint": "Not looked up in Sysbrazo yet"
   }

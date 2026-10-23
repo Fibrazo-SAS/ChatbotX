@@ -8,10 +8,12 @@ import type {
   SysbrazoLookupResponse,
   SysbrazoOnuStatus,
 } from "../schema/sysbrazo-client"
+import { AutodiagnosticBlock } from "./autodiagnostic-block"
 import { ContactBlock } from "./contact-block"
 import { IdentityBlock } from "./identity-block"
 import { OnuBlock } from "./onu-block"
 import { ServicesBlock } from "./services-block"
+import { TicketsBlock } from "./tickets-block"
 
 /** Card "no registra como cliente": skeleton de la card principal en grande. */
 const NotRegisteredCard = () => {
@@ -214,6 +216,9 @@ export const SysbrazoPanel = ({
         onu={onu}
         refreshing={refreshingOnu}
       />
+      {/* #15466: autodiagnósticos y tickets cargan aparte y asíncronos. */}
+      <AutodiagnosticBlock contactId={contactId} workspaceId={workspaceId} />
+      <TicketsBlock contactId={contactId} workspaceId={workspaceId} />
     </div>
   )
 }

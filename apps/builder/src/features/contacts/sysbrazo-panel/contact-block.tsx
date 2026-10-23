@@ -144,7 +144,7 @@ export const ContactBlock = ({ client }: { client: SysbrazoClient }) => {
   }
 
   return (
-    <div className="border-slate-100 border-b">
+    <div className="mb-4 border-slate-100 border-b">
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="group flex w-full cursor-pointer select-none items-center justify-between p-4 hover:bg-slate-50">
           <span className="font-bold text-slate-900 text-sm tracking-wide">

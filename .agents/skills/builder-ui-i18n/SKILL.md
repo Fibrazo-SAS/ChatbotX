@@ -4,7 +4,8 @@ description: >-
   Build or modify ChatbotX builder UI components, forms, tables, dialogs,
   shared UI usage, and translations. Use for user-facing React/Next.js UI in
   apps/builder, especially when labels, placeholders, menus, or validation
-  messages are added or changed.
+  messages are added or changed, and when typography, spacing, dialogs, or
+  status badges need to stay consistent with the rest of the builder.
 ---
 
 # Builder UI and i18n
@@ -166,6 +167,68 @@ import { InputNumberField } from "@chatbotx.io/ui/components/form/input-number-f
 - Do not create landing-page style layouts for product workflows.
 - Avoid nested cards and oversized hero typography inside tools.
 - Ensure button and table text fits at mobile and desktop sizes.
+
+### Typography, spacing and palette
+
+When a screen has no direct sibling to mirror, follow the scale below so new UI
+does not drift from the rest of the builder. The canonical reference
+implementation is the Sysbrazo support panel cards and dialogs under
+`apps/builder/src/features/contacts/sysbrazo-panel/` (autodiagnostic and
+tickets blocks), which match the Sysbrazo portal look.
+
+**Type scale (Tailwind classes)**
+
+| Size | Use |
+|---|---|
+| `text-[11px]` | Status pills/badges inside dense panels |
+| `text-xs` | Table cells, captions, auxiliary dates, empty states, panel row labels |
+| `text-sm` | Body copy, buttons, labels, dialog body, panel card headings and row titles |
+| `text-base` | Primary row content in wide dialogs: numbers, step lines, titles |
+| `text-lg` | Dialog titles |
+| `text-xl tracking-tight` | Page-level headings (never inside the conversation panel) |
+
+Panel cards in the narrow conversation sidebar follow the sibling blocks
+(`text-sm font-bold tracking-wide` headings, `text-xs`/`text-sm` rows) — do not
+use `text-base`/`text-lg` inside them or they will look oversized.
+
+Weights, in ascending emphasis: `font-medium` (buttons/labels) →
+`font-semibold` (badges, secondary emphasis) → `font-bold` (titles, important
+values) → `font-extrabold` (key numbers like run IDs, dialog titles). Do not
+jump two steps inside one row: a `text-xs` caption next to a `text-base`
+`font-extrabold` value is fine, but three different sizes in one line is not.
+
+**Radius**
+
+- `rounded-md` — small inline controls
+- `rounded-lg` — buttons, inputs, icon buttons
+- `rounded-xl` — cards inside panels, footer buttons
+- `rounded-2xl` — dialogs and top-level panel cards
+
+**Spacing rhythm**
+
+- Card header: `px-4 py-3` (narrow sidebars) or `px-6 py-4` (wide surfaces), with
+  `border-b border-slate-100`.
+- Card row: `p-4` (dense panels) or `p-5` (generous rows).
+- Dialog: `p-0` content with header `px-6 py-4 border-b`, body `p-6`,
+  footer `px-6 py-4 border-t` and a right-aligned secondary "Cerrar" button.
+- List separators: `divide-y divide-slate-100`.
+
+**Status palette (badges, pills, result boxes)**
+
+- emerald — success / finished (`border-emerald-300 bg-emerald-50 text-emerald-700`)
+- sky — running / in progress (`border-sky-200 bg-sky-50 text-sky-700`)
+- amber — warning / canceled / paused (`border-amber-200 bg-amber-50 text-amber-800`)
+- red — failed / error (`border-red-200 bg-red-50 text-red-700`)
+- slate — neutral / created / inactive
+
+Badge pattern: `inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide` with an icon at `size-3.5`
+(the matching lucide icon: check / loader-spinner / triangle-alert / x).
+
+Result boxes use `rounded-2xl border-s-4 bg-slate-100/90 p-5` with the border
+color of the tone and the icon in a `size-6` filled circle.
+
+Dialog action buttons follow the Sysbrazo look: `rounded-xl bg-slate-200/90 px-7 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-300/80` for
+"Close"-style secondary actions.
 
 ### RTL / Logical Properties
 

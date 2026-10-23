@@ -215,15 +215,24 @@ if [ "$MODE" = "dev" ]; then
   nohup pnpm --filter builder dev > /tmp/opencode/builder-dev.log 2>&1 &
 elif [ "$BUILD" = "1" ] || [ ! -f apps/builder/.next/BUILD_ID ]; then
   echo "Build del builder (tarda unos minutos la primera vez)..."
-  # Build seguro: heap capado (el build del builder ya lo hace via
-  # scripts/build-builder.mjs) + baja prioridad + 4 cores, para que no congele
-  # la UI ni mate la máquina de 14GB cuando hay IDE/Docker abiertos.
-  if ! NODE_OPTIONS="--max-old-space-size=4096" nice -n 19 taskset -c 0-3 pnpm exec turbo build --concurrency=2; then
+  # Build seguro: heap capado (2,5 GB vía NEXT_BUILD_HEAP, el build del
+  # builder ya lo aplica en scripts/build-builder.mjs) + baja prioridad +
+  # 2 cores + concurrency 1, para que la máquina siga usable con IDE/Docker
+  # abiertos. Override con NEXT_BUILD_HEAP=<mb> si hace falta más memoria
+  # (ej. NEXT_BUILD_HEAP=4096 bash scripts/start.sh --build).
+  if ! NEXT_BUILD_HEAP="${NEXT_BUILD_HEAP:-2560}" NODE_OPTIONS="--max-old-space-size=2560" nice -n 19 taskset -c 0-1 pnpm exec turbo build --concurrency=1; then
     echo ""
     echo "❌ El build FALLÓ. NO arranco el builder."
     echo "   (worker y realtime ya quedaron corriendo en background)"
     echo "   Revisá el error de arriba. Si dice 'tsdown: not found' o"
     echo "   'node_modules missing', corré: pnpm install"
+    exit 1
+  fi
+  if [ ! -f apps/builder/.next/BUILD_ID ]; then
+    echo ""
+    echo "❌ El build terminó SIN BUILD_ID (lo mataron a mitad del compile:"
+    echo "   falta de RAM o proceso terminado). No arranco el builder con"
+    echo "   un .next roto. Liberá memoria y volvé a correr --build."
     exit 1
   fi
   setsid env NODE_OPTIONS='--dns-result-order=ipv4first --no-network-family-autoselection' pnpm --filter builder exec dotenv -e .env -e ../../.env -- next start -p 3123 \

@@ -17,6 +17,16 @@ const mocks = vi.hoisted(() => {
   const updateReturning = vi.fn()
   const insertValues = vi.fn()
   const insertReturning = vi.fn()
+  const selectWhere = vi.fn(async () => [])
+  const selectMock = vi.fn(() => ({
+    from: vi.fn(() => ({
+      where: selectWhere,
+    })),
+  }))
+  const deleteWhere = vi.fn(async () => [])
+  const deleteMock = vi.fn(() => ({
+    where: deleteWhere,
+  }))
   const workspaceFindFirst = vi.fn()
   const invalidateCacheTags = vi.fn()
   const sqlMock = vi.fn(
@@ -38,6 +48,10 @@ const mocks = vi.hoisted(() => {
     updateReturning,
     insertValues,
     insertReturning,
+    selectWhere,
+    selectMock,
+    deleteWhere,
+    deleteMock,
     workspaceFindFirst,
     invalidateCacheTags,
     sqlMock,
@@ -89,6 +103,8 @@ vi.mock("@chatbotx.io/database/client", () => ({
       },
     })),
     $count: mocks.countMock,
+    select: mocks.selectMock,
+    delete: mocks.deleteMock,
   },
   and: vi.fn((...conditions: unknown[]) => ({ and: conditions })),
   eq: vi.fn((column: unknown, value: unknown) => ({ eq: [column, value] })),
@@ -103,6 +119,7 @@ vi.mock("@chatbotx.io/database/partials", () => ({
 
 vi.mock("@chatbotx.io/database/schema", () => ({
   botFieldModel,
+  auditLogModel: {},
 }))
 
 vi.mock("@chatbotx.io/database/utils", () => ({
@@ -1107,5 +1124,106 @@ describe("botFieldService.applyValueOperation — increase/decrease operand vali
     ).rejects.toMatchObject({ code: "invalidFieldOperation" })
 
     expect(mocks.updateSet).not.toHaveBeenCalled()
+  })
+})
+
+// Auditoría de variables globales (#15466): cada mutación escribe un fila
+// de AuditLog en la MISMA transacción, con actor y acción tipada.
+describe("botFieldService audit writes", () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  test("create records bot_field.created with the actor", async () => {
+    mocks.insertReturning.mockResolvedValue([existingRow({ name: "my_var" })])
+
+    await botFieldService.create({
+      workspaceId: "ws-1",
+      data: { name: "my_var", type: "shortText", value: "x" },
+      actorId: "user-1",
+    })
+
+    expect(mocks.insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workspaceId: "ws-1",
+        userId: "user-1",
+        botFieldId: "1",
+        action: "bot_field.created",
+        detail: 'Variable global "my_var" creada',
+      }),
+    )
+  })
+
+  test("updateByKey records bot_field.updated with the changed fields", async () => {
+    mocks.findFirst.mockResolvedValue(existingRow({ name: "my_var" }))
+    mocks.updateReturning.mockResolvedValue([existingRow({ value: "new" })])
+
+    await botFieldService.updateByKey({
+      workspaceId: "ws-1",
+      key: "1",
+      data: { value: "new" },
+      actorId: "user-2",
+    })
+
+    expect(mocks.insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-2",
+        action: "bot_field.updated",
+        changesDetails: {
+          changed: [{ name: "value", before: "before", after: "new" }],
+        },
+      }),
+    )
+  })
+
+  test("updateByKey skips the audit row when nothing changed", async () => {
+    mocks.findFirst.mockResolvedValue(existingRow({ value: "same" }))
+    mocks.updateReturning.mockResolvedValue([existingRow({ value: "same" })])
+
+    await botFieldService.updateByKey({
+      workspaceId: "ws-1",
+      key: "1",
+      data: { value: "same" },
+      actorId: "user-2",
+    })
+
+    expect(mocks.insertValues).not.toHaveBeenCalled()
+  })
+
+  test("bulkDelete records bot_field.deleted per removed row", async () => {
+    mocks.selectWhere.mockResolvedValue([{ id: "1", name: "my_var" }])
+
+    await botFieldService.bulkDelete({
+      workspaceId: "ws-1",
+      ids: ["1"],
+      actorId: "user-3",
+    })
+
+    expect(mocks.insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-3",
+        botFieldId: "1",
+        action: "bot_field.deleted",
+        detail: 'Variable global "my_var" eliminada',
+      }),
+    )
+  })
+
+  test("bulkClearValues records bot_field.values_reset per affected row", async () => {
+    mocks.selectWhere.mockResolvedValue([{ id: "2", name: "other_var" }])
+
+    await botFieldService.bulkClearValues({
+      workspaceId: "ws-1",
+      ids: ["2"],
+      actorId: "user-4",
+    })
+
+    expect(mocks.insertValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-4",
+        botFieldId: "2",
+        action: "bot_field.values_reset",
+      }),
+    )
   })
 })

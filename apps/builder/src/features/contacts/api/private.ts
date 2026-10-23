@@ -1,3 +1,4 @@
+import { ChatbotXException } from "@chatbotx.io/business/errors"
 import { db } from "@chatbotx.io/database/client"
 import z from "zod"
 import { withWorkspaceIdSchema } from "@/features/workspaces/schema/resource"
@@ -22,6 +23,12 @@ import {
 } from "../queries/list-contact-inboxes.queries"
 import { listContactTags } from "../queries/list-contact-tags.query"
 import { countContacts, listContacts } from "../queries/list-contacts.queries"
+import {
+  getSysbrazoAutodiagnosticDetail,
+  getSysbrazoAutodiagnostics,
+  getSysbrazoTickets,
+  startSysbrazoAutodiagnostic,
+} from "../queries/sysbrazo-support.query"
 import {
   createContactRequest,
   createContactResponse,
@@ -52,6 +59,13 @@ import {
   sysbrazoLookupResponseSchema,
   sysbrazoOnuStatusSchema,
 } from "../schema/sysbrazo-client"
+import {
+  sysbrazoAutodiagnosticsLookupSchema,
+  sysbrazoDiagnosticDetailSchema,
+  sysbrazoStartDiagnosticResponseSchema,
+  sysbrazoTicketsLookupSchema,
+} from "../schema/sysbrazo-support"
+import { canRunSysbrazoAutodiagnostic } from "../sysbrazo-panel/permissions"
 
 export const contactsAuthenticatedAPI = {
   getContactAuthenticatedAPI: authorizedAPI
@@ -353,5 +367,141 @@ export const contactsAuthenticatedAPI = {
         clientId,
         force: forceOnu,
       })
+    }),
+
+  // ── Panel Sysbrazo: autodiagnósticos y tickets (#15466) ──
+  // El clientId de Sysbrazo se resuelve SIEMPRE en servidor desde el contacto;
+  // el navegador nunca lo aporta. El permiso de ejecución es explícito por
+  // miembro (`runAutodiagnostic`), sin bypass por superAdmin/rol/edición.
+
+  getSysbrazoAutodiagnosticsAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-autodiagnostics",
+      summary: "List Sysbrazo auto-diagnostic runs for a contact",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        page: z.number().int().positive().optional(),
+        perPage: z.number().int().positive().max(100).optional(),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(sysbrazoAutodiagnosticsLookupSchema)
+    .handler(async ({ input }) => {
+      const { workspaceId, contactId, page, perPage } = input
+      await requireContactPermissionScope(workspaceId)
+      return await getSysbrazoAutodiagnostics({
+        workspaceId,
+        contactId,
+        page,
+        perPage,
+      })
+    }),
+
+  getSysbrazoAutodiagnosticDetailAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-autodiagnostics/{runId}",
+      summary: "Get one Sysbrazo auto-diagnostic run with its steps",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        runId: z.number().int().positive(),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(sysbrazoDiagnosticDetailSchema)
+    .handler(async ({ input }) => {
+      const { workspaceId, contactId, runId } = input
+      await requireContactPermissionScope(workspaceId)
+      return await getSysbrazoAutodiagnosticDetail({
+        workspaceId,
+        contactId,
+        runId,
+      })
+    }),
+
+  startSysbrazoAutodiagnosticAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "POST",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-autodiagnostics",
+      summary: "Start a Sysbrazo auto-diagnostic from ChatbotX",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(sysbrazoStartDiagnosticResponseSchema)
+    .handler(async ({ input }) => {
+      const { workspaceId, contactId } = input
+      await requireContactPermissionScope(workspaceId)
+      // Permiso explícito por miembro; un POST forjado no llega a Sysbrazo.
+      if (!(await canRunSysbrazoAutodiagnostic(workspaceId))) {
+        throw new ChatbotXException(
+          "You do not have permission to run auto-diagnostics",
+          "runAutodiagnosticDenied",
+          403,
+        )
+      }
+      return await startSysbrazoAutodiagnostic({ workspaceId, contactId })
+    }),
+
+  getSysbrazoTicketsAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-tickets",
+      summary: "List support tickets for a contact (Odoo + Redmine)",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        page: z.number().int().positive().optional(),
+        perPage: z.number().int().positive().max(100).optional(),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(sysbrazoTicketsLookupSchema)
+    .handler(async ({ input }) => {
+      const { workspaceId, contactId, page, perPage } = input
+      await requireContactPermissionScope(workspaceId)
+      return await getSysbrazoTickets({
+        workspaceId,
+        contactId,
+        page,
+        perPage,
+      })
+    }),
+
+  getSysbrazoAutodiagnosticCapabilityAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/sysbrazo-autodiagnostic-capability",
+      summary: "Whether the current member can run Sysbrazo auto-diagnostics",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(z.object({ canRun: z.boolean() }))
+    .handler(async ({ input }) => {
+      const { workspaceId } = input
+      await requireContactPermissionScope(workspaceId)
+      return { canRun: await canRunSysbrazoAutodiagnostic(workspaceId) }
     }),
 }

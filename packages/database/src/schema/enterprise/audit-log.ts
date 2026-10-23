@@ -20,6 +20,9 @@ export const auditLogModel = pgTable(
     role: text(),
     // Set by flow mutations so the history of a specific flow can be queried.
     flowId: bigintAsString(),
+    // Set by bot-field (variables globales) mutations (#15466) so the
+    // history of a specific variable can be queried from its dialog.
+    botFieldId: bigintAsString(),
     // Structured, machine-readable change list (e.g. flow node diffs) that
     // complements the human-readable `detail`. Optional — only actions that
     // produce a diff fill it.
@@ -64,5 +67,13 @@ export const auditLogModel = pgTable(
         table.id.desc(),
       )
       .where(sql`"flowId" IS NOT NULL`),
+    index("AuditLog_botFieldId_createdAt_id_idx")
+      .using(
+        "btree",
+        table.botFieldId.asc(),
+        table.createdAt.desc(),
+        table.id.desc(),
+      )
+      .where(sql`"botFieldId" IS NOT NULL`),
   ],
 )

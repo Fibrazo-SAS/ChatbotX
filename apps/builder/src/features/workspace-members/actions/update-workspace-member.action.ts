@@ -72,7 +72,13 @@ export const updateWorkspaceMemberAction = workspaceActionClient
         }
       : {
           ...parsedInput,
-          permissions: normalizeContactsPermissions(parsedInput.permissions),
+          permissions: {
+            // Preserva las claves operativas que este formulario no edita
+            // (p.ej. `runAutodiagnostic` del #15466, administrado desde
+            // /admin/users), para que guardar acá no borre el permiso.
+            ...workspaceMember.permissions,
+            ...normalizeContactsPermissions(parsedInput.permissions),
+          },
         }
 
     const permissionsChanged = !isDeepStrictEqual(

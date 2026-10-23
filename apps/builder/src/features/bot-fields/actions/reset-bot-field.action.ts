@@ -6,12 +6,14 @@ import {
   workspaceIdrequestParams,
 } from "@/features/common/schema"
 import { workspaceActionClient } from "@/lib/safe-action"
+import { assertCanManageBotFields } from "../permissions"
 
 export const resetBotFields = async (
   workspaceId: string,
   ids: string[],
+  actorId?: string | null,
 ): Promise<void> => {
-  await botFieldService.bulkClearValues({ workspaceId, ids })
+  await botFieldService.bulkClearValues({ workspaceId, ids, actorId })
 }
 
 export const resetBotFieldsAction = workspaceActionClient
@@ -21,7 +23,10 @@ export const resetBotFieldsAction = workspaceActionClient
     const {
       bindArgsParsedInputs: [workspaceId],
       parsedInput,
+      ctx,
     } = props
 
-    await resetBotFields(workspaceId, parsedInput.ids)
+    assertCanManageBotFields(ctx.workspaceMemberPermissions)
+
+    await resetBotFields(workspaceId, parsedInput.ids, ctx.user.id)
   })
