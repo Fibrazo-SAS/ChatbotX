@@ -215,8 +215,8 @@ describe("WorkspaceService.create", () => {
     })
 
     expect(result).toEqual({ id: "new-workspace" })
-    // 1 = workspace, 2 = variable global fija del panel (ticket #15467)
-    expect(mocks.workspaceInsert).toHaveBeenCalledTimes(2)
+    // 1 = workspace, 2 = LOCAL_URL, 3 = SYSBRAZO_CLIENT_API_URL.
+    expect(mocks.workspaceInsert).toHaveBeenCalledTimes(3)
     expect(mocks.createMember).toHaveBeenCalledTimes(1)
   })
 
@@ -231,8 +231,8 @@ describe("WorkspaceService.create", () => {
     })
 
     expect(result).toEqual({ id: "new-workspace" })
-    // 1 = workspace, 2 = variable global fija del panel (ticket #15467)
-    expect(mocks.workspaceInsert).toHaveBeenCalledTimes(2)
+    // 1 = workspace, 2 = LOCAL_URL, 3 = SYSBRAZO_CLIENT_API_URL.
+    expect(mocks.workspaceInsert).toHaveBeenCalledTimes(3)
     expect(mocks.createMember).toHaveBeenCalledTimes(1)
   })
 
