@@ -11,10 +11,10 @@ import type {
 import { AutodiagnosticBlock } from "./autodiagnostic-block"
 import { ContactBlock } from "./contact-block"
 import { IdentityBlock } from "./identity-block"
+import { NotesBlock } from "./notes-block"
 import { OnuBlock } from "./onu-block"
 import { ServicesBlock } from "./services-block"
 import { TicketsBlock } from "./tickets-block"
-import { NotesBlock } from "./notes-block"
 
 /** Card "no registra como cliente": skeleton de la card principal en grande. */
 const NotRegisteredCard = () => {
@@ -211,7 +211,7 @@ export const SysbrazoPanel = ({
         lastInteractionAt={lastInteractionAt}
       />
       <ContactBlock client={sysbrazoClient} />
-       <ServicesBlock baseUrl={data.baseUrl} client={sysbrazoClient} />
+      <ServicesBlock baseUrl={data.baseUrl} client={sysbrazoClient} />
       <OnuBlock
         onRefresh={handleRefreshOnu}
         onu={onu}
