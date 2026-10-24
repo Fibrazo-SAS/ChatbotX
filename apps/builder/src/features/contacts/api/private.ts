@@ -27,6 +27,9 @@ import {
   getSysbrazoAutodiagnosticDetail,
   getSysbrazoAutodiagnostics,
   getSysbrazoTickets,
+  getSysbrazoNotes,
+  createSysbrazoNote,
+  updateSysbrazoNote,
   startSysbrazoAutodiagnostic,
 } from "../queries/sysbrazo-support.query"
 import {
@@ -60,14 +63,21 @@ import {
   sysbrazoOnuStatusSchema,
 } from "../schema/sysbrazo-client"
 import {
+  sysbrazoNotesResponseSchema,
+} from "../schema/sysbrazo-notes"
+import {
   sysbrazoAutodiagnosticsLookupSchema,
   sysbrazoDiagnosticDetailSchema,
   sysbrazoStartDiagnosticResponseSchema,
   sysbrazoTicketsLookupSchema,
 } from "../schema/sysbrazo-support"
-import { canRunSysbrazoAutodiagnostic } from "../sysbrazo-panel/permissions"
+import {
+  canRunSysbrazoAutodiagnostic,
+  canViewSysbrazoNotes,
+} from "../sysbrazo-panel/permissions"
 
 export const contactsAuthenticatedAPI = {
+  // Sysbrazo client-card procedures consumed by the ChatbotX contact panel.
   getContactAuthenticatedAPI: authorizedAPI
     .route({
       method: "GET",
@@ -483,6 +493,78 @@ export const contactsAuthenticatedAPI = {
         page,
         perPage,
       })
+    }),
+
+  getSysbrazoNotesAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-notes",
+      summary: "List Sysbrazo client notes for a contact",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        origin: z.enum(["chat", "sysbrazo"]).optional(),
+        page: z.number().int().positive().optional(),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(sysbrazoNotesResponseSchema.nullable())
+    .handler(async ({ input }) => {
+      await requireContactPermissionScope(input.workspaceId)
+      if (!(await canViewSysbrazoNotes(input.workspaceId))) {
+        throw new ChatbotXException("You do not have permission to view notes", "sysbrazoNotesDenied", 403)
+      }
+      return await getSysbrazoNotes(input)
+    }),
+
+  createSysbrazoNoteAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "POST",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-notes",
+      summary: "Create a Sysbrazo client note",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        notes: z.string().trim().min(1).max(2000),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .handler(async ({ input }) => {
+      await requireContactPermissionScope(input.workspaceId)
+      if (!(await canViewSysbrazoNotes(input.workspaceId))) {
+        throw new ChatbotXException("You do not have permission to create notes", "sysbrazoNotesDenied", 403)
+      }
+      return await createSysbrazoNote(input)
+    }),
+
+  updateSysbrazoNoteAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "PATCH",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-notes/{noteId}",
+      summary: "Update a Sysbrazo client note",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        noteId: z.string().min(1),
+        notes: z.string().trim().min(1).max(2000),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .handler(async ({ input }) => {
+      await requireContactPermissionScope(input.workspaceId)
+      if (!(await canViewSysbrazoNotes(input.workspaceId))) {
+        throw new ChatbotXException("You do not have permission to edit notes", "sysbrazoNotesDenied", 403)
+      }
+      return await updateSysbrazoNote(input)
     }),
 
   getSysbrazoAutodiagnosticCapabilityAuthenticatedAPI: authorizedAPI

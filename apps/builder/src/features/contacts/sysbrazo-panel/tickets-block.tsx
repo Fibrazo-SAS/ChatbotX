@@ -28,7 +28,6 @@ import { formatTicketDate, minutesSince } from "./format-support"
  */
 
 const INITIAL_VISIBLE = 3
-const LOAD_MORE_PAGE_SIZE = 50
 
 type TicketsState =
   | { status: "loading" }
@@ -143,11 +142,27 @@ export const TicketsBlock = ({
   const t = useTranslations("sysbrazoPanel")
   const [state, setState] = useState<TicketsState>({ status: "loading" })
   const [loadingMore, setLoadingMore] = useState(false)
+  const [page, setPage] = useState(1)
+  const [open, setOpen] = useState(true)
   const requestSeqRef = useRef(0)
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+    if (!nextOpen) {
+      setPage(1)
+      setState((current) =>
+        current.status === "ok"
+          ? { ...current, items: current.items.slice(0, INITIAL_VISIBLE) }
+          : current,
+      )
+    }
+  }
 
   useEffect(() => {
     const seq = ++requestSeqRef.current
     setState({ status: "loading" })
+    setPage(1)
+    setOpen(true)
 
     client.contactsAPIs
       .getSysbrazoTicketsAuthenticatedAPI({
@@ -188,21 +203,27 @@ export const TicketsBlock = ({
       return
     }
     setLoadingMore(true)
+    const nextPage = page + 1
     try {
       const res = await client.contactsAPIs.getSysbrazoTicketsAuthenticatedAPI({
         workspaceId,
         contactId,
-        page: 2,
-        perPage: LOAD_MORE_PAGE_SIZE,
+        page: nextPage,
+        perPage: INITIAL_VISIBLE,
       })
       if (!res.found) {
         return
       }
       setState((current) =>
         current.status === "ok"
-          ? { status: "ok", items: res.items, total: res.total }
+          ? {
+              status: "ok",
+              items: [...current.items, ...res.items],
+              total: res.total,
+            }
           : current,
       )
+      setPage(nextPage)
     } catch {
       // El resto no pudo cargarse: se mantiene lo ya visible, sin falsear el
       // total (el botón sigue mostrando los restantes).
@@ -215,7 +236,11 @@ export const TicketsBlock = ({
     state.status === "ok" ? Math.max(0, state.total - state.items.length) : 0
 
   return (
-    <Collapsible className="mx-4 mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+    <Collapsible
+      className="mx-4 mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+      onOpenChange={handleOpenChange}
+      open={open}
+    >
       <div className="flex items-center justify-between gap-2 border-slate-100 border-b bg-white px-4 py-3">
         <span className="font-bold text-slate-900 text-sm tracking-wide">
           {t("tickets.title")}
@@ -278,7 +303,7 @@ export const TicketsBlock = ({
               {remaining > 0 ? (
                 <div className="flex justify-center border-slate-100 border-t p-3">
                   <button
-                    className="w-full rounded-lg border border-slate-300 px-4 py-1.5 font-medium text-slate-700 text-xs shadow-sm transition-colors hover:bg-slate-50 disabled:opacity-60 sm:w-auto"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 text-xs transition-colors hover:bg-slate-50 disabled:opacity-60 sm:w-auto"
                     disabled={loadingMore}
                     onClick={handleLoadMore}
                     type="button"

@@ -57,5 +57,8 @@ export const normalizeDocumentId = (raw: string): string | null => {
 }
 
 /** URL del botón "Ir Sysbrazo" (ticket #15467). */
-export const sysbrazoInstallationUrl = (clientId: string): string =>
-  `https://sysbrazo.fibrazo.com.co/clients/${clientId}/installation/${clientId}`
+export const sysbrazoInstallationUrl = (
+  baseUrl: string,
+  clientId: string,
+): string =>
+  `${baseUrl.replace(/\/$/, "")}/clients/${clientId}/installation/${clientId}`

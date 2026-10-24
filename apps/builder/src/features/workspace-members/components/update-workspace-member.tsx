@@ -198,6 +198,12 @@ export function UpdateWorkspaceMemberForm({
               label={t("fields.permissions.manageBotFields")}
               name="permissions.manageBotFields"
             />
+            <SwitchField
+              disabled={isCommunity()}
+              formItemClassName="flex flex-row-reverse items-center justify-end gap-2"
+              label={t("fields.permissions.viewClientNotes")}
+              name="permissions.viewClientNotes"
+            />
             {!isSuperAdmin && (
               <>
                 <SwitchField

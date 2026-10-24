@@ -327,7 +327,7 @@ export const getSysbrazoClientByDocument = async ({
     return { found: false }
   }
 
-  return { found: true, client }
+  return { found: true, client, baseUrl: new URL(url).origin }
 }
 
 /**

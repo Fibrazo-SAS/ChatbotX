@@ -20,3 +20,11 @@ export const canRunSysbrazoAutodiagnostic = async (
     true
   )
 }
+
+export const canViewSysbrazoNotes = async (workspaceId: string): Promise<boolean> => {
+  const userAndWorkspace = await getCurrentUserAndTargetWorkspace(workspaceId)
+  return (
+    userAndWorkspace?.targetWorkspaceMember?.permissions?.superAdmin === true ||
+    userAndWorkspace?.targetWorkspaceMember?.permissions?.viewClientNotes === true
+  )
+}

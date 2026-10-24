@@ -268,7 +268,13 @@ const AddonRow = ({ addon }: { addon: SysbrazoAddon }) => {
  * serial, modelo y estado. Si el cliente no tiene servicios contratados
  * (lead), muestra el bloque "Sin servicio contratado".
  */
-export const ServicesBlock = ({ client }: { client: SysbrazoClient }) => {
+export const ServicesBlock = ({
+  baseUrl,
+  client,
+}: {
+  baseUrl?: string
+  client: SysbrazoClient
+}) => {
   const t = useTranslations("sysbrazoPanel")
 
   const internetState = resolveInternetServiceState(client)
@@ -340,15 +346,17 @@ export const ServicesBlock = ({ client }: { client: SysbrazoClient }) => {
           {t("services.title")}
         </span>
         <div className="flex items-center gap-2">
-          <a
-            className="inline-flex items-center gap-1.5 rounded-md bg-[#15803d] px-3 py-1 font-medium text-white text-xs shadow-sm transition-colors hover:bg-[#166534]"
-            href={sysbrazoInstallationUrl(String(client.id))}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <ExternalLinkIcon aria-hidden="true" className="size-3.5" />
-            {t("services.goToSysbrazo")}
-          </a>
+          {baseUrl ? (
+            <a
+              className="inline-flex items-center gap-1.5 rounded-md bg-[#15803d] px-3 py-1 font-medium text-white text-xs shadow-sm transition-colors hover:bg-[#166534]"
+              href={sysbrazoInstallationUrl(baseUrl, String(client.id))}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <ExternalLinkIcon aria-hidden="true" className="size-3.5" />
+              {t("services.goToSysbrazo")}
+            </a>
+          ) : null}
           <CollapsibleTrigger className="group text-slate-400 transition-colors hover:text-slate-600">
             <ChevronDownIcon
               aria-hidden="true"

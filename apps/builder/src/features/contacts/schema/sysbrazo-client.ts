@@ -153,7 +153,11 @@ export const sysbrazoClientListResponseSchema = z.object({
  * Sysbrazo o la ausencia de `document_id` se normalizan a `found: false`.
  */
 export const sysbrazoLookupResponseSchema = z.discriminatedUnion("found", [
-  z.object({ found: z.literal(true), client: sysbrazoClientSchema }),
+  z.object({
+    found: z.literal(true),
+    client: sysbrazoClientSchema,
+    baseUrl: z.string().url().optional(),
+  }),
   z.object({ found: z.literal(false) }),
 ])
 export type SysbrazoLookupResponse = z.infer<

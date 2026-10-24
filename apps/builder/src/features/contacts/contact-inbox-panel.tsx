@@ -110,25 +110,42 @@ export const ContactInboxPanel = ({
   useEffect(() => {
     const contactId = storeContact?.id
 
+    // Clear every contact-scoped surface before starting the next lookup. This
+    // prevents the previous contact's profile, coupons, appointments, and
+    // custom fields from being rendered while the new contact is loading.
+    requestSeqRef.current += 1
+    setContactData(null)
+    setCoupons([])
+    setAppointments([])
+
     if (!(activeConversationId && contactId)) {
-      requestSeqRef.current += 1
-      setContactData(null)
-      setCoupons([])
-      setAppointments([])
       return
     }
 
+    let cancelled = false
     fetchContactData(contactId)
 
     client.couponsAPI
       .listContactCouponsAPI({ workspaceId, contactId })
-      .then(setCoupons)
-      .catch(() => setCoupons([]))
+      .then((data) => {
+        if (!cancelled) setCoupons(data)
+      })
+      .catch(() => {
+        if (!cancelled) setCoupons([])
+      })
 
     client.appointmentsAPI
       .listContactAppointmentsAPI({ workspaceId, contactId })
-      .then(setAppointments)
-      .catch(() => setAppointments([]))
+      .then((data) => {
+        if (!cancelled) setAppointments(data)
+      })
+      .catch(() => {
+        if (!cancelled) setAppointments([])
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [activeConversationId, storeContact?.id, workspaceId, fetchContactData])
 
   // Realtime: cuando un custom field del contacto activo cambia (p.ej. el
@@ -143,6 +160,7 @@ export const ContactInboxPanel = ({
     if (customFieldChangeSignal.contactId !== contactId) {
       return
     }
+    setContactData(null)
     fetchContactData(contactId, true)
   }, [customFieldChangeSignal, storeContact?.id, fetchContactData])
 
