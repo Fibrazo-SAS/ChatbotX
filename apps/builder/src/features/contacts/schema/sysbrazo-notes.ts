@@ -28,6 +28,4 @@ export const sysbrazoNotesResponseSchema = z.object({
 })
 
 export type SysbrazoNote = z.infer<typeof sysbrazoNoteSchema>
-export type SysbrazoNotesResponse = z.infer<
-  typeof sysbrazoNotesResponseSchema
->
+export type SysbrazoNotesResponse = z.infer<typeof sysbrazoNotesResponseSchema>

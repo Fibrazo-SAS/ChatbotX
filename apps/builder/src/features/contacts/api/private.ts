@@ -24,13 +24,13 @@ import {
 import { listContactTags } from "../queries/list-contact-tags.query"
 import { countContacts, listContacts } from "../queries/list-contacts.queries"
 import {
+  createSysbrazoNote,
   getSysbrazoAutodiagnosticDetail,
   getSysbrazoAutodiagnostics,
-  getSysbrazoTickets,
   getSysbrazoNotes,
-  createSysbrazoNote,
-  updateSysbrazoNote,
+  getSysbrazoTickets,
   startSysbrazoAutodiagnostic,
+  updateSysbrazoNote,
 } from "../queries/sysbrazo-support.query"
 import {
   createContactRequest,
@@ -62,9 +62,7 @@ import {
   sysbrazoLookupResponseSchema,
   sysbrazoOnuStatusSchema,
 } from "../schema/sysbrazo-client"
-import {
-  sysbrazoNotesResponseSchema,
-} from "../schema/sysbrazo-notes"
+import { sysbrazoNotesResponseSchema } from "../schema/sysbrazo-notes"
 import {
   sysbrazoAutodiagnosticsLookupSchema,
   sysbrazoDiagnosticDetailSchema,
@@ -515,7 +513,11 @@ export const contactsAuthenticatedAPI = {
     .handler(async ({ input }) => {
       await requireContactPermissionScope(input.workspaceId)
       if (!(await canViewSysbrazoNotes(input.workspaceId))) {
-        throw new ChatbotXException("You do not have permission to view notes", "sysbrazoNotesDenied", 403)
+        throw new ChatbotXException(
+          "You do not have permission to view notes",
+          "sysbrazoNotesDenied",
+          403,
+        )
       }
       return await getSysbrazoNotes(input)
     }),
@@ -538,7 +540,11 @@ export const contactsAuthenticatedAPI = {
     .handler(async ({ input }) => {
       await requireContactPermissionScope(input.workspaceId)
       if (!(await canViewSysbrazoNotes(input.workspaceId))) {
-        throw new ChatbotXException("You do not have permission to create notes", "sysbrazoNotesDenied", 403)
+        throw new ChatbotXException(
+          "You do not have permission to create notes",
+          "sysbrazoNotesDenied",
+          403,
+        )
       }
       return await createSysbrazoNote(input)
     }),
@@ -562,7 +568,11 @@ export const contactsAuthenticatedAPI = {
     .handler(async ({ input }) => {
       await requireContactPermissionScope(input.workspaceId)
       if (!(await canViewSysbrazoNotes(input.workspaceId))) {
-        throw new ChatbotXException("You do not have permission to edit notes", "sysbrazoNotesDenied", 403)
+        throw new ChatbotXException(
+          "You do not have permission to edit notes",
+          "sysbrazoNotesDenied",
+          403,
+        )
       }
       return await updateSysbrazoNote(input)
     }),

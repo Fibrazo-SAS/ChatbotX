@@ -2,6 +2,10 @@ import { externalRequestService } from "@chatbotx.io/business"
 import { z } from "zod"
 import { getCurrentUser } from "@/lib/auth/utils"
 import {
+  type SysbrazoNotesResponse,
+  sysbrazoNotesResponseSchema,
+} from "../schema/sysbrazo-notes"
+import {
   type SysbrazoAutodiagnosticsLookup,
   type SysbrazoDiagnosticDetail,
   type SysbrazoStartDiagnosticResponse,
@@ -11,10 +15,6 @@ import {
   sysbrazoStartDiagnosticResponseSchema,
   sysbrazoTicketsResponseSchema,
 } from "../schema/sysbrazo-support"
-import {
-  type SysbrazoNotesResponse,
-  sysbrazoNotesResponseSchema,
-} from "../schema/sysbrazo-notes"
 import {
   getSysbrazoClientByDocument,
   resolveContactSysbrazoDocumentId,
@@ -354,7 +354,10 @@ export const createSysbrazoNote = async ({
       actor_id: String(user.id),
       requested_by: user.name ?? user.email,
     },
-    parse: (raw) => z.object({ item: sysbrazoNotesResponseSchema.shape.items.element }).parse(raw),
+    parse: (raw) =>
+      z
+        .object({ item: sysbrazoNotesResponseSchema.shape.items.element })
+        .parse(raw),
   })
 
   return result.item
@@ -390,7 +393,10 @@ export const updateSysbrazoNote = async ({
       notes,
       actor_id: String(user.id),
     },
-    parse: (raw) => z.object({ item: sysbrazoNotesResponseSchema.shape.items.element }).parse(raw),
+    parse: (raw) =>
+      z
+        .object({ item: sysbrazoNotesResponseSchema.shape.items.element })
+        .parse(raw),
   })
 
   return result.item

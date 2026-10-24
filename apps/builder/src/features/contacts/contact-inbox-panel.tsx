@@ -128,19 +128,27 @@ export const ContactInboxPanel = ({
     client.couponsAPI
       .listContactCouponsAPI({ workspaceId, contactId })
       .then((data) => {
-        if (!cancelled) setCoupons(data)
+        if (!cancelled) {
+          setCoupons(data)
+        }
       })
       .catch(() => {
-        if (!cancelled) setCoupons([])
+        if (!cancelled) {
+          setCoupons([])
+        }
       })
 
     client.appointmentsAPI
       .listContactAppointmentsAPI({ workspaceId, contactId })
       .then((data) => {
-        if (!cancelled) setAppointments(data)
+        if (!cancelled) {
+          setAppointments(data)
+        }
       })
       .catch(() => {
-        if (!cancelled) setAppointments([])
+        if (!cancelled) {
+          setAppointments([])
+        }
       })
 
     return () => {

@@ -33,6 +33,7 @@ export const SYSBRAZO_DOCUMENT_FIELD_NAME = "document_id"
 const NUMERIC_DOCUMENT_RE = /^\d{5,20}$/
 const PASSPORT_DOCUMENT_RE = /^[A-Za-z0-9]{6,12}$/
 const DOCUMENT_SEPARATORS_RE = /[\s.]/g
+const TRAILING_SLASH_RE = /\/$/
 
 export const isNumericDocument = (value: string): boolean =>
   value !== "" && NUMERIC_DOCUMENT_RE.test(value)
@@ -61,4 +62,4 @@ export const sysbrazoInstallationUrl = (
   baseUrl: string,
   clientId: string,
 ): string =>
-  `${baseUrl.replace(/\/$/, "")}/clients/${clientId}/installation/${clientId}`
+  `${baseUrl.replace(TRAILING_SLASH_RE, "")}/clients/${clientId}/installation/${clientId}`
