@@ -156,6 +156,7 @@ const granularPermissions = {
   emailAndPhone: false,
   broadcast: false,
   ecommerce: false,
+  viewClientNotes: true,
 }
 
 const assignedOnlyPermissions = {
