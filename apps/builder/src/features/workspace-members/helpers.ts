@@ -13,6 +13,7 @@ export function getSuperAdminPermissions(): WorkspaceMemberPermissions {
     emailAndPhone: true,
     broadcast: true,
     ecommerce: true,
+    viewClientNotes: true,
   }
 }
 

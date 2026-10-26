@@ -1,5 +1,10 @@
 import { externalRequestService } from "@chatbotx.io/business"
+import { z } from "zod"
 import { getCurrentUser } from "@/lib/auth/utils"
+import {
+  type SysbrazoNotesResponse,
+  sysbrazoNotesResponseSchema,
+} from "../schema/sysbrazo-notes"
 import {
   type SysbrazoAutodiagnosticsLookup,
   type SysbrazoDiagnosticDetail,
@@ -82,7 +87,7 @@ const executeSupportJson = async <T>({
 }: {
   context: SupportContext
   path: string
-  method?: "GET" | "POST"
+  method?: "GET" | "POST" | "PATCH"
   body?: unknown
   workspaceId: string
   parse: (raw: unknown) => T
@@ -284,4 +289,115 @@ export const getSysbrazoTickets = async ({
     perPage: safePerPage,
     providers: parsed.providers ?? undefined,
   }
+}
+
+export const getSysbrazoNotes = async ({
+  workspaceId,
+  contactId,
+  origin,
+  page = 1,
+}: {
+  workspaceId: string
+  contactId: string
+  origin?: "chat" | "sysbrazo"
+  page?: number
+}): Promise<SysbrazoNotesResponse | null> => {
+  const context = await resolveSupportContext({ workspaceId, contactId })
+  if (!context) {
+    return null
+  }
+
+  const user = await getCurrentUser()
+  if (!user) {
+    throw new Error("User not found")
+  }
+
+  const query = new URLSearchParams({ page: String(clampPage(page)) })
+  if (origin) {
+    query.set("origin", origin)
+  }
+
+  return await executeSupportJson({
+    context,
+    workspaceId,
+    path: `${AUTODIAGNOSTICS_PATH}/${encodeURIComponent(context.clientId)}/notes?${query}`,
+    parse: (raw) => sysbrazoNotesResponseSchema.parse(raw),
+  })
+}
+
+export const createSysbrazoNote = async ({
+  workspaceId,
+  contactId,
+  notes,
+}: {
+  workspaceId: string
+  contactId: string
+  notes: string
+}): Promise<SysbrazoNotesResponse["items"][number] | null> => {
+  const context = await resolveSupportContext({ workspaceId, contactId })
+  if (!context) {
+    return null
+  }
+
+  const user = await getCurrentUser()
+  if (!user) {
+    throw new Error("User not found")
+  }
+
+  const result = await executeSupportJson({
+    context,
+    workspaceId,
+    method: "POST",
+    path: `${AUTODIAGNOSTICS_PATH}/${encodeURIComponent(context.clientId)}/notes`,
+    body: {
+      notes,
+      actor_id: String(user.id),
+      requested_by: user.name ?? user.email,
+    },
+    parse: (raw) =>
+      z
+        .object({ item: sysbrazoNotesResponseSchema.shape.items.element })
+        .parse(raw),
+  })
+
+  return result.item
+}
+
+export const updateSysbrazoNote = async ({
+  workspaceId,
+  contactId,
+  noteId,
+  notes,
+}: {
+  workspaceId: string
+  contactId: string
+  noteId: string
+  notes: string
+}): Promise<SysbrazoNotesResponse["items"][number] | null> => {
+  const context = await resolveSupportContext({ workspaceId, contactId })
+  if (!context) {
+    return null
+  }
+
+  const user = await getCurrentUser()
+  if (!user) {
+    throw new Error("User not found")
+  }
+
+  const result = await executeSupportJson({
+    context,
+    workspaceId,
+    method: "PATCH",
+    path: `${AUTODIAGNOSTICS_PATH}/${encodeURIComponent(context.clientId)}/notes/${encodeURIComponent(noteId)}`,
+    body: {
+      notes,
+      actor_id: String(user.id),
+    },
+    parse: (raw) =>
+      z
+        .object({ item: sysbrazoNotesResponseSchema.shape.items.element })
+        .parse(raw),
+  })
+
+  return result.item
 }

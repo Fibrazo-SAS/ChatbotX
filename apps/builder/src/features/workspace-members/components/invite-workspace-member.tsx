@@ -199,6 +199,12 @@ export function AddWorkspaceMemberForm({
             name="permissions.superAdmin"
             required
           />
+          <SwitchField
+            disabled={isCommunity()}
+            formItemClassName="flex flex-row-reverse items-center justify-end gap-2"
+            label={t("fields.permissions.viewClientNotes")}
+            name="permissions.viewClientNotes"
+          />
           {!isSuperAdmin && (
             <>
               <SwitchField

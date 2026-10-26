@@ -1711,7 +1711,8 @@
       "ecommerce": "Comércio eletrônico",
       "runAutodiagnostic": "Realizar autodiagnósticos",
       "viewBotFields": "Ver variáveis globais",
-      "manageBotFields": "Gerenciar variáveis globais"
+      "manageBotFields": "Gerenciar variáveis globais",
+      "viewClientNotes": "Notas do cliente"
     },
     "member": {
       "label": "Membro"
@@ -6011,6 +6012,31 @@
   },
   "sysbrazoPanel": {
     "notRegistered": "Não registrado como cliente",
+    "notes": {
+      "title": "Notas ({count})",
+      "toggle": "Mostrar ou ocultar notas",
+      "all": "Todas",
+      "chat": "Chat",
+      "sysbrazo": "Sysbrazo",
+      "new": "Nova nota",
+      "placeholder": "Escreva uma nota sobre este cliente…",
+      "cancel": "Cancelar",
+      "save": "Salvar nota",
+      "saveChanges": "Salvar alterações",
+      "edit": "Editar",
+      "edited": "Editada",
+      "ancient": "Antiga",
+      "empty": "Ainda não há notas",
+      "error": "Não foi possível carregar as notas",
+      "retry": "Tentar novamente",
+      "more": "Ver mais",
+      "expand": "Expandir",
+      "close": "Fechar",
+      "readOnly": "Somente leitura",
+      "editClosed": "Edição encerrada (mais de 10 minutos)",
+      "saveError": "Não foi possível salvar a nota",
+      "updateError": "Não foi possível atualizar a nota"
+    },
     "loading": "Consultando dados do cliente no Sysbrazo…",
     "error": "Não foi possível carregar as informações do cliente",
     "documentCopied": "Documento copiado",

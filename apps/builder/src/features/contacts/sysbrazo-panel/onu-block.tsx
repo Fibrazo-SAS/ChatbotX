@@ -152,7 +152,7 @@ export const OnuBlock = ({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <button
-            className="inline-flex items-center gap-1 rounded-md bg-emerald-800 px-3 py-1 font-medium text-white text-xs shadow-sm transition-colors hover:bg-emerald-900 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 font-semibold text-white text-xs transition-colors hover:bg-emerald-800 disabled:opacity-60"
             disabled={refreshing || isLoading}
             onClick={onRefresh}
             type="button"

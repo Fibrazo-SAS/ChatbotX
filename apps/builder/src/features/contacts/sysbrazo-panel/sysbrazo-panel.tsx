@@ -11,6 +11,7 @@ import type {
 import { AutodiagnosticBlock } from "./autodiagnostic-block"
 import { ContactBlock } from "./contact-block"
 import { IdentityBlock } from "./identity-block"
+import { NotesBlock } from "./notes-block"
 import { OnuBlock } from "./onu-block"
 import { ServicesBlock } from "./services-block"
 import { TicketsBlock } from "./tickets-block"
@@ -210,7 +211,7 @@ export const SysbrazoPanel = ({
         lastInteractionAt={lastInteractionAt}
       />
       <ContactBlock client={sysbrazoClient} />
-      <ServicesBlock client={sysbrazoClient} />
+      <ServicesBlock baseUrl={data.baseUrl} client={sysbrazoClient} />
       <OnuBlock
         onRefresh={handleRefreshOnu}
         onu={onu}
@@ -219,6 +220,7 @@ export const SysbrazoPanel = ({
       {/* #15466: autodiagnósticos y tickets cargan aparte y asíncronos. */}
       <AutodiagnosticBlock contactId={contactId} workspaceId={workspaceId} />
       <TicketsBlock contactId={contactId} workspaceId={workspaceId} />
+      <NotesBlock contactId={contactId} workspaceId={workspaceId} />
     </div>
   )
 }

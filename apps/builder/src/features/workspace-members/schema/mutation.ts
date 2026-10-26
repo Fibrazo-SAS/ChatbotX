@@ -12,6 +12,7 @@ export const inviteWorkspaceMemberRequest = z.object({
       emailAndPhone: z.boolean(),
       broadcast: z.boolean(),
       ecommerce: z.boolean(),
+      viewClientNotes: z.boolean().optional(),
     })
     .refine((val) => Object.values(val).some(Boolean), {
       message: "At least one permission must be selected.",

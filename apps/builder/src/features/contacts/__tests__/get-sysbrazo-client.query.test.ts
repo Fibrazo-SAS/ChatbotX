@@ -143,6 +143,7 @@ describe("getSysbrazoClientByDocument", () => {
 
     expect(result).toEqual({
       found: true,
+      baseUrl: "https://sysbrazo.example.com",
       client: { id: "1", full_name: "María" },
     })
 
