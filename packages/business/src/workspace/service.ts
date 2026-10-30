@@ -54,11 +54,11 @@ const WORKSPACE_LIMIT_LOCK_TIMEOUT_SECONDS = 30
 // El nombre es la convención documentada; el valor lo configura cada entorno
 // (dev/prod/ngrok local) en la UI de "Variables globales".
 const SYSBRAZO_CLIENT_API_URL_VARIABLE_NAME = "SYSBRAZO_CLIENT_API_URL"
-const LOCAL_URL_VARIABLE_NAME = "LOCAL_URL"
-const LOCAL_URL_VARIABLE_DESCRIPTION =
+const SYSBRAZO_BASE_URL_VARIABLE_NAME = "SYSBRAZO_BASE_URL"
+const SYSBRAZO_BASE_URL_VARIABLE_DESCRIPTION =
   "URL base del entorno de Sysbrazo para el panel de clientes (local, dev o producción)."
 const SYSBRAZO_CLIENT_API_URL_VARIABLE_DESCRIPTION =
-  "URL (o plantilla) de Sysbrazo de donde el panel de contacto y el flujo consultan los datos del cliente. Cambia según el entorno (dev/prod/ngrok local). Admite {{...}} de otras variables globales (p.ej. {{LOCAL_URL}}) y {{document_id}} del contacto."
+  "URL (o plantilla) de Sysbrazo de donde el panel de contacto y el flujo consultan los datos del cliente. Cambia según el entorno (dev/prod/ngrok local). Admite {{...}} de otras variables globales (p.ej. {{SYSBRAZO_BASE_URL}}) y {{document_id}} del contacto."
 
 class WorkspaceService extends BaseService {
   async findOrFail(props: {
@@ -573,9 +573,9 @@ class WorkspaceService extends BaseService {
       .insert(botFieldModel)
       .values({
         workspaceId: props.workspaceId,
-        name: LOCAL_URL_VARIABLE_NAME,
+        name: SYSBRAZO_BASE_URL_VARIABLE_NAME,
         type: "longText",
-        description: LOCAL_URL_VARIABLE_DESCRIPTION,
+        description: SYSBRAZO_BASE_URL_VARIABLE_DESCRIPTION,
       })
       .onConflictDoNothing()
 

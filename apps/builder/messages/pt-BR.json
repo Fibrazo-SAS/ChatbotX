@@ -1712,7 +1712,11 @@
       "runAutodiagnostic": "Realizar autodiagnósticos",
       "viewBotFields": "Ver variáveis globais",
       "manageBotFields": "Gerenciar variáveis globais",
-      "viewClientNotes": "Notas do cliente"
+      "viewClientNotes": "Notas do cliente",
+      "viewClientMultimedia": "Ver mídia do cliente",
+      "manageClientMultimedia": "Gerenciar mídia do cliente",
+      "viewDeletedClientMultimedia": "Ver mídia excluída do cliente",
+      "permanentlyDeleteClientMultimedia": "Excluir mídia do cliente permanentemente"
     },
     "member": {
       "label": "Membro"
@@ -6012,6 +6016,10 @@
   },
   "sysbrazoPanel": {
     "notRegistered": "Não registrado como cliente",
+    "inactive": {
+      "title": "Chat inativo",
+      "hint": "Para consultar novamente os dados do cliente, solicite o documento novamente."
+    },
     "notes": {
       "title": "Notas ({count})",
       "toggle": "Mostrar ou ocultar notas",
@@ -6036,6 +6044,50 @@
       "editClosed": "Edição encerrada (mais de 10 minutos)",
       "saveError": "Não foi possível salvar a nota",
       "updateError": "Não foi possível atualizar a nota"
+    },
+    "multimedia": {
+      "title": "Multimídia e documentos",
+      "count": "{count} arquivos",
+      "loading": "Carregando multimídia…",
+      "empty": "Sem multimídia nem documentos",
+      "retry": "Tentar novamente",
+      "unnamed": "Arquivo sem nome",
+      "size": "{size} B",
+      "expired": "O contexto do Sysbrazo expirou. Confirme o documento do cliente para acessar a multimídia novamente.",
+      "missing": "Confirme o documento do cliente para habilitar a multimídia nesta conversa.",
+      "confirmDocument": "Confirmar documento e vincular arquivos recentes",
+      "confirming": "Confirmando…",
+      "confirmNotFound": "Nenhum cliente Sysbrazo foi encontrado para o documento salvo.",
+      "confirmError": "Não foi possível confirmar o documento. Tente novamente.",
+      "confirmSuccess": "Documento confirmado. {count} arquivos recentes foram vinculados à multimídia.",
+      "active": "Arquivos",
+      "trash": "Lixeira ({count})",
+      "filter": "Filtrar mídia",
+      "filters": {
+        "all": "Todos os arquivos",
+        "images": "Imagens",
+        "documents": "Documentos"
+      },
+      "open": "Abrir {name}",
+      "download": "Baixar",
+      "copyLink": "Copiar link seguro",
+      "linkCopied": "Link seguro copiado",
+      "resend": "Adicionar ao rascunho da mensagem",
+      "resendStaged": "Arquivo adicionado ao rascunho da mensagem",
+      "viewInChat": "Ver na conversa",
+      "delete": "Mover para a lixeira",
+      "restore": "Restaurar",
+      "deletePermanently": "Excluir permanentemente",
+      "downloadError": "Não foi possível abrir o arquivo",
+      "updateError": "Não foi possível atualizar o arquivo",
+      "loadMore": "Carregar mais",
+      "unread": "Não lido",
+      "sender": {
+        "client": "Cliente",
+        "advisor": "Consultor",
+        "bot": "Bot",
+        "team": "Equipe"
+      }
     },
     "loading": "Consultando dados do cliente no Sysbrazo…",
     "error": "Não foi possível carregar as informações do cliente",
@@ -6163,7 +6215,15 @@
       "reason": "Motivo: {reason}",
       "canceled": "Diagnóstico cancelado",
       "noSteps": "Nenhuma etapa foi executada.",
-      "paused": "Autodiagnóstico pausado"
+      "paused": "Autodiagnóstico pausado",
+      "ticketQueued": "Ticket na fila",
+      "ticketQueuedMessage": "O ticket está na fila e será processado automaticamente em breve.",
+      "ticketCreated": "Ticket criado",
+      "ticketCreatedMessage": "O ticket de suporte foi criado com sucesso.",
+      "ticketBlocked": "Ticket não criado",
+      "ticketBlockedMessage": "Já existe um ticket de suporte aberto. Um novo não foi criado.",
+      "ticketError": "Não foi possível criar o ticket",
+      "ticketErrorMessage": "Não foi possível criar o ticket automático. Entre em contato com o suporte."
     },
     "diagnosticHistory": {
       "title": "Histórico de autodiagnósticos",

@@ -57,6 +57,11 @@ export const workspaceMemberPermissionsSchema = z.object({
   manageBotFields: z.boolean().optional(),
   /** Explicit permission to view and manage Sysbrazo client notes. */
   viewClientNotes: z.boolean().optional(),
+  /** Sysbrazo client multimedia permissions; absent legacy keys deny access. */
+  viewClientMultimedia: z.boolean().optional(),
+  manageClientMultimedia: z.boolean().optional(),
+  viewDeletedClientMultimedia: z.boolean().optional(),
+  permanentlyDeleteClientMultimedia: z.boolean().optional(),
 })
 export type WorkspaceMemberPermissions = z.infer<
   typeof workspaceMemberPermissionsSchema

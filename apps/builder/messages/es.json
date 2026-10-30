@@ -1786,7 +1786,11 @@
       "runAutodiagnostic": "Realizar autodiagnósticos",
       "viewBotFields": "Ver variables globales",
       "manageBotFields": "Gestionar variables globales",
-      "viewClientNotes": "Notas del cliente"
+      "viewClientNotes": "Notas del cliente",
+      "viewClientMultimedia": "Ver multimedia del cliente",
+      "manageClientMultimedia": "Gestionar multimedia del cliente",
+      "viewDeletedClientMultimedia": "Ver multimedia eliminada del cliente",
+      "permanentlyDeleteClientMultimedia": "Eliminar multimedia del cliente definitivamente"
     },
     "member": {
       "label": "Miembro"
@@ -6012,6 +6016,10 @@
   },
   "sysbrazoPanel": {
     "notRegistered": "No registra como cliente",
+    "inactive": {
+      "title": "Chat inactivo",
+      "hint": "Para volver a consultar datos del cliente, solicita nuevamente su documento."
+    },
     "notes": {
       "title": "Notas ({count})",
       "toggle": "Mostrar u ocultar notas",
@@ -6036,6 +6044,50 @@
       "editClosed": "Edición cerrada (más de 10 minutos)",
       "saveError": "No pudimos guardar la nota",
       "updateError": "No pudimos actualizar la nota"
+    },
+    "multimedia": {
+      "title": "Multimedia y documentos",
+      "count": "{count} archivos",
+      "loading": "Cargando multimedia…",
+      "empty": "Sin multimedia ni documentos",
+      "retry": "Reintentar",
+      "unnamed": "Archivo sin nombre",
+      "size": "{size} B",
+      "expired": "El contexto de Sysbrazo venció. Confirmá el documento del cliente para volver a acceder a la multimedia.",
+      "missing": "Confirmá el documento del cliente para habilitar la multimedia en esta conversación.",
+      "confirmDocument": "Confirmar documento y vincular archivos recientes",
+      "confirming": "Confirmando…",
+      "confirmNotFound": "No se encontró un cliente de Sysbrazo con el documento guardado.",
+      "confirmError": "No se pudo confirmar el documento. Intentá nuevamente.",
+      "confirmSuccess": "Documento confirmado. Se vincularon {count} archivos recientes a Multimedia.",
+      "active": "Archivos",
+      "trash": "Papelera ({count})",
+      "filter": "Filtrar multimedia",
+      "filters": {
+        "all": "Todos los archivos",
+        "images": "Imágenes",
+        "documents": "Documentos"
+      },
+      "open": "Abrir {name}",
+      "download": "Descargar",
+      "copyLink": "Copiar enlace seguro",
+      "linkCopied": "Enlace seguro copiado",
+      "resend": "Agregar al borrador del mensaje",
+      "resendStaged": "Archivo agregado al borrador del mensaje",
+      "viewInChat": "Ver en el chat",
+      "delete": "Mover a la papelera",
+      "restore": "Restaurar",
+      "deletePermanently": "Eliminar definitivamente",
+      "downloadError": "No se pudo abrir el archivo",
+      "updateError": "No se pudo actualizar el archivo",
+      "loadMore": "Ver más",
+      "unread": "No leído",
+      "sender": {
+        "client": "Cliente",
+        "advisor": "Asesor",
+        "bot": "Bot",
+        "team": "Equipo"
+      }
     },
     "loading": "Consultando datos del cliente en Sysbrazo…",
     "error": "No se pudo cargar la información del cliente",
@@ -6163,7 +6215,15 @@
       "reason": "Motivo: {reason}",
       "canceled": "Diagnóstico cancelado",
       "noSteps": "No se ejecutó ningún paso.",
-      "paused": "Autodiagnóstico pausado"
+      "paused": "Autodiagnóstico pausado",
+      "ticketQueued": "Ticket encolado",
+      "ticketQueuedMessage": "El ticket quedó en cola y se procesará automáticamente en breve.",
+      "ticketCreated": "Ticket generado",
+      "ticketCreatedMessage": "El ticket de soporte fue generado correctamente.",
+      "ticketBlocked": "Ticket no generado",
+      "ticketBlockedMessage": "Ya existe un ticket de soporte abierto. No se generó uno nuevo.",
+      "ticketError": "No se pudo generar el ticket",
+      "ticketErrorMessage": "No se pudo generar el ticket automático. Contacta a soporte."
     },
     "diagnosticHistory": {
       "title": "Historial de autodiagnósticos",

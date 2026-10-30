@@ -87,6 +87,8 @@ export const MessageInput = () => {
     setReplyToMessage,
     isPrivateReply,
     messages,
+    composerDraftFiles,
+    setComposerDraftFiles,
   } = useChatStore((state) => state)
 
   const lastContactComment = useMemo(() => {
@@ -180,6 +182,7 @@ export const MessageInput = () => {
 
             form.reset()
             setSelectedMediaFiles([])
+            setComposerDraftFiles([])
             textareaRef.current?.focus()
           },
           onSuccess: () => {
@@ -190,6 +193,7 @@ export const MessageInput = () => {
             textareaRef.current?.focus()
             resetFormAndAction()
             setSelectedMediaFiles([])
+            setComposerDraftFiles([])
             form.setValue("clientId", createId())
           },
         },
@@ -220,6 +224,16 @@ export const MessageInput = () => {
       textareaRef.current?.focus()
     }
   }, [form, replyToMessage, isPrivateReply])
+
+  // Multimedia "resend" only stages the attachment here; sending still needs
+  // the advisor's explicit submit from this composer.
+  useEffect(() => {
+    if (composerDraftFiles.length === 0) {
+      return
+    }
+    form.setValue("files", composerDraftFiles, { shouldValidate: true })
+    textareaRef.current?.focus()
+  }, [composerDraftFiles, form])
 
   // Memoize emoji selection handler
   const setContent = useCallback(
@@ -454,7 +468,7 @@ export const MessageInput = () => {
                   <Textarea
                     aria-label={t("actions.typeMessage")}
                     autoComplete="off"
-                    className="h-16 resize-none border-0 px-1.5 py-1 shadow-none focus:ring-0 focus-visible:ring-0 dark:bg-neutral-900"
+                    className="h-16 resize-none border-0 bg-transparent px-1.5 py-1 shadow-none focus:ring-0 focus-visible:ring-0"
                     placeholder={t("actions.messagePlaceholder")}
                     {...field}
                     onKeyDown={onKeyDown}

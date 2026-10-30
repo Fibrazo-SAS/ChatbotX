@@ -3,7 +3,9 @@ import {
   contactCustomFieldService,
   customFieldService,
   externalRequestService,
+  normalizeSysbrazoDocumentId,
   stripEmptyAndUnresolvedJsonValues,
+  sysbrazoClientMultimediaService,
 } from "@chatbotx.io/business"
 import { createSourceTimezoneResolver } from "@chatbotx.io/business/contact-custom-field"
 import { javascriptExecutionService } from "@chatbotx.io/business/javascript-execution"
@@ -45,6 +47,68 @@ import { getProperty } from "dot-prop"
 import { logger } from "../../lib/logger"
 import type { ExecuteStepProps } from "./flow"
 import type { ExecuteStepResult } from "./step"
+
+const SYSBRAZO_LOOKUP_PATH = "/api/botmaker/client/by-document"
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  Boolean(value) && typeof value === "object" && !Array.isArray(value)
+
+const activateSysbrazoContextFromLookup = async ({
+  conversation,
+  responseBody,
+  url,
+}: {
+  conversation: ExecuteStepProps<ExternalRequestStepSchema>["conversation"]
+  responseBody: string
+  url: string
+}) => {
+  let requestUrl: URL
+  try {
+    requestUrl = new URL(url)
+  } catch {
+    return
+  }
+
+  if (requestUrl.pathname !== SYSBRAZO_LOOKUP_PATH) {
+    return
+  }
+
+  const documentId = normalizeSysbrazoDocumentId(
+    requestUrl.searchParams.get("document_id") ?? "",
+  )
+  if (!documentId) {
+    return
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(responseBody)
+    const client =
+      isRecord(parsed) && Array.isArray(parsed.data) ? parsed.data[0] : null
+    if (!isRecord(client)) {
+      return
+    }
+    const rawClientId = client.id
+    if (typeof rawClientId !== "string" && typeof rawClientId !== "number") {
+      return
+    }
+    const sysbrazoClientId = String(rawClientId).trim()
+    if (sysbrazoClientId === "") {
+      return
+    }
+
+    await sysbrazoClientMultimediaService.activateContext({
+      workspaceId: conversation.workspaceId,
+      conversationId: conversation.id,
+      documentId,
+      sysbrazoClientId,
+    })
+  } catch (err) {
+    logger.error(
+      { err, conversationId: conversation.id },
+      "Failed to activate Sysbrazo context after a successful lookup",
+    )
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Shared field-reference read/write helpers for the tool steps below
@@ -509,6 +573,12 @@ export async function externalRequest({
         result: null,
       }
     }
+
+    await activateSysbrazoContextFromLookup({
+      conversation,
+      responseBody: result.responseBody,
+      url: resolvedStepWithoutBody.url,
+    })
 
     return { status: "success", result: null }
   } catch (error) {

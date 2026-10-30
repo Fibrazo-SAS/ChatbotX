@@ -29,6 +29,7 @@ import { format } from "date-fns"
 import {
   AlertCircleIcon,
   BotIcon,
+  CheckIcon,
   ExternalLinkIcon,
   ImageIcon,
   LockIcon,
@@ -73,6 +74,7 @@ type MessageItemProps = {
   onPostback?: (button: MessageButtonTemplate) => void
   onReply?: (comment: { commentId: string; text: string }) => void
   onPrivateReply?: (comment: { commentId: string; text: string }) => void
+  selectedButtonLabel?: string
 }
 
 export const MessageItem = (props: MessageItemProps) => {
@@ -91,8 +93,9 @@ export const MessageItem = (props: MessageItemProps) => {
   const [isEditing, setIsEditing] = useState(false)
 
   const variants: Record<"left" | "right" | "full", string> = {
-    left: "px-4 py-3 rounded-xl bg-secondary",
-    right: "px-4 py-3 rounded-xl bg-primary text-primary-foreground",
+    left: "rounded-2xl rounded-ss-sm bg-secondary px-4 py-3 shadow-sm",
+    right:
+      "rounded-2xl rounded-se-sm bg-primary px-4 py-3 text-primary-foreground shadow-sm",
     full: "text-center w-full text-muted-foreground",
   }
 
@@ -505,7 +508,7 @@ const StoryReplyContext = (props: {
 }
 
 const RenderContentAttributes = (props: MessageItemProps) => {
-  const { message, onPostback } = props
+  const { message, onPostback, selectedButtonLabel } = props
   const contentAttributes = message.contentAttributes as
     | MessageTemplateEntity
     | undefined
@@ -538,7 +541,11 @@ const RenderContentAttributes = (props: MessageItemProps) => {
               }
               return (
                 <Button
-                  className="min-w-60 bg-secondary text-secondary-foreground disabled:bg-muted disabled:text-muted-foreground dark:bg-secondary dark:text-secondary-foreground dark:disabled:bg-muted dark:disabled:text-muted-foreground"
+                  className={cn(
+                    "min-w-60 bg-secondary text-secondary-foreground disabled:bg-muted disabled:text-muted-foreground dark:bg-secondary dark:text-secondary-foreground dark:disabled:bg-muted dark:disabled:text-muted-foreground",
+                    selectedButtonLabel === button.label &&
+                      "border-primary bg-primary text-primary-foreground shadow-sm disabled:bg-primary disabled:text-primary-foreground",
+                  )}
                   disabled={!onPostback}
                   key={button.id}
                   onClick={() => {
@@ -547,6 +554,9 @@ const RenderContentAttributes = (props: MessageItemProps) => {
                   size="sm"
                   variant="outline"
                 >
+                  {selectedButtonLabel === button.label && (
+                    <CheckIcon aria-hidden="true" className="size-4" />
+                  )}
                   {button.label}
                 </Button>
               )

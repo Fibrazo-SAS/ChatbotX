@@ -7,10 +7,12 @@ import {
 } from "../schema/sysbrazo-notes"
 import {
   type SysbrazoAutodiagnosticsLookup,
+  type SysbrazoAutodiagnosticTicketOutcome,
   type SysbrazoDiagnosticDetail,
   type SysbrazoStartDiagnosticResponse,
   type SysbrazoTicketsLookup,
   sysbrazoAutodiagnosticsResponseSchema,
+  sysbrazoAutodiagnosticTicketResponseSchema,
   sysbrazoDiagnosticDetailSchema,
   sysbrazoStartDiagnosticResponseSchema,
   sysbrazoTicketsResponseSchema,
@@ -30,6 +32,7 @@ import {
  */
 
 const AUTODIAGNOSTICS_PATH = "/api/botmaker/client"
+const CREATE_AUTODIAGNOSTIC_TICKET_PATH = "/api/technical_support/create-ticket"
 const DEFAULT_PAGE = 1
 const DEFAULT_PER_PAGE = 3
 const MAX_PER_PAGE = 100
@@ -181,6 +184,70 @@ export const getSysbrazoAutodiagnosticDetail = async ({
       `/autodiagnostics/${encodeURIComponent(String(runId))}`,
     parse: (raw) => sysbrazoDiagnosticDetailSchema.parse(raw),
   })
+}
+
+/**
+ * Delega en Sysbrazo la apertura/encolado del ticket. Los motivos habilitados
+ * se filtran en el diálogo con la misma lista que usa su portal; Sysbrazo
+ * conserva la validación final e idempotencia del ticket.
+ */
+export const createSysbrazoAutodiagnosticTicket = async ({
+  workspaceId,
+  contactId,
+  runId,
+  step,
+}: {
+  workspaceId: string
+  contactId: string
+  runId: number
+  step: {
+    step_name: string
+    step_number: number
+    status: "failed" | "error"
+    details: Record<string, unknown> | null
+  }
+}): Promise<SysbrazoAutodiagnosticTicketOutcome> => {
+  const context = await resolveSupportContext({ workspaceId, contactId })
+  if (!context) {
+    throw new Error("Contact not found in Sysbrazo")
+  }
+
+  const headers = [...context.headers]
+  if (!headers.some((header) => header.key.toLowerCase() === "content-type")) {
+    headers.push({ key: "Content-Type", value: "application/json" })
+  }
+
+  const result = await externalRequestService.execute(
+    {
+      method: "POST",
+      url: `${context.origin}${CREATE_AUTODIAGNOSTIC_TICKET_PATH}`,
+      headers,
+      body: {
+        bodyType: "json",
+        jsonBody: JSON.stringify({
+          clientId: Number(context.clientId),
+          step: { run_id: runId, ...step },
+        }),
+      },
+    },
+    { workspaceId },
+  )
+  const response = sysbrazoAutodiagnosticTicketResponseSchema.parse(
+    JSON.parse(result.responseBody),
+  )
+
+  if (result.statusCode >= 400) {
+    return {
+      state:
+        response.reason === "CLIENT_HAS_OPEN_INCIDENT" ? "blocked" : "error",
+      client_message: response.client_message,
+    }
+  }
+
+  return {
+    state: response.queued ? "queued" : "created",
+    client_message: response.client_message,
+  }
 }
 
 /**

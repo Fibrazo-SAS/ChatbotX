@@ -5,12 +5,13 @@ import { useTranslations } from "next-intl"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { client } from "@/lib/orpc/orpc"
 import type {
-  SysbrazoLookupResponse,
+  SysbrazoConversationLookupResponse,
   SysbrazoOnuStatus,
 } from "../schema/sysbrazo-client"
 import { AutodiagnosticBlock } from "./autodiagnostic-block"
 import { ContactBlock } from "./contact-block"
 import { IdentityBlock } from "./identity-block"
+import { MultimediaBlock } from "./multimedia-block"
 import { NotesBlock } from "./notes-block"
 import { OnuBlock } from "./onu-block"
 import { ServicesBlock } from "./services-block"
@@ -21,23 +22,72 @@ const NotRegisteredCard = () => {
   const t = useTranslations("sysbrazoPanel")
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-black/5 shadow-sm">
       <div className="flex flex-col items-center gap-3 px-6 py-10">
-        <div className="flex size-14 items-center justify-center rounded-full bg-slate-50 ring-8 ring-slate-50">
+        <div className="flex size-14 items-center justify-center rounded-full bg-muted ring-8 ring-muted">
           <UserRoundXIcon
             aria-hidden="true"
-            className="size-6 text-slate-300"
+            className="size-6 text-muted-foreground/50"
           />
         </div>
-        <p className="font-semibold text-slate-700 text-sm">
+        <p className="font-semibold text-card-foreground text-sm">
           {t("notRegistered")}
         </p>
-        <p className="max-w-52 text-center font-medium text-slate-400 text-xs">
+        <p className="max-w-52 text-center font-medium text-muted-foreground text-xs">
           {t("notRegisteredHint")}
         </p>
       </div>
     </div>
   )
+}
+
+const InactiveContextCard = ({
+  workspaceId,
+  contactId,
+  conversationId,
+  onContextConfirmed,
+}: {
+  workspaceId: string
+  contactId: string
+  conversationId: string
+  onContextConfirmed: () => void
+}) => {
+  const t = useTranslations("sysbrazoPanel")
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-black/5 shadow-sm">
+      <div className="flex flex-col items-center gap-3 px-6 py-10 text-center">
+        <UserRoundXIcon
+          aria-hidden="true"
+          className="size-6 text-muted-foreground/50"
+        />
+        <p className="font-semibold text-card-foreground text-sm">
+          {t("inactive.title")}
+        </p>
+        <p className="max-w-52 font-medium text-muted-foreground text-xs">
+          {t("inactive.hint")}
+        </p>
+      </div>
+      <div className="border-border border-t">
+        <MultimediaBlock
+          contactId={contactId}
+          conversationId={conversationId}
+          onContextConfirmed={onContextConfirmed}
+          workspaceId={workspaceId}
+        />
+      </div>
+    </div>
+  )
+}
+
+const normalizeInteractionDate = (
+  value: Date | string | null | undefined,
+): Date | null => {
+  if (!value) {
+    return null
+  }
+  const date = value instanceof Date ? value : new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
 }
 
 /**
@@ -53,16 +103,23 @@ const NotRegisteredCard = () => {
 export const SysbrazoPanel = ({
   workspaceId,
   contactId,
-  documentId,
+  conversationId,
+  contextRefreshSignal,
   lastInteractionAt,
 }: {
   workspaceId: string
   contactId: string
-  documentId: string | null
-  lastInteractionAt?: Date | null
+  conversationId: string
+  contextRefreshSignal?: unknown
+  lastInteractionAt?: Date | string | null
 }) => {
+  const normalizedLastInteractionAt =
+    normalizeInteractionDate(lastInteractionAt)
+  const lastInteractionAtMs = normalizedLastInteractionAt?.getTime() ?? null
   const t = useTranslations("sysbrazoPanel")
-  const [data, setData] = useState<SysbrazoLookupResponse | null>(null)
+  const [data, setData] = useState<SysbrazoConversationLookupResponse | null>(
+    null,
+  )
   const [onu, setOnu] = useState<SysbrazoOnuStatus | null | undefined>(
     undefined,
   )
@@ -75,15 +132,17 @@ export const SysbrazoPanel = ({
   // no debe pisar los datos del cliente que se está viendo ahora).
   const requestSeqRef = useRef(0)
   const onuSeqRef = useRef(0)
+  const previousLastInteractionAtRef = useRef(lastInteractionAtMs)
 
   const loadOnu = useCallback(
-    async (clientId: string, force: boolean) => {
+    async (force: boolean) => {
       const seq = ++onuSeqRef.current
 
       try {
         const onu = await client.contactsAPIs.getSysbrazoOnuAuthenticatedAPI({
           workspaceId,
-          clientId,
+          contactId,
+          conversationId,
           forceOnu: force,
         })
         if (onuSeqRef.current === seq) {
@@ -95,16 +154,10 @@ export const SysbrazoPanel = ({
         }
       }
     },
-    [workspaceId],
+    [workspaceId, contactId, conversationId],
   )
 
   const load = useCallback(async () => {
-    if (!documentId) {
-      setData(null)
-      setError(false)
-      return
-    }
-
     const seq = ++requestSeqRef.current
     setLoading(true)
     setError(false)
@@ -114,14 +167,14 @@ export const SysbrazoPanel = ({
         await client.contactsAPIs.getSysbrazoClientAuthenticatedAPI({
           workspaceId,
           contactId,
+          conversationId,
         })
       if (requestSeqRef.current === seq) {
         setData(result)
         // La ONU se consulta aparte y asíncrona (endpoint Krill dedicado)
         // para no bloquear la card principal con el snapshot del equipo.
-        if (result.found) {
-          const clientId = String(result.client.id)
-          loadOnu(clientId, false).catch(() => undefined)
+        if (result.contextStatus === "active" && result.lookup.found) {
+          loadOnu(false).catch(() => undefined)
         } else {
           setOnu(null)
         }
@@ -135,7 +188,7 @@ export const SysbrazoPanel = ({
         setLoading(false)
       }
     }
-  }, [workspaceId, contactId, documentId, loadOnu])
+  }, [workspaceId, contactId, conversationId, loadOnu])
 
   useEffect(() => {
     // Al cambiar de contacto/documento, descartar los datos del cliente
@@ -152,37 +205,47 @@ export const SysbrazoPanel = ({
     })
   }, [load])
 
+  useEffect(() => {
+    if (contextRefreshSignal !== undefined) {
+      load().catch(() => undefined)
+    }
+  }, [contextRefreshSignal, load])
+
+  useEffect(() => {
+    if (previousLastInteractionAtRef.current === lastInteractionAtMs) {
+      return
+    }
+    previousLastInteractionAtRef.current = lastInteractionAtMs
+    load().catch(() => undefined)
+  }, [lastInteractionAtMs, load])
+
   const handleRefreshOnu = async () => {
-    if (!data?.found) {
+    if (data?.contextStatus !== "active" || !data.lookup.found) {
       return
     }
     setRefreshingOnu(true)
     try {
-      await loadOnu(String(data.client.id), true)
+      await loadOnu(true)
     } finally {
       setRefreshingOnu(false)
     }
   }
 
-  if (!documentId) {
-    return <NotRegisteredCard />
-  }
-
   if (loading && !data) {
     return (
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-black/5 shadow-sm">
         {/* Skeleton chico del header del panel */}
         <div className="flex animate-pulse flex-col items-center gap-2 px-6 pt-6 pb-4">
-          <div className="size-14 rounded-full bg-slate-100 ring-4 ring-slate-100" />
-          <div className="h-3.5 w-32 rounded bg-slate-100" />
-          <div className="h-3 w-20 rounded bg-slate-100" />
+          <div className="size-14 rounded-full bg-muted ring-4 ring-muted" />
+          <div className="h-3.5 w-32 rounded bg-muted" />
+          <div className="h-3 w-20 rounded bg-muted" />
         </div>
         <div className="flex items-center justify-center gap-2 px-6 py-3">
           <Loader2Icon
             aria-hidden="true"
-            className="size-4 animate-spin text-emerald-700"
+            className="size-4 animate-spin text-primary"
           />
-          <span className="text-center font-medium text-slate-500 text-xs">
+          <span className="text-center font-medium text-muted-foreground text-xs">
             {t("loading")}
           </span>
         </div>
@@ -198,20 +261,33 @@ export const SysbrazoPanel = ({
     )
   }
 
-  if (!data?.found) {
+  if (!data) {
+    return <NotRegisteredCard />
+  }
+  if (data.contextStatus !== "active") {
+    return (
+      <InactiveContextCard
+        contactId={contactId}
+        conversationId={conversationId}
+        onContextConfirmed={() => load().catch(() => undefined)}
+        workspaceId={workspaceId}
+      />
+    )
+  }
+  if (!data.lookup.found) {
     return <NotRegisteredCard />
   }
 
-  const { client: sysbrazoClient } = data
+  const { client: sysbrazoClient } = data.lookup
 
   return (
-    <div className="sysbrazo-panel overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
+    <div className="sysbrazo-panel overflow-hidden rounded-2xl border border-border bg-background shadow-black/5 shadow-sm">
       <IdentityBlock
         client={sysbrazoClient}
-        lastInteractionAt={lastInteractionAt}
+        lastInteractionAt={normalizedLastInteractionAt}
       />
       <ContactBlock client={sysbrazoClient} />
-      <ServicesBlock baseUrl={data.baseUrl} client={sysbrazoClient} />
+      <ServicesBlock baseUrl={data.lookup.baseUrl} client={sysbrazoClient} />
       <OnuBlock
         onRefresh={handleRefreshOnu}
         onu={onu}
@@ -221,6 +297,12 @@ export const SysbrazoPanel = ({
       <AutodiagnosticBlock contactId={contactId} workspaceId={workspaceId} />
       <TicketsBlock contactId={contactId} workspaceId={workspaceId} />
       <NotesBlock contactId={contactId} workspaceId={workspaceId} />
+      <MultimediaBlock
+        contactId={contactId}
+        conversationId={conversationId}
+        onContextConfirmed={() => load().catch(() => undefined)}
+        workspaceId={workspaceId}
+      />
     </div>
   )
 }

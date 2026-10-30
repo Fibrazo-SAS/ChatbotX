@@ -34,6 +34,7 @@ export const ScheduleJobData = {
   purgeAutomationThrottle: "purgeAutomationThrottle",
   purgeErrorLogs: "purgeErrorLogs",
   purgeAuditLogs: "purgeAuditLogs",
+  purgeSysbrazoClientMultimedia: "purgeSysbrazoClientMultimedia",
   refreshChannelTokens: "refreshChannelTokens",
   unsubscribeExpiredTrials: "unsubscribeExpiredTrials",
   teardownExpiredTrial: "teardownExpiredTrial",
@@ -200,6 +201,11 @@ export type ScheduleJobPurgeAuditLogs = {
   data: Record<string, never>
 }
 
+export type ScheduleJobPurgeSysbrazoClientMultimedia = {
+  type: typeof ScheduleJobData.purgeSysbrazoClientMultimedia
+  data: Record<string, never>
+}
+
 export type ScheduleJobPurgeAutomationThrottle = {
   type: typeof ScheduleJobData.purgeAutomationThrottle
   data: Record<string, never>
@@ -252,6 +258,7 @@ export type ScheduleJobData =
   | ScheduleJobPurgeAutomationThrottle
   | ScheduleJobPurgeErrorLogs
   | ScheduleJobPurgeAuditLogs
+  | ScheduleJobPurgeSysbrazoClientMultimedia
   | ScheduleJobRefreshChannelTokens
   | ScheduleJobUnsubscribeExpiredTrials
   | ScheduleJobTeardownExpiredTrial

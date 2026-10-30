@@ -36,7 +36,7 @@ export const NotesBlock = ({
   contactId: string
 }) => {
   const t = useTranslations("sysbrazoPanel")
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const [origin, setOrigin] = useState<SysbrazoNoteOrigin | undefined>()
   const [notes, setNotes] = useState<SysbrazoNote[]>([])
   const [counts, setCounts] = useState({ all: 0, chat: 0, sysbrazo: 0 })
@@ -138,7 +138,7 @@ export const NotesBlock = ({
 
   const filter = (value: SysbrazoNoteOrigin | undefined, count: number) => (
     <button
-      className={`flex min-w-0 flex-1 items-center justify-center rounded-full border px-3.5 py-1.5 text-xs leading-none ${origin === value ? "border-emerald-400 bg-emerald-50" : "border-slate-200 bg-white"}`}
+      className={`flex min-w-0 flex-1 items-center justify-center rounded-full border px-3.5 py-1.5 text-xs leading-none ${origin === value ? "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary" : "border-border bg-card text-foreground dark:border-border dark:bg-card dark:text-muted-foreground"}`}
       onClick={() => setOrigin(value)}
       type="button"
     >
@@ -147,12 +147,12 @@ export const NotesBlock = ({
   )
 
   return (
-    <section className="mx-4 mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-      <div className="flex items-center gap-3 border-slate-100 border-b bg-white px-4 py-3">
+    <section className="mx-4 mb-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm dark:border-border dark:bg-card">
+      <div className="flex items-center gap-3 border-border border-b bg-card px-4 py-3 dark:border-border dark:bg-card">
         <Collapsible onOpenChange={setOpen} open={open}>
           <CollapsibleTrigger
             aria-label={t("notes.toggle")}
-            className="flex items-center gap-2 font-bold text-sm"
+            className="flex items-center gap-2 font-bold text-sm dark:text-foreground"
           >
             {t("notes.title", { count: counts.all })}
             <ChevronDownIcon
@@ -162,7 +162,7 @@ export const NotesBlock = ({
           <CollapsibleContent />
         </Collapsible>
         <button
-          className="ms-auto inline-flex items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 font-semibold text-white text-xs"
+          className="ms-auto inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 font-semibold text-primary-foreground text-xs hover:bg-primary/90"
           onClick={() => {
             setOpen(true)
             setDraft("")
@@ -178,7 +178,7 @@ export const NotesBlock = ({
             <div className="mb-3 flex flex-col gap-2">
               <textarea
                 autoFocus
-                className="min-h-24 rounded-lg border border-emerald-700 bg-white p-2 text-xs outline-none transition-colors focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100"
+                className="min-h-24 rounded-lg border border-primary/40 bg-card p-2 text-xs outline-none transition-colors focus:border-primary/40 focus:ring-2 focus:ring-emerald-100 dark:border-primary/40 dark:bg-card dark:text-foreground dark:placeholder:text-muted-foreground dark:focus:ring-emerald-900"
                 maxLength={2000}
                 onChange={(event) => setDraft(event.target.value)}
                 placeholder={t("notes.placeholder")}
@@ -186,14 +186,14 @@ export const NotesBlock = ({
               />
               <div className="flex justify-end gap-2">
                 <button
-                  className="rounded-lg border px-3 py-1.5 text-xs"
+                  className="rounded-lg border border-border px-3 py-1.5 text-foreground text-xs hover:bg-muted/35 dark:border-border dark:text-foreground dark:hover:bg-muted"
                   onClick={() => setDraft(null)}
                   type="button"
                 >
                   {t("notes.cancel")}
                 </button>
                 <button
-                  className="rounded-lg bg-emerald-700 px-3 py-1.5 font-semibold text-white text-xs"
+                  className="rounded-lg bg-primary px-3 py-1.5 font-semibold text-primary-foreground text-xs hover:bg-primary/90"
                   onClick={() => save().catch(() => undefined)}
                   type="button"
                 >
@@ -201,7 +201,7 @@ export const NotesBlock = ({
                 </button>
               </div>
               {actionError === "create" && (
-                <p className="text-red-600 text-xs">{t("notes.saveError")}</p>
+              <p className="text-destructive text-xs dark:text-destructive">{t("notes.saveError")}</p>
               )}
             </div>
           )}
@@ -226,9 +226,9 @@ export const NotesBlock = ({
             </div>
           )}
           {status === "ready" && notes.length === 0 && (
-            <p className="text-slate-500 text-sm">{t("notes.empty")}</p>
+            <p className="text-muted-foreground text-sm dark:text-muted-foreground">{t("notes.empty")}</p>
           )}
-          <div className="divide-y divide-slate-200">
+          <div className="divide-y divide-border dark:divide-border">
             {notes.map((note) => {
               const isExpanded = expandedIds.has(note.id)
               const isOld = isOldNote(note.created_at)
@@ -240,33 +240,33 @@ export const NotesBlock = ({
                 <article className="py-4" key={note.id}>
                   {editingId === note.id ? (
                     <textarea
-                      className="min-h-16 w-full rounded-lg border border-emerald-700 bg-white p-2 text-xs outline-none transition-colors focus:border-emerald-800 focus:ring-2 focus:ring-emerald-100"
+                      className="min-h-16 w-full rounded-lg border border-primary/40 bg-card p-2 text-xs outline-none transition-colors focus:border-primary/40 focus:ring-2 focus:ring-emerald-100 dark:border-primary/40 dark:bg-card dark:text-foreground dark:placeholder:text-muted-foreground dark:focus:ring-emerald-900"
                       maxLength={2000}
                       onChange={(event) => setEditingText(event.target.value)}
                       value={editingText}
                     />
                   ) : (
                     <p
-                      className={`whitespace-pre-wrap text-sm ${isExpanded ? "" : "line-clamp-2"} ${isOld ? "text-slate-400" : ""}`}
+                      className={`whitespace-pre-wrap text-sm ${isExpanded ? "" : "line-clamp-2"} ${isOld ? "text-muted-foreground dark:text-muted-foreground" : "text-foreground dark:text-foreground"}`}
                     >
                       {note.notes}
                     </p>
                   )}
-                  <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-slate-500 text-xs">
+                  <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground text-xs dark:text-muted-foreground">
                     <span>{note.author}</span>
                     <span>·</span>
                     <span>{formatIsoDisplay(note.created_at)}</span>
-                    <span className="rounded-full border px-2 py-0.5">
+                      <span className="rounded-full border border-border px-2 py-0.5 dark:border-border">
                       {t(originLabelKey[note.origin])}
                     </span>
                     {isOld && (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 font-semibold uppercase">
+                      <span className="rounded-full bg-muted px-2 py-0.5 font-semibold uppercase dark:bg-muted dark:text-muted-foreground">
                         {t("notes.ancient")}
                       </span>
                     )}
                     {note.edited && <span>{t("notes.edited")}</span>}
                   </div>
-                  <div className="mt-1 flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-slate-500 text-xs">
+                  <div className="mt-1 flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-muted-foreground text-xs dark:text-muted-foreground">
                     {isExpanded &&
                       note.origin === "chat" &&
                       !note.editable &&
@@ -327,7 +327,7 @@ export const NotesBlock = ({
                     )}
                   </div>
                   {editingId === note.id && actionError === "update" && (
-                    <p className="mt-2 text-red-600 text-xs">
+                    <p className="mt-2 text-destructive text-xs dark:text-destructive">
                       {t("notes.updateError")}
                     </p>
                   )}
@@ -337,7 +337,7 @@ export const NotesBlock = ({
           </div>
           {page < lastPage && (
             <button
-              className="mt-3 w-full rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 text-xs transition-colors hover:bg-slate-50"
+              className="mt-3 w-full rounded-lg border border-border px-3 py-1.5 font-medium text-foreground text-xs transition-colors hover:bg-muted/35 dark:border-border dark:text-foreground dark:hover:bg-muted"
               onClick={() => load(page + 1, true).catch(() => undefined)}
               type="button"
             >

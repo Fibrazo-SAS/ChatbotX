@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@chatbotx.io/ui/components/ui/accordion"
+import { UserRoundIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { client } from "@/lib/orpc/orpc"
@@ -21,7 +22,6 @@ import UpdateContactTagField from "./components/update-contact-tag-field"
 import { ContactDetail } from "./contact-detail"
 import { useAutoRefreshContactProfile } from "./hooks/use-auto-refresh-contact-profile"
 import type { GetContactResponse } from "./schema/query"
-import { SYSBRAZO_DOCUMENT_FIELD_NAME } from "./sysbrazo-config"
 import { SysbrazoPanel } from "./sysbrazo-panel/sysbrazo-panel"
 
 type AccordionModule = {
@@ -245,14 +245,9 @@ export const ContactInboxPanel = ({
     ]
   }, [contactData, workspaceId, t, coupons, appointments])
 
-  if (!storeContact) {
+  if (!(storeContact && activeConversation)) {
     return null
   }
-
-  const documentId =
-    contactData?.customFields
-      ?.find((field) => field.name === SYSBRAZO_DOCUMENT_FIELD_NAME)
-      ?.value?.trim() || null
 
   const lastInteractionAt =
     activeConversation?.contactInboxes[0]?.lastIncomingMessageAt ?? null
@@ -261,19 +256,32 @@ export const ContactInboxPanel = ({
     <div className="flex w-full flex-col gap-2">
       <SysbrazoPanel
         contactId={storeContact.id}
-        documentId={documentId}
+        contextRefreshSignal={
+          customFieldChangeSignal?.contactId === storeContact.id
+            ? customFieldChangeSignal
+            : undefined
+        }
+        conversationId={activeConversation.id}
         lastInteractionAt={lastInteractionAt}
         workspaceId={workspaceId}
       />
 
       {/* Card "Contacto" (chat) — separada de la card "Cliente de Sysbrazo" */}
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-slate-100 border-b bg-white px-4 py-3">
-          <span className="font-bold text-slate-900 text-sm tracking-wide">
-            {t("contacts.panelTitle")}
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-black/5 shadow-sm">
+        <div className="flex items-center gap-3 border-border border-b bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-4 py-4">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-primary/12 text-primary">
+            <UserRoundIcon aria-hidden="true" className="size-4" />
           </span>
+          <div className="flex min-w-0 flex-col">
+            <span className="font-semibold text-card-foreground text-sm">
+              {t("contacts.panelTitle")}
+            </span>
+            <span className="text-muted-foreground text-xs">
+              {storeContact.fullName}
+            </span>
+          </div>
         </div>
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-5">
           <ContactDetail
             activeConversationId={activeConversationId}
             contact={contactData}

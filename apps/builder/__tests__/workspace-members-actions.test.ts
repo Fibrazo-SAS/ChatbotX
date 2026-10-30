@@ -157,6 +157,10 @@ const granularPermissions = {
   broadcast: false,
   ecommerce: false,
   viewClientNotes: true,
+  viewClientMultimedia: true,
+  manageClientMultimedia: true,
+  viewDeletedClientMultimedia: true,
+  permanentlyDeleteClientMultimedia: true,
 }
 
 const assignedOnlyPermissions = {

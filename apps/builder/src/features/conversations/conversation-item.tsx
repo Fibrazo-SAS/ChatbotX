@@ -208,7 +208,9 @@ export default function ConversationItem({
       <Button
         className={cn(
           "h-auto w-full justify-center px-3 py-2 font-normal hover:bg-zinc-200 hover:text-foreground dark:hover:bg-muted",
-          isActive ? "bg-zinc-200 dark:bg-muted!" : "",
+          isActive
+            ? "bg-primary/12 text-foreground ring-1 ring-primary/25 dark:bg-primary/15!"
+            : "",
         )}
         onClick={() => onSelect()}
         type="button"

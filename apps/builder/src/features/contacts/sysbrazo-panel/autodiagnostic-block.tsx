@@ -180,7 +180,7 @@ export const AutodiagnosticBlock = ({
   const runButton = (
     <button
       aria-label={t("autodiagnostic.run")}
-      className="flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 font-semibold text-white text-xs shadow-sm transition-colors hover:bg-emerald-800 disabled:opacity-60"
+      className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 font-semibold text-primary-foreground text-xs shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-60"
       disabled={starting}
       onClick={handleStart}
       type="button"
@@ -192,14 +192,14 @@ export const AutodiagnosticBlock = ({
 
   return (
     <>
-      <Collapsible className="mx-4 mb-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between gap-2 border-slate-100 border-b bg-white px-4 py-3">
-          <span className="truncate font-bold text-slate-900 text-sm tracking-wide">
+      <Collapsible className="mx-4 mb-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm dark:border-border dark:bg-card">
+        <div className="flex items-center justify-between gap-2 border-border border-b bg-card px-4 py-3 dark:border-border dark:bg-card">
+          <span className="truncate font-bold text-foreground text-sm tracking-wide dark:text-foreground">
             {t("autodiagnostic.title")}
           </span>
           <div className="flex shrink-0 items-center gap-2">
             {list.status !== "notFound" && canRun === true ? runButton : null}
-            <CollapsibleTrigger className="group text-slate-500 transition-colors hover:text-slate-800">
+            <CollapsibleTrigger className="group text-muted-foreground transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground">
               <ChevronDownIcon
                 aria-hidden="true"
                 className="size-4 transition-transform duration-200 group-data-[panel-open]:rotate-180"
@@ -209,9 +209,9 @@ export const AutodiagnosticBlock = ({
         </div>
 
         <CollapsibleContent>
-          <div className="border-slate-100 border-t">
+          <div className="border-border border-t dark:border-border">
             {list.status === "loading" ? (
-              <p className="flex items-center justify-center gap-1.5 px-4 py-4 font-medium text-slate-400 text-xs">
+              <p className="flex items-center justify-center gap-1.5 px-4 py-4 font-medium text-muted-foreground text-xs dark:text-muted-foreground">
                 <RefreshCwIcon
                   aria-hidden="true"
                   className="size-3.5 animate-spin"
@@ -221,53 +221,53 @@ export const AutodiagnosticBlock = ({
             ) : null}
 
             {list.status === "error" ? (
-              <p className="px-4 py-4 text-center text-red-600 text-xs">
+              <p className="px-4 py-4 text-center text-destructive text-xs dark:text-destructive">
                 {t("autodiagnostic.error")}
               </p>
             ) : null}
 
             {list.status === "notFound" ? (
-              <p className="px-4 py-4 text-slate-600 text-xs">
+              <p className="px-4 py-4 text-muted-foreground text-xs dark:text-muted-foreground">
                 {t("autodiagnostic.notFound")}
               </p>
             ) : null}
 
             {list.status === "ok" && list.items.length === 0 ? (
-              <p className="px-4 py-4 text-slate-600 text-xs">
+              <p className="px-4 py-4 text-muted-foreground text-xs dark:text-muted-foreground">
                 {t("autodiagnostic.empty")}
               </p>
             ) : null}
 
             {list.status === "ok" && list.items.length > 0 ? (
               <>
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-border dark:divide-border">
                   {list.items.map((run) => (
                     <button
-                      className="flex w-full cursor-pointer items-center justify-between gap-2 p-4 text-start transition-colors hover:bg-slate-50"
+                      className="flex w-full cursor-pointer items-center justify-between gap-2 p-4 text-start transition-colors hover:bg-muted/35 dark:hover:bg-muted"
                       key={run.id}
                       onClick={() => setDialogRunId(run.id)}
                       type="button"
                     >
                       <div className="min-w-0 space-y-1 pe-4">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-normal text-slate-500 text-xs">
+                          <span className="font-normal text-muted-foreground text-xs dark:text-muted-foreground">
                             {t("autodiagnostic.numberLabel")}
                           </span>
-                          <span className="font-bold text-slate-900 text-sm">
+                          <span className="font-bold text-foreground text-sm dark:text-foreground">
                             {run.id}
                           </span>
                           <DiagnosticStatusPill status={run.status} />
                         </div>
-                        <h3 className="font-semibold text-slate-900 text-sm">
+                        <h3 className="font-semibold text-foreground text-sm dark:text-foreground">
                           {runTitle(run, t)}
                         </h3>
-                        <div className="text-slate-500 text-xs">
+                        <div className="text-muted-foreground text-xs dark:text-muted-foreground">
                           {formatDiagnosticDate(run.started_at)} ·{" "}
                           {t("autodiagnostic.runIn")}{" "}
                           {t(sourceLabelKey[run.source])}
                         </div>
                       </div>
-                      <span className="flex-shrink-0 p-1 text-slate-400 transition-colors hover:text-slate-600">
+                      <span className="flex-shrink-0 p-1 text-muted-foreground transition-colors hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-foreground">
                         <ArrowRightIcon aria-hidden="true" className="size-4" />
                       </span>
                     </button>
@@ -275,34 +275,34 @@ export const AutodiagnosticBlock = ({
                 </div>
 
                 {allActiveStuckCreated ? (
-                  <p className="px-4 pt-1 text-center text-amber-600 text-xs">
+                  <p className="px-4 pt-1 text-center text-amber-600 text-xs dark:text-amber-400">
                     {t("autodiagnostic.staleCreatedHint")}
                   </p>
                 ) : null}
 
-                <div className="flex flex-col items-center justify-between gap-2 border-slate-100 border-t p-3 sm:flex-row">
+                <div className="flex flex-col items-center justify-between gap-2 border-border border-t p-3 sm:flex-row dark:border-border">
                   <button
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-800 text-xs transition-colors hover:bg-slate-50 sm:w-auto"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-1.5 font-medium text-foreground text-xs transition-colors hover:bg-muted/35 sm:w-auto dark:border-border dark:text-foreground dark:hover:bg-muted"
                     onClick={() => load()}
                     type="button"
                   >
                     <RefreshCwIcon
                       aria-hidden="true"
-                      className="size-3.5 text-slate-600"
+                      className="size-3.5 text-muted-foreground dark:text-muted-foreground"
                     />
                     {t("autodiagnostic.update")}
                   </button>
                   <button
-                    className="flex w-full items-center justify-center gap-1 py-0.5 font-semibold text-slate-900 text-xs hover:underline sm:w-auto"
+                    className="flex w-full items-center justify-center gap-1 py-0.5 font-semibold text-foreground text-xs hover:underline sm:w-auto dark:text-foreground"
                     onClick={() => setHistoryOpen(true)}
                     type="button"
                   >
-                    <span className="border-slate-900 border-b">
+                    <span className="border-foreground border-b dark:border-border">
                       {t("autodiagnostic.fullHistory")}
                     </span>
                     <ArrowRightIcon
                       aria-hidden="true"
-                      className="ml-1 size-3.5"
+                      className="ms-1 size-3.5"
                     />
                   </button>
                 </div>

@@ -10,6 +10,16 @@ const withNextIntl = createNextIntlPlugin({
 
 const appUrl = env.NEXT_PUBLIC_BUILDER_URL.replace(/\/$/, "")
 const storageUrl = env.NEXT_PUBLIC_STORAGE_URL ?? `${appUrl}/storage`
+const storageUrlObject = new URL(storageUrl)
+const httpStorageImagePattern =
+  storageUrlObject.protocol === "http:"
+    ? {
+        protocol: "http" as const,
+        hostname: storageUrlObject.hostname,
+        ...(storageUrlObject.port ? { port: storageUrlObject.port } : {}),
+        pathname: `${storageUrlObject.pathname.replace(/\/+$/, "")}/**`,
+      }
+    : null
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -25,7 +35,10 @@ const nextConfig: NextConfig = {
     "@chatbotx.io/business",
   ],
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "**" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "**" },
+      ...(httpStorageImagePattern ? [httpStorageImagePattern] : []),
+    ],
   },
   // Type-checking is NOT part of `next build`: the in-build tsc pass duplicated
   // `check-types` and OOMs a default 4GB heap. The type gate lives in

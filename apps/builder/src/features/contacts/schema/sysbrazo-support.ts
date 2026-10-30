@@ -118,6 +118,36 @@ export type SysbrazoDiagnosticDetail = z.infer<
   typeof sysbrazoDiagnosticDetailSchema
 >
 
+/** Respuesta de Sysbrazo al encolar o crear el ticket de un paso fallido. */
+export const sysbrazoAutodiagnosticTicketResponseSchema = z.object({
+  queued: z.boolean().optional(),
+  reason: sysbrazoNullableString,
+  odoo_ticket_id: sysbrazoReference,
+  redmine_issue_id: sysbrazoReference,
+  ticket_ref: sysbrazoReference,
+  client_message: z
+    .union([
+      z.string(),
+      z.object({
+        title: sysbrazoNullableString,
+        body: z.string(),
+      }),
+    ])
+    .nullable()
+    .optional(),
+})
+export type SysbrazoAutodiagnosticTicketResponse = z.infer<
+  typeof sysbrazoAutodiagnosticTicketResponseSchema
+>
+
+export const sysbrazoAutodiagnosticTicketOutcomeSchema = z.object({
+  state: z.enum(["created", "queued", "blocked", "error"]),
+  client_message: sysbrazoAutodiagnosticTicketResponseSchema.shape.client_message,
+})
+export type SysbrazoAutodiagnosticTicketOutcome = z.infer<
+  typeof sysbrazoAutodiagnosticTicketOutcomeSchema
+>
+
 /** Respuesta del POST de inicio (crea o devuelve la ejecución activa). */
 export const sysbrazoStartDiagnosticResponseSchema = z.object({
   status: z.enum(["ok", "running", "error", "blocked"]),

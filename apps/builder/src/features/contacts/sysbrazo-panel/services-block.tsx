@@ -42,17 +42,17 @@ import {
  * FECHA DE CORTE (o SUSPENDIDO / DESDE).
  */
 const iconBoxClass: Record<ServiceState, string> = {
-  active: "bg-emerald-50 text-emerald-600",
-  expiring: "bg-[#fff8ed] text-[#b45309]",
-  suspended: "bg-red-50 text-red-500",
-  inactive: "bg-slate-100 text-slate-600",
+  active: "bg-primary/10 text-primary dark:bg-primary/10 dark:text-primary",
+  expiring: "bg-amber-400/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-200",
+  suspended: "bg-destructive/10 text-destructive dark:bg-destructive/12 dark:text-destructive",
+  inactive: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
 }
 
 const pillClass: Record<ServiceState, string> = {
-  active: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  expiring: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  suspended: "border-red-200 bg-red-50 text-red-600",
-  inactive: "border-slate-200 bg-slate-100 text-slate-600",
+  active: "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
+  expiring: "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
+  suspended: "border-destructive/35 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive",
+  inactive: "border-border bg-muted text-muted-foreground dark:border-border dark:bg-muted dark:text-muted-foreground",
 }
 
 const LOST_STATUS_RE = /lost|perdido/
@@ -92,7 +92,7 @@ const TvBoxStatusPill = ({ box }: { box: SysbrazoTvBox }) => {
 
   if (LOST_STATUS_RE.test(status)) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 font-bold text-[11px] text-red-600 uppercase tracking-wide">
+      <span className="inline-flex items-center gap-1 rounded-full border border-destructive/35 bg-destructive/10 px-2.5 py-0.5 font-bold text-[11px] text-destructive uppercase tracking-wide dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive">
         <AlertTriangleIcon aria-hidden="true" className="size-3" />
         {t("services.lost")}
       </span>
@@ -101,7 +101,7 @@ const TvBoxStatusPill = ({ box }: { box: SysbrazoTvBox }) => {
 
   if (RETIRO_STATUS_RE.test(status)) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-[#fde68a] bg-[#fff8ed] px-2.5 py-0.5 font-bold text-[#b45309] text-[11px] uppercase tracking-wide">
+      <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 font-bold text-amber-700 text-[11px] uppercase tracking-wide dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200">
         <ClockIcon aria-hidden="true" className="size-3" />
         {t("services.retiro")}
       </span>
@@ -122,27 +122,27 @@ const TvBoxRow = ({ box, index }: { box: SysbrazoTvBox; index: number }) => {
   const isLost = LOST_STATUS_RE.test((box.status ?? "").toLowerCase())
 
   return (
-    <div className="flex flex-col gap-2 border-slate-200 border-t border-dashed bg-slate-50/40 p-4">
+    <div className="flex flex-col gap-2 border-border border-t border-dashed bg-muted/35 p-4 dark:border-border dark:bg-muted/50">
       <div className="flex items-center justify-between">
-        <span className="font-medium text-slate-800 text-sm">
+        <span className="font-medium text-foreground text-sm dark:text-foreground">
           {t("services.tvBox")} {index + 1}
         </span>
         <TvBoxStatusPill box={box} />
       </div>
       {isLost ? (
-        <p className="font-semibold text-amber-800 text-xs">
+        <p className="font-semibold text-amber-700 text-xs dark:text-amber-200">
           {t("services.lostMessage")}
         </p>
       ) : null}
       <div className="flex items-center gap-2 text-sm">
         {box.serial_number ? (
           <>
-            <span className="font-mono font-semibold text-slate-800 text-xs tracking-wider">
+            <span className="font-mono font-semibold text-foreground text-xs tracking-wider dark:text-foreground">
               {box.serial_number}
             </span>
             <button
               aria-label={t("serialCopied")}
-              className="p-0.5 text-slate-500 transition-colors hover:text-slate-800"
+              className="p-0.5 text-muted-foreground transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground"
               onClick={() => handleCopy(box.serial_number as string)}
               type="button"
             >
@@ -151,7 +151,7 @@ const TvBoxRow = ({ box, index }: { box: SysbrazoTvBox; index: number }) => {
           </>
         ) : null}
         {box.model ? (
-          <span className="ml-1 font-medium text-slate-400 text-xs">
+          <span className="ms-1 font-medium text-muted-foreground text-xs dark:text-muted-foreground">
             {box.model}
           </span>
         ) : null}
@@ -170,12 +170,12 @@ const DetailCell = ({
   value: string
   valueClass?: string
 }) => (
-  <div className="flex min-w-0 flex-col rounded-lg bg-white px-2.5 py-2 shadow-xs ring-1 ring-slate-100">
-    <p className="mb-0.5 font-medium text-[10px] text-slate-400 uppercase tracking-wider">
+  <div className="flex min-w-0 flex-col rounded-lg bg-card px-2.5 py-2 shadow-xs ring-1 ring-border dark:bg-card dark:ring-border">
+    <p className="mb-0.5 font-medium text-[10px] text-muted-foreground uppercase tracking-wider dark:text-muted-foreground">
       {label}
     </p>
     <p
-      className={`truncate font-semibold text-slate-900 text-sm ${valueClass}`}
+      className={`truncate font-semibold text-foreground text-sm dark:text-foreground ${valueClass}`}
     >
       {value}
     </p>
@@ -186,7 +186,7 @@ const DetailCell = ({
 const CrewPill = () => {
   const t = useTranslations("sysbrazoPanel")
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#fde68a] bg-[#fff8ed] px-2.5 py-1 font-bold text-[#b45309] text-xs">
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 font-bold text-amber-700 text-xs dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200">
       <ClockIcon aria-hidden="true" className="size-3.5" />
       {t("services.crewPill")}
     </span>
@@ -202,23 +202,23 @@ const AddonRow = ({ addon }: { addon: SysbrazoAddon }) => {
     if (state === "suspended") {
       const days = daysSince(addon.suspended_at)
       return (
-        <div className="grid grid-cols-2 gap-2 pl-14 text-xs max-[299px]:grid-cols-1">
+            <div className="grid grid-cols-2 gap-2 ps-14 text-xs max-[299px]:grid-cols-1">
           <DetailCell
             label={t("services.suspendedLabel")}
             value={days == null ? t("noData") : t("services.daysAgo", { days })}
-            valueClass="font-bold text-red-600"
+            valueClass="font-bold text-destructive dark:text-destructive"
           />
           <DetailCell
             label={t("services.sinceLabel")}
             value={formatIsoDisplay(addon.suspended_at) || t("noData")}
-            valueClass="font-semibold text-slate-600"
+                valueClass="font-semibold text-muted-foreground dark:text-muted-foreground"
           />
         </div>
       )
     }
 
     return (
-      <div className="grid grid-cols-2 gap-2 pl-14 text-xs">
+      <div className="grid grid-cols-2 gap-2 ps-14 text-xs">
         <DetailCell
           label={t("services.remainingTime")}
           value={
@@ -228,14 +228,14 @@ const AddonRow = ({ addon }: { addon: SysbrazoAddon }) => {
           }
           valueClass={
             state === "expiring"
-              ? "font-bold text-[#b45309]"
-              : "font-bold text-slate-900"
+              ? "font-bold text-amber-700 dark:text-amber-200"
+              : "font-bold text-foreground dark:text-foreground"
           }
         />
         <DetailCell
           label={t("services.cutoffDate")}
           value={formatIsoDisplay(addon.balance_expires_at) || t("noData")}
-          valueClass="font-semibold text-slate-600"
+                valueClass="font-semibold text-muted-foreground dark:text-muted-foreground"
         />
       </div>
     )
@@ -250,7 +250,7 @@ const AddonRow = ({ addon }: { addon: SysbrazoAddon }) => {
           >
             <MonitorPlayIcon aria-hidden="true" className="size-5" />
           </div>
-          <span className="font-semibold text-base text-slate-900">
+          <span className="font-semibold text-base text-foreground dark:text-foreground">
             {addon.name || t("services.addon")}
           </span>
         </div>
@@ -300,7 +300,7 @@ export const ServicesBlock = ({
   const detailGrid = (() => {
     if (internetState === "suspended") {
       return (
-        <div className="grid grid-cols-2 gap-2 pl-14 text-xs max-[299px]:grid-cols-1">
+        <div className="grid grid-cols-2 gap-2 ps-14 text-xs max-[299px]:grid-cols-1">
           <DetailCell
             label={t("services.suspendedLabel")}
             value={
@@ -308,41 +308,41 @@ export const ServicesBlock = ({
                 ? t("noData")
                 : t("suspendedAgo", { days: daysSuspended })
             }
-            valueClass="flex items-center gap-1 font-bold text-red-600"
+            valueClass="flex items-center gap-1 font-bold text-destructive dark:text-destructive"
           />
           <DetailCell
             label={t("services.sinceLabel")}
             value={cutoff ?? t("services.noDateRegistered")}
-            valueClass="font-semibold text-slate-600"
+            valueClass="font-semibold text-muted-foreground dark:text-muted-foreground"
           />
         </div>
       )
     }
 
     return (
-      <div className="grid grid-cols-2 gap-2 pl-14 text-xs">
+      <div className="grid grid-cols-2 gap-2 ps-14 text-xs">
         <DetailCell
           label={t("services.remainingTime")}
           value={remaining ?? t("noData")}
           valueClass={
             internetState === "expiring"
-              ? "flex items-center gap-1 font-bold text-[#b45309]"
-              : "font-bold text-slate-900"
+              ? "flex items-center gap-1 font-bold text-amber-700"
+              : "font-bold text-foreground dark:text-foreground"
           }
         />
         <DetailCell
           label={t("services.cutoffDate")}
           value={cutoff ?? t("noData")}
-          valueClass="font-semibold text-slate-600"
+          valueClass="font-semibold text-muted-foreground dark:text-muted-foreground"
         />
       </div>
     )
   })()
 
   return (
-    <Collapsible className="mx-4 mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-      <div className="flex items-center justify-between gap-2 border-slate-100 border-b bg-white px-4 py-3">
-        <span className="font-bold text-slate-900 text-sm tracking-wide">
+    <Collapsible className="mx-4 mb-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm dark:border-border dark:bg-card">
+      <div className="flex items-center justify-between gap-2 border-border border-b bg-card px-4 py-3 dark:border-border dark:bg-card">
+        <span className="font-bold text-foreground text-sm tracking-wide dark:text-foreground">
           {t("services.title")}
         </span>
         <div className="flex items-center gap-2">
@@ -357,7 +357,7 @@ export const ServicesBlock = ({
               {t("services.goToSysbrazo")}
             </a>
           ) : null}
-          <CollapsibleTrigger className="group text-slate-400 transition-colors hover:text-slate-600">
+          <CollapsibleTrigger className="group text-muted-foreground transition-colors hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-foreground">
             <ChevronDownIcon
               aria-hidden="true"
               className="size-4 transition-transform group-data-[panel-open]:rotate-180"
@@ -368,20 +368,20 @@ export const ServicesBlock = ({
       <CollapsibleContent>
         <div className="px-4 py-4">
           {isLead ? (
-            <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="space-y-3 rounded-2xl border border-border bg-card p-4 dark:border-border dark:bg-card">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">
+                <span className="font-bold text-muted-foreground text-xs uppercase tracking-wider dark:text-muted-foreground">
                   {t("services.leadTitle")}
                 </span>
-                <span className="rounded-full border border-amber-300 bg-amber-100/80 px-3 py-1 font-bold text-amber-800 text-xs uppercase tracking-wider">
+                <span className="rounded-full border border-amber-400/40 bg-amber-400/12 px-3 py-1 font-bold text-amber-700 text-xs uppercase tracking-wider dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200">
                   {t("services.leadPending")}
                 </span>
               </div>
-              <p className="font-medium text-slate-600 text-sm">
+              <p className="font-medium text-muted-foreground text-sm dark:text-muted-foreground">
                 {t("services.leadMessage")}
               </p>
-              <hr className="border-slate-200" />
-              <p className="font-medium text-slate-600 text-sm">
+              <hr className="border-border dark:border-border" />
+              <p className="font-medium text-muted-foreground text-sm dark:text-muted-foreground">
                 {t("services.noContract")}
               </p>
             </div>
@@ -390,20 +390,20 @@ export const ServicesBlock = ({
               {isUninstall ? (
                 <div className="mb-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">
+                    <span className="font-bold text-muted-foreground text-xs uppercase tracking-wider dark:text-muted-foreground">
                       {t("services.salidaLabel")}
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-[#fde68a] bg-[#fff8ed] px-2.5 py-1 font-bold text-[#b45309] text-xs">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 font-bold text-amber-700 text-xs dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200">
                       <ClockIcon aria-hidden="true" className="size-3.5" />
                       {t("services.uninstallPill")}
                     </span>
                   </div>
-                  <p className="mt-1 font-medium text-slate-500 text-sm">
+                  <p className="mt-1 font-medium text-muted-foreground text-sm dark:text-muted-foreground">
                     {t("services.uninstallMessage")}
                   </p>
                 </div>
               ) : null}
-              <div className="divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card dark:divide-border dark:border-border dark:bg-card">
                 {/* Internet */}
                 {hasInternet ? (
                   <div className="space-y-2 p-4">
@@ -414,7 +414,7 @@ export const ServicesBlock = ({
                         >
                           <WifiIcon aria-hidden="true" className="size-5" />
                         </div>
-                        <span className="font-semibold text-base text-slate-900">
+                        <span className="font-semibold text-base text-foreground dark:text-foreground">
                           {client.internet_plan}
                         </span>
                       </div>
@@ -441,7 +441,7 @@ export const ServicesBlock = ({
                             className="size-5"
                           />
                         </div>
-                        <span className="font-semibold text-base text-slate-900">
+                        <span className="font-semibold text-base text-foreground dark:text-foreground">
                           {client.tv_plan}
                         </span>
                       </div>
@@ -451,7 +451,7 @@ export const ServicesBlock = ({
                         <StatePill state={internetState} />
                       )}
                     </div>
-                    <p className="pl-14 text-slate-500 text-xs">
+                    <p className="ps-14 text-muted-foreground text-xs dark:text-muted-foreground">
                       {internetState === "suspended"
                         ? t("services.tvSuspendedByInternet")
                         : t("services.sameCutoffAsInternet")}

@@ -58,7 +58,7 @@ const ValidationPill = ({ status }: { status: ValidationStatus }) => {
   const t = useTranslations("sysbrazoPanel")
   if (status === "validated") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 font-bold text-[11px] text-emerald-700 uppercase tracking-wide">
+      <span className="inline-flex items-center gap-1 rounded-full border border-primary/45 bg-primary/10 px-2.5 py-0.5 font-bold text-[11px] text-primary uppercase tracking-wide">
         <CheckIcon aria-hidden="true" className="size-3 stroke-[3]" />
         {t("validation.validated")}
       </span>
@@ -66,14 +66,14 @@ const ValidationPill = ({ status }: { status: ValidationStatus }) => {
   }
   if (status === "pending") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 font-bold text-[11px] text-amber-700 uppercase tracking-wide">
+      <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/45 bg-amber-400/10 px-2.5 py-0.5 font-bold text-[11px] text-amber-700 uppercase tracking-wide dark:text-amber-200">
         <AlertTriangleIcon aria-hidden="true" className="size-3" />
         {t("validation.pending")}
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 font-bold text-[11px] text-slate-500 uppercase tracking-wide">
+    <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/35 px-2.5 py-0.5 font-bold text-[11px] text-muted-foreground uppercase tracking-wide dark:border-border dark:bg-muted dark:text-muted-foreground">
       <CircleDashedIcon aria-hidden="true" className="size-3" />
       {t("validation.notValidated")}
     </span>
@@ -144,37 +144,37 @@ export const ContactBlock = ({ client }: { client: SysbrazoClient }) => {
   }
 
   return (
-    <div className="mb-4 border-slate-100 border-b">
+    <section className="mx-4 mb-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm dark:border-border dark:bg-card">
       <Collapsible defaultOpen>
-        <CollapsibleTrigger className="group flex w-full cursor-pointer select-none items-center justify-between p-4 hover:bg-slate-50">
-          <span className="font-bold text-slate-900 text-sm tracking-wide">
+        <CollapsibleTrigger className="group flex w-full cursor-pointer select-none items-center justify-between border-border border-b px-4 py-3 hover:bg-muted/35 dark:border-border dark:hover:bg-muted">
+          <span className="font-bold text-foreground text-sm tracking-wide dark:text-foreground">
             {t("contact.title")}
           </span>
           <ChevronDownIcon
             aria-hidden="true"
-            className="size-4 text-slate-400 transition-transform group-data-[panel-open]:rotate-180"
+            className="size-4 text-muted-foreground transition-transform group-data-[panel-open]:rotate-180 dark:text-muted-foreground"
           />
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="space-y-3 px-4 pb-4 text-xs">
+          <div className="space-y-3 bg-muted/35 px-4 py-4 text-xs dark:bg-muted/50">
             {rows.map((row, index) => (
               <div
                 className={
                   index > 0
-                    ? "space-y-1 border-slate-50 border-t pt-1"
+                    ? "space-y-1 border-border border-t pt-3 dark:border-border"
                     : "space-y-1"
                 }
                 key={row.label}
               >
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-400">
+                  <span className="flex items-center gap-1.5 text-muted-foreground dark:text-muted-foreground">
                     <row.icon aria-hidden="true" className="size-3.5" />
                     {row.label}
                   </span>
                   <ValidationPill status={row.status} />
                 </div>
-                <div className="flex items-center justify-between pl-5 font-semibold text-slate-800">
-                  <span className="truncate pr-2">
+                <div className="flex items-center justify-between ps-5 font-semibold text-foreground dark:text-foreground">
+                  <span className="truncate pe-2">
                     {row.value || (
                       <span className="font-normal text-muted-foreground">
                         {t("noData")}
@@ -184,7 +184,7 @@ export const ContactBlock = ({ client }: { client: SysbrazoClient }) => {
                   {row.copyValue ? (
                     <button
                       aria-label={row.copyToast}
-                      className="shrink-0 text-slate-400 transition-colors hover:text-slate-600"
+                      className="shrink-0 text-muted-foreground transition-colors hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-foreground"
                       onClick={() =>
                         handleCopy(row.copyValue as string, row.copyToast)
                       }
@@ -195,7 +195,7 @@ export const ContactBlock = ({ client }: { client: SysbrazoClient }) => {
                   ) : null}
                 </div>
                 {row.status === "pending" && row.pendingValue ? (
-                  <p className="flex items-start gap-1.5 rounded-md bg-amber-50 px-2 py-1 pl-5 font-medium text-[11px] text-amber-700">
+                  <p className="flex items-start gap-1.5 rounded-md bg-amber-400/10 px-2 py-1 ps-5 font-medium text-[11px] text-amber-700 dark:text-amber-200">
                     <AlertTriangleIcon
                       aria-hidden="true"
                       className="mt-px size-3 shrink-0"
@@ -212,6 +212,6 @@ export const ContactBlock = ({ client }: { client: SysbrazoClient }) => {
           </div>
         </CollapsibleContent>
       </Collapsible>
-    </div>
+    </section>
   )
 }

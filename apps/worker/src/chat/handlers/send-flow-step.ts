@@ -11,6 +11,7 @@ import {
   contactInboxService,
   conversationService,
   resolveTenantSettings,
+  sysbrazoClientMultimediaService,
 } from "@chatbotx.io/business"
 import { getPublicFileUrl } from "@chatbotx.io/business/utils"
 import { db, eq } from "@chatbotx.io/database/client"
@@ -647,6 +648,17 @@ export async function sendFlowStep({
       ? await repository.createWithAttachments(messageInput, attachmentInputs)
       : await repository.create(messageInput)
 
+    if ("attachments" in message && Array.isArray(message.attachments)) {
+      await sysbrazoClientMultimediaService.associateMessageAttachments({
+        workspaceId: conversation.workspaceId,
+        conversationId: conversation.id,
+        messageId: message.id,
+        messageCreatedAt: message.createdAt,
+        sourceContactId: targetContactInbox.contactId,
+        attachments: message.attachments,
+      })
+    }
+
     // Add url to attachments for response
     if ("attachments" in message && Array.isArray(message.attachments)) {
       ;(message as { attachments: AttachmentModel[] }).attachments =
@@ -967,6 +979,17 @@ export const sendChatMessage = async (
     const message = attachmentInput
       ? await repository.createWithAttachments(messageInput, [attachmentInput])
       : await repository.create(messageInput)
+
+    if ("attachments" in message && Array.isArray(message.attachments)) {
+      await sysbrazoClientMultimediaService.associateMessageAttachments({
+        workspaceId: conversation.workspaceId,
+        conversationId: conversation.id,
+        messageId: message.id,
+        messageCreatedAt: message.createdAt,
+        sourceContactId: contactInbox.contactId,
+        attachments: message.attachments,
+      })
+    }
 
     // Add url to attachments for response
     if ("attachments" in message && Array.isArray(message.attachments)) {

@@ -14,6 +14,10 @@ export function getSuperAdminPermissions(): WorkspaceMemberPermissions {
     broadcast: true,
     ecommerce: true,
     viewClientNotes: true,
+    viewClientMultimedia: true,
+    manageClientMultimedia: true,
+    viewDeletedClientMultimedia: true,
+    permanentlyDeleteClientMultimedia: true,
   }
 }
 

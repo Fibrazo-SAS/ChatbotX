@@ -100,10 +100,10 @@ export const ChatLayout = (props: ChatLayoutProps) => {
   }, [activeConversationId, conversations])
 
   return (
-    <ResizablePanelGroup className="h-full items-stretch">
+    <ResizablePanelGroup className="h-full items-stretch bg-background">
       {/* CONVERSATION LIST */}
       <ResizablePanel
-        className="p-3"
+        className="border-border border-e bg-card p-3"
         defaultSize={`${layout[0] ?? 25}%`}
         maxSize={"30%"}
         minSize={"20%"}
@@ -117,16 +117,19 @@ export const ChatLayout = (props: ChatLayoutProps) => {
       <ResizableHandle withHandle />
 
       {/* MESSAGE LIST */}
-      <ResizablePanel className="pt-3" defaultSize={`${layout[1] ?? 50}%`}>
+      <ResizablePanel
+        className="bg-background pt-3"
+        defaultSize={`${layout[1] ?? 50}%`}
+      >
         {isResolvingConversation && (
           <Loader2Icon className="mx-auto my-4 animate-spin" />
         )}
         {activeConversation && (
-          <div className="flex h-full w-full flex-col">
+          <div className="flex h-full w-full flex-col overflow-hidden rounded-s-xl border-border border-t bg-card">
             <MessageHead />
             {isConversationActive(activeConversation) && (
               <Button
-                className="rounded-none"
+                className="rounded-none border-primary/20 border-y bg-primary/10 text-primary hover:bg-primary/15"
                 disabled={isDisablingBot}
                 onClick={() => {
                   disableBot({ ids: [activeConversation.id] })
@@ -167,7 +170,7 @@ export const ChatLayout = (props: ChatLayoutProps) => {
 
       {/* CONTACT DETAIL */}
       <ResizablePanel
-        className="overflow-y-auto! h-screen px-4 py-3"
+        className="overflow-y-auto! h-screen border-border border-s bg-background px-4 py-3"
         defaultSize={`${layout[2] ?? 25}%`}
         maxSize={"30%"}
         minSize={"20%"}
