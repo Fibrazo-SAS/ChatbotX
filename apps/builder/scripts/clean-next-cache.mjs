@@ -8,9 +8,7 @@ import { rm } from "node:fs/promises"
 import { resolve } from "node:path"
 
 const nextDir = resolve(import.meta.dirname, "..", ".next")
-const targets = [["dev", "cache"]].map((parts) =>
-  resolve(nextDir, ...parts),
-)
+const targets = [["dev", "cache"]].map((parts) => resolve(nextDir, ...parts))
 
 let removed = 0
 for (const dir of targets) {

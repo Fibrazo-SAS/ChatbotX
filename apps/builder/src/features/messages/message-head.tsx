@@ -19,11 +19,11 @@ import { toast } from "sonner"
 import { useWorkspaceId } from "@/hooks/routing"
 import { useChatStore } from "../chat/store/chat-store-provider"
 import { useAvatarUrl } from "../contacts/utils"
-import { InboxIcon } from "../inboxes/components/inbox-icon"
 import { enableBotAction } from "../conversations/actions/enable-bot.action"
 import { UpdateConversationAssignee } from "../conversations/components/update-conversation-assignee"
 import { ConversationAction } from "../conversations/conversation-action"
 import { isConversationActive } from "../conversations/utils/bot-state"
+import { InboxIcon } from "../inboxes/components/inbox-icon"
 
 export default function MessageHead() {
   const t = useTranslations()

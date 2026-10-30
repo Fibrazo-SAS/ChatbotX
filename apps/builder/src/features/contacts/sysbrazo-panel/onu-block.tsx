@@ -37,7 +37,8 @@ const statePillClass: Record<OnuState, string> = {
   up: "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
   down: "border-destructive/35 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive",
   los: "border-destructive/35 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive",
-  unknown: "border-border bg-muted text-muted-foreground dark:border-border dark:bg-muted dark:text-muted-foreground",
+  unknown:
+    "border-border bg-muted text-muted-foreground dark:border-border dark:bg-muted dark:text-muted-foreground",
 }
 
 const stateLabelKey: Record<OnuState, string> = {
@@ -62,8 +63,10 @@ const resolveOnuState = (state: string | null | undefined): OnuState => {
 
 const powerPillClass: Record<string, string> = {
   ok: "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
-  warning: "border-amber-400/40 bg-amber-400/10 text-amber-700 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200",
-  critical: "border-destructive/35 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive",
+  warning:
+    "border-amber-400/40 bg-amber-400/10 text-amber-700 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200",
+  critical:
+    "border-destructive/35 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive",
 }
 
 const powerLabelKey: Record<string, string> = {

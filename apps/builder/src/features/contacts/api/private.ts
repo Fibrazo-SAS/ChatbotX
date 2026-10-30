@@ -31,8 +31,8 @@ import {
 import { listContactTags } from "../queries/list-contact-tags.query"
 import { countContacts, listContacts } from "../queries/list-contacts.queries"
 import {
-  createSysbrazoNote,
   createSysbrazoAutodiagnosticTicket,
+  createSysbrazoNote,
   getSysbrazoAutodiagnosticDetail,
   getSysbrazoAutodiagnostics,
   getSysbrazoNotes,
@@ -529,7 +529,8 @@ export const contactsAuthenticatedAPI = {
     .route({
       method: "POST",
       path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-autodiagnostics/{runId}/ticket",
-      summary: "Create or queue a Sysbrazo ticket for a failed auto-diagnostic step",
+      summary:
+        "Create or queue a Sysbrazo ticket for a failed auto-diagnostic step",
       tags: ["Contacts"],
     })
     .input(

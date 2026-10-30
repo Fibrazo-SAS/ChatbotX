@@ -70,8 +70,12 @@ export const IdentityBlock = ({
       </div>
       {lastSession ? (
         <div className="mt-2.5 inline-flex items-center gap-1 rounded-xl border border-border bg-muted/90 px-3 py-1 font-medium text-muted-foreground text-xs dark:border-border dark:bg-muted dark:text-muted-foreground">
-          <span className="text-muted-foreground dark:text-muted-foreground">{t("lastSessionLabel")}</span>
-          <span className="font-bold text-foreground dark:text-foreground">{lastSession}</span>
+          <span className="text-muted-foreground dark:text-muted-foreground">
+            {t("lastSessionLabel")}
+          </span>
+          <span className="font-bold text-foreground dark:text-foreground">
+            {lastSession}
+          </span>
         </div>
       ) : null}
     </div>

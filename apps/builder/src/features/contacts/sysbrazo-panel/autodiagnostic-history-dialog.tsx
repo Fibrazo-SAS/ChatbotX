@@ -203,7 +203,10 @@ export const AutodiagnosticHistoryDialog = ({
             </thead>
             <tbody className="divide-y divide-border text-muted-foreground dark:divide-border dark:text-muted-foreground">
               {items.map((run) => (
-                <tr className="group hover:bg-muted/45 dark:hover:bg-muted/70" key={run.id}>
+                <tr
+                  className="group hover:bg-muted/45 dark:hover:bg-muted/70"
+                  key={run.id}
+                >
                   <td
                     className={`${tableCellClass} font-semibold text-foreground dark:text-foreground`}
                   >

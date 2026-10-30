@@ -142,7 +142,8 @@ export type SysbrazoAutodiagnosticTicketResponse = z.infer<
 
 export const sysbrazoAutodiagnosticTicketOutcomeSchema = z.object({
   state: z.enum(["created", "queued", "blocked", "error"]),
-  client_message: sysbrazoAutodiagnosticTicketResponseSchema.shape.client_message,
+  client_message:
+    sysbrazoAutodiagnosticTicketResponseSchema.shape.client_message,
 })
 export type SysbrazoAutodiagnosticTicketOutcome = z.infer<
   typeof sysbrazoAutodiagnosticTicketOutcomeSchema

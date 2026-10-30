@@ -277,7 +277,7 @@ const getSelectedButtonLabel = (
 ) => {
   const messageIndex = messages.findIndex((item) => item.id === message.id)
   if (messageIndex < 0) {
-    return undefined
+    return
   }
   const followingMessage = messages[messageIndex + 1]
   const contentAttributes = message?.contentAttributes as
@@ -297,7 +297,7 @@ const getSelectedButtonLabel = (
     followingMessage?.messageType !== "incoming" ||
     !followingMessage.text
   ) {
-    return undefined
+    return
   }
 
   const selectedText = followingMessage.text.trim().toLocaleLowerCase()

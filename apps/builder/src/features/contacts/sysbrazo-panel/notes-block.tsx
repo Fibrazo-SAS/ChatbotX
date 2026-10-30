@@ -178,7 +178,7 @@ export const NotesBlock = ({
             <div className="mb-3 flex flex-col gap-2">
               <textarea
                 autoFocus
-                className="min-h-24 rounded-lg border border-primary/40 bg-card p-2 text-xs outline-none transition-colors focus:border-primary/40 focus:ring-2 focus:ring-emerald-100 dark:border-primary/40 dark:bg-card dark:text-foreground dark:placeholder:text-muted-foreground dark:focus:ring-emerald-900"
+                className="min-h-24 rounded-lg border border-primary/40 bg-card p-2 text-xs outline-none transition-colors focus:border-primary/40 focus:ring-2 focus:ring-emerald-100 dark:border-primary/40 dark:bg-card dark:text-foreground dark:focus:ring-emerald-900 dark:placeholder:text-muted-foreground"
                 maxLength={2000}
                 onChange={(event) => setDraft(event.target.value)}
                 placeholder={t("notes.placeholder")}
@@ -201,7 +201,9 @@ export const NotesBlock = ({
                 </button>
               </div>
               {actionError === "create" && (
-              <p className="text-destructive text-xs dark:text-destructive">{t("notes.saveError")}</p>
+                <p className="text-destructive text-xs dark:text-destructive">
+                  {t("notes.saveError")}
+                </p>
               )}
             </div>
           )}
@@ -226,7 +228,9 @@ export const NotesBlock = ({
             </div>
           )}
           {status === "ready" && notes.length === 0 && (
-            <p className="text-muted-foreground text-sm dark:text-muted-foreground">{t("notes.empty")}</p>
+            <p className="text-muted-foreground text-sm dark:text-muted-foreground">
+              {t("notes.empty")}
+            </p>
           )}
           <div className="divide-y divide-border dark:divide-border">
             {notes.map((note) => {
@@ -240,7 +244,7 @@ export const NotesBlock = ({
                 <article className="py-4" key={note.id}>
                   {editingId === note.id ? (
                     <textarea
-                      className="min-h-16 w-full rounded-lg border border-primary/40 bg-card p-2 text-xs outline-none transition-colors focus:border-primary/40 focus:ring-2 focus:ring-emerald-100 dark:border-primary/40 dark:bg-card dark:text-foreground dark:placeholder:text-muted-foreground dark:focus:ring-emerald-900"
+                      className="min-h-16 w-full rounded-lg border border-primary/40 bg-card p-2 text-xs outline-none transition-colors focus:border-primary/40 focus:ring-2 focus:ring-emerald-100 dark:border-primary/40 dark:bg-card dark:text-foreground dark:focus:ring-emerald-900 dark:placeholder:text-muted-foreground"
                       maxLength={2000}
                       onChange={(event) => setEditingText(event.target.value)}
                       value={editingText}
@@ -256,7 +260,7 @@ export const NotesBlock = ({
                     <span>{note.author}</span>
                     <span>·</span>
                     <span>{formatIsoDisplay(note.created_at)}</span>
-                      <span className="rounded-full border border-border px-2 py-0.5 dark:border-border">
+                    <span className="rounded-full border border-border px-2 py-0.5 dark:border-border">
                       {t(originLabelKey[note.origin])}
                     </span>
                     {isOld && (

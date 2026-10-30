@@ -43,16 +43,23 @@ import {
  */
 const iconBoxClass: Record<ServiceState, string> = {
   active: "bg-primary/10 text-primary dark:bg-primary/10 dark:text-primary",
-  expiring: "bg-amber-400/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-200",
-  suspended: "bg-destructive/10 text-destructive dark:bg-destructive/12 dark:text-destructive",
-  inactive: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+  expiring:
+    "bg-amber-400/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-200",
+  suspended:
+    "bg-destructive/10 text-destructive dark:bg-destructive/12 dark:text-destructive",
+  inactive:
+    "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
 }
 
 const pillClass: Record<ServiceState, string> = {
-  active: "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
-  expiring: "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
-  suspended: "border-destructive/35 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive",
-  inactive: "border-border bg-muted text-muted-foreground dark:border-border dark:bg-muted dark:text-muted-foreground",
+  active:
+    "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
+  expiring:
+    "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
+  suspended:
+    "border-destructive/35 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive",
+  inactive:
+    "border-border bg-muted text-muted-foreground dark:border-border dark:bg-muted dark:text-muted-foreground",
 }
 
 const LOST_STATUS_RE = /lost|perdido/
@@ -101,7 +108,7 @@ const TvBoxStatusPill = ({ box }: { box: SysbrazoTvBox }) => {
 
   if (RETIRO_STATUS_RE.test(status)) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 font-bold text-amber-700 text-[11px] uppercase tracking-wide dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200">
+      <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 font-bold text-[11px] text-amber-700 uppercase tracking-wide dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200">
         <ClockIcon aria-hidden="true" className="size-3" />
         {t("services.retiro")}
       </span>
@@ -202,7 +209,7 @@ const AddonRow = ({ addon }: { addon: SysbrazoAddon }) => {
     if (state === "suspended") {
       const days = daysSince(addon.suspended_at)
       return (
-            <div className="grid grid-cols-2 gap-2 ps-14 text-xs max-[299px]:grid-cols-1">
+        <div className="grid grid-cols-2 gap-2 ps-14 text-xs max-[299px]:grid-cols-1">
           <DetailCell
             label={t("services.suspendedLabel")}
             value={days == null ? t("noData") : t("services.daysAgo", { days })}
@@ -211,7 +218,7 @@ const AddonRow = ({ addon }: { addon: SysbrazoAddon }) => {
           <DetailCell
             label={t("services.sinceLabel")}
             value={formatIsoDisplay(addon.suspended_at) || t("noData")}
-                valueClass="font-semibold text-muted-foreground dark:text-muted-foreground"
+            valueClass="font-semibold text-muted-foreground dark:text-muted-foreground"
           />
         </div>
       )
@@ -235,7 +242,7 @@ const AddonRow = ({ addon }: { addon: SysbrazoAddon }) => {
         <DetailCell
           label={t("services.cutoffDate")}
           value={formatIsoDisplay(addon.balance_expires_at) || t("noData")}
-                valueClass="font-semibold text-muted-foreground dark:text-muted-foreground"
+          valueClass="font-semibold text-muted-foreground dark:text-muted-foreground"
         />
       </div>
     )

@@ -21,10 +21,10 @@ import { useTranslations } from "next-intl"
 import { useEffect, useRef, useState } from "react"
 import { client } from "@/lib/orpc/orpc"
 import type {
+  SysbrazoAutodiagnosticTicketResponse,
   SysbrazoDiagnosticDetail,
   SysbrazoDiagnosticStep,
   SysbrazoDiagnosticStepStatus,
-  SysbrazoAutodiagnosticTicketResponse,
 } from "../schema/sysbrazo-support"
 import { isStaleCreatedRun } from "./format-support"
 import {
@@ -122,33 +122,40 @@ const TicketStateAlert = ({
       ? { title: null, body: message }
       : (message ?? null)
 
-  const fallback =
-    ticket.state === "queued"
-      ? {
-          title: t("diagnosticDialog.ticketQueued"),
-          body: t("diagnosticDialog.ticketQueuedMessage"),
-        }
-      : ticket.state === "created"
-        ? {
-            title: t("diagnosticDialog.ticketCreated"),
-            body: t("diagnosticDialog.ticketCreatedMessage"),
-          }
-        : ticket.state === "blocked"
-          ? {
-              title: t("diagnosticDialog.ticketBlocked"),
-              body: t("diagnosticDialog.ticketBlockedMessage"),
-            }
-          : {
-              title: t("diagnosticDialog.ticketError"),
-              body: t("diagnosticDialog.ticketErrorMessage"),
-            }
+  let fallback: { title: string; body: string }
+  switch (ticket.state) {
+    case "queued":
+      fallback = {
+        title: t("diagnosticDialog.ticketQueued"),
+        body: t("diagnosticDialog.ticketQueuedMessage"),
+      }
+      break
+    case "created":
+      fallback = {
+        title: t("diagnosticDialog.ticketCreated"),
+        body: t("diagnosticDialog.ticketCreatedMessage"),
+      }
+      break
+    case "blocked":
+      fallback = {
+        title: t("diagnosticDialog.ticketBlocked"),
+        body: t("diagnosticDialog.ticketBlockedMessage"),
+      }
+      break
+    default:
+      fallback = {
+        title: t("diagnosticDialog.ticketError"),
+        body: t("diagnosticDialog.ticketErrorMessage"),
+      }
+  }
   const content = customMessage ?? fallback
-  const tone =
-    ticket.state === "error"
-      ? "border-amber-400/40 bg-amber-400/10 text-amber-700 dark:text-amber-200"
-      : ticket.state === "blocked"
-        ? "border-border bg-muted/70 text-muted-foreground"
-        : "border-primary/35 bg-primary/10 text-foreground"
+  let tone = "border-primary/35 bg-primary/10 text-foreground"
+  if (ticket.state === "error") {
+    tone =
+      "border-amber-400/40 bg-amber-400/10 text-amber-700 dark:text-amber-200"
+  } else if (ticket.state === "blocked") {
+    tone = "border-border bg-muted/70 text-muted-foreground"
+  }
   const Icon = ticket.state === "queued" ? ClockIcon : TicketIcon
 
   return (
@@ -296,10 +303,14 @@ const ResultBox = ({
         <span>{title}</span>
       </div>
       {children ? (
-        <div className="text-foreground text-sm leading-relaxed dark:text-foreground">{children}</div>
+        <div className="text-foreground text-sm leading-relaxed dark:text-foreground">
+          {children}
+        </div>
       ) : null}
       {footer ? (
-        <p className="pt-1 font-bold text-foreground text-sm dark:text-foreground">{footer}</p>
+        <p className="pt-1 font-bold text-foreground text-sm dark:text-foreground">
+          {footer}
+        </p>
       ) : null}
     </div>
   )
@@ -436,7 +447,7 @@ export const AutodiagnosticDialog = ({
     <Dialog onOpenChange={(open) => !open && onClose()} open>
       <DialogContent className="max-h-[85vh] gap-0 overflow-y-auto rounded-2xl p-0 sm:max-w-xl">
         <DialogHeader className="flex-row items-center justify-between gap-2 border-border border-b px-6 py-4 dark:border-border">
-          <DialogTitle className="flex items-center gap-2 font-extrabold text-lg text-foreground dark:text-foreground">
+          <DialogTitle className="flex items-center gap-2 font-extrabold text-foreground text-lg dark:text-foreground">
             <ActivityIcon
               aria-hidden="true"
               className="size-5 shrink-0 text-foreground dark:text-muted-foreground"

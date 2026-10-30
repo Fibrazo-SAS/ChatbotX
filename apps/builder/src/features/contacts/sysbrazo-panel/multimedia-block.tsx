@@ -1,11 +1,6 @@
 "use client"
 
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@chatbotx.io/ui/components/ui/collapsible"
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -15,6 +10,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@chatbotx.io/ui/components/ui/alert-dialog"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@chatbotx.io/ui/components/ui/collapsible"
 import {
   Dialog,
   DialogContent,
@@ -630,7 +630,10 @@ export const MultimediaBlock = ({
                             onClick={() => openDownload(item)}
                             type="button"
                           >
-                            <DownloadIcon aria-hidden="true" className="size-4" />
+                            <DownloadIcon
+                              aria-hidden="true"
+                              className="size-4"
+                            />
                           </button>
                           <button
                             aria-label={t("multimedia.resend")}
