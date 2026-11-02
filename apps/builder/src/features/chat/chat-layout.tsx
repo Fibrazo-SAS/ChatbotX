@@ -121,10 +121,10 @@ export const ChatLayout = (props: ChatLayoutProps) => {
 
       {/* MESSAGE LIST */}
       <ResizablePanel
-        className="bg-background pt-3"
+        className="bg-background"
         defaultSize={`${layout[1] ?? 50}%`}
       >
-        <div className="flex h-full w-full flex-col overflow-hidden rounded-s-xl border-border border-t bg-card">
+        <div className="flex h-full w-full flex-col overflow-hidden bg-card">
           <div className="flex items-center gap-1 border-b px-2">
             <Button
               className={cn(

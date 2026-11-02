@@ -6283,6 +6283,7 @@
     "useInChatDescription": "Se enviará al cliente la información que posee el atajo.",
     "useInChatSent": "Respuesta enviada al cliente.",
     "useInChatPartial": "Se enviaron {sent} de {total} mensajes; los restantes no se enviaron.",
-    "useInChatWindowClosed": "La conversación está fuera de la ventana de 24 horas; no se envió nada."
+    "useInChatWindowClosed": "La conversación está fuera de la ventana de 24 horas; no se envió nada.",
+    "useInChatNoConversation": "Selecciona una conversación para usar la respuesta."
   }
 }

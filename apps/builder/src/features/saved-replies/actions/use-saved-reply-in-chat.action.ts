@@ -9,6 +9,7 @@ import { uploader } from "@chatbotx.io/filesystem"
 import { createId, zodBigintAsString } from "@chatbotx.io/utils"
 import { createMessage } from "@/features/messages/actions/create-message.action"
 import { isMessagingWindowExpired } from "@/features/messages/utils/messaging-window"
+import { logger } from "@/lib/log"
 import { workspaceActionClient } from "@/lib/safe-action"
 
 export type UseSavedReplyInChatResult = {
@@ -71,6 +72,17 @@ export const useSavedReplyInChatAction = workspaceActionClient
     const totalParts = parts.length
     const sentParts: number[] = []
 
+    logger.info(
+      {
+        workspaceId,
+        savedReplyId,
+        conversationId,
+        imagePath: savedReply.imagePath ?? null,
+        totalParts,
+      },
+      "useSavedReplyInChat: start",
+    )
+
     for (const [index, part] of parts.entries()) {
       const partNumber = index + 1
       try {
@@ -98,7 +110,11 @@ export const useSavedReplyInChatAction = workspaceActionClient
           })
         }
         sentParts.push(partNumber)
-      } catch {
+      } catch (error) {
+        logger.error(
+          { error, part, workspaceId, savedReplyId, conversationId },
+          "useSavedReplyInChat: failed to send part",
+        )
         // Stop sending the remaining parts and report what went out.
         return { status: "partial", sentParts, totalParts }
       }

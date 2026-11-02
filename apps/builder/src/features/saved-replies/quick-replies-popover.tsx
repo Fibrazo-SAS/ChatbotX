@@ -17,6 +17,8 @@ import {
   useState,
 } from "react"
 import { useSavedReplyStore } from "./provider/saved-reply-store-context"
+import type { SavedReplyResource } from "./schema/resource"
+import { useSavedReplyInChat } from "./use-saved-reply-in-chat"
 
 type SavedReplySlashPopoverProps = {
   inputValue: string
@@ -30,6 +32,7 @@ export const QuickRepliesPopover = ({
   children,
 }: SavedReplySlashPopoverProps) => {
   const t = useTranslations()
+  const { requestUseInChat, confirmUseDialog } = useSavedReplyInChat()
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
@@ -38,6 +41,18 @@ export const QuickRepliesPopover = ({
     isLoading: isLoadingSavedReplies,
     getAllSavedReplies,
   } = useSavedReplyStore((state) => state)
+
+  const selectReply = useCallback(
+    (reply: SavedReplyResource) => {
+      // Picking a reply from the shortcut menu sends it straight to the
+      // active conversation; the "/..." typed in the composer is cleared.
+      requestUseInChat(reply, { confirm: false })
+      onSelect("")
+      setOpen(false)
+      setActiveIndex(0)
+    },
+    [onSelect, requestUseInChat],
+  )
 
   const normalizedContent = (inputValue ?? "").trimStart()
   const shouldShow = normalizedContent.startsWith("/")
@@ -123,9 +138,7 @@ export const QuickRepliesPopover = ({
         if (event.key === "Enter" && !event.shiftKey) {
           event.preventDefault()
           event.stopPropagation()
-          onSelect(filteredSavedReplies[activeIndex].text)
-          setOpen(false)
-          setActiveIndex(0)
+          selectReply(filteredSavedReplies[activeIndex])
           return
         }
       }
@@ -136,7 +149,7 @@ export const QuickRepliesPopover = ({
         setOpen(false)
       }
     },
-    [activeIndex, filteredSavedReplies, onSelect, open, shouldShow],
+    [activeIndex, filteredSavedReplies, selectReply, open, shouldShow],
   )
 
   return (
@@ -170,9 +183,7 @@ export const QuickRepliesPopover = ({
                   }`}
                   key={reply.id}
                   onClick={() => {
-                    onSelect(reply.text)
-                    setOpen(false)
-                    setActiveIndex(0)
+                    selectReply(reply)
                   }}
                   ref={(element) => {
                     optionRefs.current[index] = element
@@ -190,6 +201,7 @@ export const QuickRepliesPopover = ({
               ))}
         </PopoverContent>
       </Popover>
+      {confirmUseDialog}
     </div>
   )
 }

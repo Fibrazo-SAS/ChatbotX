@@ -18,13 +18,12 @@ import { toast } from "sonner"
 import { useChatStore } from "@/features/chat/store/chat-store-provider"
 import { useWorkspaceId } from "@/hooks/routing"
 import { deleteSavedReplyAction } from "./actions/delete-saved-reply.action"
-import { useSavedReplyInChatAction } from "./actions/use-saved-reply-in-chat.action"
 import { useSavedReplyStore } from "./provider/saved-reply-store-context"
-import { QuickReplyConfirmUseDialog } from "./quick-reply-confirm-use-dialog"
 import { QuickReplyDeleteDialog } from "./quick-reply-delete-dialog"
 import { QuickReplyEditor } from "./quick-reply-editor"
 import { QuickReplyPreviewDialog } from "./quick-reply-preview-dialog"
 import type { SavedReplyResource } from "./schema/resource"
+import { useSavedReplyInChat } from "./use-saved-reply-in-chat"
 
 type ViewState =
   | { type: "list" }
@@ -54,8 +53,11 @@ const QuickRepliesPanel = () => {
   const [deletingReply, setDeletingReply] = useState<SavedReplyResource | null>(
     null,
   )
-  const [confirmUseReply, setConfirmUseReply] =
-    useState<SavedReplyResource | null>(null)
+  const {
+    requestUseInChat,
+    confirmUseDialog,
+    isSending: isUsingInChat,
+  } = useSavedReplyInChat()
 
   useEffect(() => {
     getAllSavedReplies().catch(() => undefined)
@@ -95,39 +97,6 @@ const QuickRepliesPanel = () => {
       setView({ type: "list" })
     }
   }
-
-  const { execute: executeUseInChat, isExecuting: isUsingInChat } = useAction(
-    useSavedReplyInChatAction.bind(
-      null,
-      workspaceId,
-      confirmUseReply?.id ?? "",
-      activeConversationId ?? "",
-    ),
-    {
-      onSuccess: ({ data }) => {
-        setConfirmUseReply(null)
-        if (data?.status === "windowClosed") {
-          toast.error(t("quickReplies.useInChatWindowClosed"))
-          return
-        }
-        if (data?.status === "partial") {
-          toast.warning(
-            t("quickReplies.useInChatPartial", {
-              sent: data.sentParts.length,
-              total: data.totalParts,
-            }),
-          )
-          return
-        }
-        toast.success(t("quickReplies.useInChatSent"))
-      },
-      onError: ({ error }) => {
-        if (error.serverError) {
-          toast.error(error.serverError)
-        }
-      },
-    },
-  )
 
   const editingItem = view.type === "edit" ? view.item : null
 
@@ -256,7 +225,7 @@ const QuickRepliesPanel = () => {
         }}
         onUseInChat={(reply) => {
           setPreviewReply(null)
-          setConfirmUseReply(reply)
+          requestUseInChat(reply)
         }}
         open={Boolean(previewReply)}
         reply={previewReply}
@@ -273,20 +242,7 @@ const QuickRepliesPanel = () => {
         open={Boolean(deletingReply)}
       />
 
-      <QuickReplyConfirmUseDialog
-        isSending={isUsingInChat}
-        onConfirm={() => {
-          if (confirmUseReply) {
-            executeUseInChat()
-          }
-        }}
-        onOpenChange={(open) => {
-          if (!open) {
-            setConfirmUseReply(null)
-          }
-        }}
-        open={Boolean(confirmUseReply)}
-      />
+      {confirmUseDialog}
     </div>
   )
 }

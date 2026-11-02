@@ -15,15 +15,17 @@ import { SavedReplyCreateForm } from "./saved-reply-create-form"
 import { SavedReplyEditForm } from "./saved-reply-edit-form"
 import { SavedReplyItem } from "./saved-reply-item"
 import type { SavedReplyResource } from "./schema/resource"
+import { useSavedReplyInChat } from "./use-saved-reply-in-chat"
 
 type ViewState =
   | { type: "list" }
   | { type: "create" }
   | { type: "edit"; item: SavedReplyResource }
 
-const SavedReplyManage = (props: { onSelect: (text: string) => void }) => {
+const SavedReplyManage = () => {
   const t = useTranslations()
   const workspaceId = useWorkspaceId()
+  const { requestUseInChat, confirmUseDialog } = useSavedReplyInChat()
 
   const [open, setOpen] = useState(false)
   const [view, setView] = useState<ViewState>({ type: "list" })
@@ -42,7 +44,9 @@ const SavedReplyManage = (props: { onSelect: (text: string) => void }) => {
   )
 
   const onSelectSavedReply = (item: SavedReplyResource) => {
-    props.onSelect(item.text)
+    // Picking a reply from the bubble popover sends it straight to the
+    // active conversation.
+    requestUseInChat(item, { confirm: false })
     setOpen(false)
     setView({ type: "list" })
   }
@@ -61,81 +65,84 @@ const SavedReplyManage = (props: { onSelect: (text: string) => void }) => {
   }, [open, getAllSavedReplies])
 
   return (
-    <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger
-        render={
-          <Button variant="ghost">
-            <MessageSquareMoreIcon size={20} />
-          </Button>
-        }
-      />
-      <PopoverContent align="end" className="w-100 p-0">
-        {view.type === "create" ? (
-          <SavedReplyCreateForm
-            onCancel={() => setView({ type: "list" })}
-            onSaved={upsertSavedReply}
-            workspaceId={workspaceId}
-          />
-        ) : null}
-        {view.type === "edit" && editingSavedReply ? (
-          <SavedReplyEditForm
-            editingSavedReply={editingSavedReply}
-            onCancel={() => setView({ type: "list" })}
-            onSaved={upsertSavedReply}
-            workspaceId={workspaceId}
-          />
-        ) : null}
+    <>
+      <Popover onOpenChange={setOpen} open={open}>
+        <PopoverTrigger
+          render={
+            <Button variant="ghost">
+              <MessageSquareMoreIcon size={20} />
+            </Button>
+          }
+        />
+        <PopoverContent align="end" className="w-100 p-0">
+          {view.type === "create" ? (
+            <SavedReplyCreateForm
+              onCancel={() => setView({ type: "list" })}
+              onSaved={upsertSavedReply}
+              workspaceId={workspaceId}
+            />
+          ) : null}
+          {view.type === "edit" && editingSavedReply ? (
+            <SavedReplyEditForm
+              editingSavedReply={editingSavedReply}
+              onCancel={() => setView({ type: "list" })}
+              onSaved={upsertSavedReply}
+              workspaceId={workspaceId}
+            />
+          ) : null}
 
-        {view.type === "list" ? (
-          <div>
-            <div className="flex items-center justify-between border-b px-4 py-3">
-              <h3 className="font-semibold text-xl">
-                {t("fields.savedReplies.label")}
-              </h3>
-              <Button
-                onClick={() => setView({ type: "create" })}
-                size="sm"
-                type="button"
-                variant="ghost"
-              >
-                <PlusIcon />
-                {t("actions.addNew")}
-              </Button>
+          {view.type === "list" ? (
+            <div>
+              <div className="flex items-center justify-between border-b px-4 py-3">
+                <h3 className="font-semibold text-xl">
+                  {t("fields.savedReplies.label")}
+                </h3>
+                <Button
+                  onClick={() => setView({ type: "create" })}
+                  size="sm"
+                  type="button"
+                  variant="ghost"
+                >
+                  <PlusIcon />
+                  {t("actions.addNew")}
+                </Button>
+              </div>
+
+              <div className="max-h-75 overflow-y-auto">
+                {isLoadingSavedReplies ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2Icon className="animate-spin" />
+                  </div>
+                ) : null}
+
+                {!isLoadingSavedReplies && savedReplies.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-muted-foreground text-sm">
+                    {t("messages.noDataAvailable")}
+                  </div>
+                ) : null}
+
+                {isLoadingSavedReplies
+                  ? null
+                  : savedReplies.map((item, index) => (
+                      <SavedReplyItem
+                        isLast={index === savedReplies.length - 1}
+                        item={item}
+                        key={item.id}
+                        onDeleteSuccess={onDeleteSavedReply}
+                        onEdit={(savedReply) =>
+                          setView({ type: "edit", item: savedReply })
+                        }
+                        onSelect={onSelectSavedReply}
+                        workspaceId={workspaceId}
+                      />
+                    ))}
+              </div>
             </div>
-
-            <div className="max-h-75 overflow-y-auto">
-              {isLoadingSavedReplies ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2Icon className="animate-spin" />
-                </div>
-              ) : null}
-
-              {!isLoadingSavedReplies && savedReplies.length === 0 ? (
-                <div className="px-4 py-8 text-center text-muted-foreground text-sm">
-                  {t("messages.noDataAvailable")}
-                </div>
-              ) : null}
-
-              {isLoadingSavedReplies
-                ? null
-                : savedReplies.map((item, index) => (
-                    <SavedReplyItem
-                      isLast={index === savedReplies.length - 1}
-                      item={item}
-                      key={item.id}
-                      onDeleteSuccess={onDeleteSavedReply}
-                      onEdit={(savedReply) =>
-                        setView({ type: "edit", item: savedReply })
-                      }
-                      onSelect={onSelectSavedReply}
-                      workspaceId={workspaceId}
-                    />
-                  ))}
-            </div>
-          </div>
-        ) : null}
-      </PopoverContent>
-    </Popover>
+          ) : null}
+        </PopoverContent>
+      </Popover>
+      {confirmUseDialog}
+    </>
   )
 }
 

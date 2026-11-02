@@ -6283,6 +6283,7 @@
     "useInChatDescription": "As informações deste atalho serão enviadas ao cliente.",
     "useInChatSent": "Resposta enviada ao cliente.",
     "useInChatPartial": "Foram enviadas {sent} de {total} mensagens; as demais não foram enviadas.",
-    "useInChatWindowClosed": "A conversa está fora da janela de 24 horas; nada foi enviado."
+    "useInChatWindowClosed": "A conversa está fora da janela de 24 horas; nada foi enviado.",
+    "useInChatNoConversation": "Selecione uma conversa para usar a resposta."
   }
 }

@@ -27,7 +27,7 @@ export const InputMenu = ({ setContent }: InputMenuProps) => {
         </SelectFlowDialog>
       )}
       <EmojiPicker onSelectEmoji={(emoji) => setContent(emoji, true)} />
-      <SavedReplyManage onSelect={setContent} />
+      <SavedReplyManage />
     </>
   )
 }
