@@ -51,7 +51,7 @@ export const QuickRepliesPopover = ({
     }
 
     return savedReplies.filter((reply) => {
-      const shortcut = reply.shortcut.toLowerCase()
+      const shortcut = (reply.shortcut ?? "").toLowerCase()
       const text = reply.text.toLowerCase()
       return shortcut.includes(keyword) || text.includes(keyword)
     })

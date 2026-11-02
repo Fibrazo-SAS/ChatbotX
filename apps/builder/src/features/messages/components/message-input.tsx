@@ -40,22 +40,10 @@ import { authClient } from "@/lib/auth/auth-client"
 import { useChatStore } from "../../chat/store/chat-store-provider"
 import { createMessageAction } from "../actions/create-message.action"
 import { createMessageRequest } from "../schema/mutation"
+import { CHANNEL_WINDOW_SECONDS } from "../utils/messaging-window"
 import { FileUploadPreview } from "./file-upload"
 import { InputMenu } from "./input-menu"
 import { MediaFilePreview } from "./media-file-preview"
-
-const CHANNEL_WINDOW_SECONDS: Record<ChannelType, number> = {
-  api: 0,
-  omnichannel: 0,
-  webchat: 0,
-  messenger: 24 * 60 * 60,
-  whatsapp: 24 * 60 * 60,
-  zalo: 0,
-  smtp: 0,
-  telegram: 0,
-  instagram: 24 * 60 * 60,
-  tiktok: 24 * 60 * 60,
-}
 
 const MESSENGER_HUMAN_AGENT_WINDOW_SECONDS = 7 * 24 * 60 * 60
 

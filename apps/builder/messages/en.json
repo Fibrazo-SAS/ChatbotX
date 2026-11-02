@@ -6260,5 +6260,29 @@
       "error": "Could not load tickets"
     },
     "notRegisteredHint": "Not looked up in Sysbrazo yet"
+  },
+  "quickReplies": {
+    "title": "Quick replies",
+    "chatTab": "Chat",
+    "newReply": "New reply",
+    "shortcutColumn": "Shortcut",
+    "messageColumn": "Message",
+    "noShortcut": "No shortcut",
+    "firstTextPlaceholder": "Write the message",
+    "secondTextPlaceholder": "Write text below the image",
+    "addImage": "Attach image",
+    "changeImage": "Change",
+    "attachedImage": "Attached image",
+    "imageInvalid": "Only JPEG or PNG images up to 5 MB are supported.",
+    "saveError": "Review the message: it exceeds the character limit or the image is invalid.",
+    "deleteTitle": "Delete this quick reply?",
+    "deleteDescription": "This cannot be undone.",
+    "previewDescription": "Quick reply preview",
+    "useInChat": "Use in chat",
+    "useInChatTitle": "Send this quick reply to the customer?",
+    "useInChatDescription": "The information in this shortcut will be sent to the customer.",
+    "useInChatSent": "Reply sent to the customer.",
+    "useInChatPartial": "Sent {sent} of {total} messages; the rest were not sent.",
+    "useInChatWindowClosed": "The conversation is outside the 24-hour window; nothing was sent."
   }
 }

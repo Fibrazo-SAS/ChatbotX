@@ -1,8 +1,7 @@
 "use server"
 
-import { db } from "@chatbotx.io/database/client"
-import { savedReplyModel } from "@chatbotx.io/database/schema"
-import { createId } from "@chatbotx.io/utils"
+import { savedReplyService } from "@chatbotx.io/business"
+import { uploader } from "@chatbotx.io/filesystem"
 import { workspaceIdrequestParams } from "@/features/common/schema"
 import { workspaceActionClient } from "@/lib/safe-action"
 import { createSavedReplyRequest } from "../schema/mutation"
@@ -14,17 +13,21 @@ export const createSavedReplyAction = workspaceActionClient
     const {
       bindArgsParsedInputs: [workspaceId],
       parsedInput,
+      ctx: { user },
     } = props
-    const savedReply = await db
-      .insert(savedReplyModel)
-      .values({
-        id: createId(),
-        workspaceId,
-        shortcut: parsedInput.shortcut,
-        text: parsedInput.text,
-      })
-      .returning()
-      .then((result) => result[0])
 
-    return savedReply
+    const savedReply = await savedReplyService.create({
+      workspaceId,
+      userId: user.id,
+      content: parsedInput,
+    })
+
+    return {
+      ...savedReply,
+      imageUrl: savedReply.imagePath
+        ? await uploader.getPresignedDownload(savedReply.imagePath)
+        : null,
+      createdByName: user.name,
+      updatedByName: user.name,
+    }
   })

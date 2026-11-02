@@ -1,36 +1,33 @@
 "use server"
 
-import { db, eq, findOrFail } from "@chatbotx.io/database/client"
-import { savedReplyModel } from "@chatbotx.io/database/schema"
-import { zodBigintAsString } from "@chatbotx.io/utils"
+import { savedReplyService } from "@chatbotx.io/business"
+import { uploader } from "@chatbotx.io/filesystem"
+import { workspaceIdAndIdRequestParams } from "@/features/common/schema"
 import { workspaceActionClient } from "@/lib/safe-action"
 import { editSavedReplyRequest } from "../schema/mutation"
 
 export const editSavedReplyAction = workspaceActionClient
-  .bindArgsSchemas([zodBigintAsString(), zodBigintAsString()] as const)
+  .bindArgsSchemas(workspaceIdAndIdRequestParams)
   .inputSchema(editSavedReplyRequest)
   .action(async (props) => {
     const {
       bindArgsParsedInputs: [workspaceId, id],
       parsedInput,
+      ctx: { user },
     } = props
 
-    const savedReply = await findOrFail({
-      table: savedReplyModel,
-      where: {
-        id,
-        workspaceId,
-      },
-      message: "Saved reply not found",
+    const savedReply = await savedReplyService.update({
+      workspaceId,
+      id,
+      userId: user.id,
+      content: parsedInput,
     })
-    const [updatedSavedReply] = await db
-      .update(savedReplyModel)
-      .set({
-        shortcut: parsedInput.shortcut,
-        text: parsedInput.text,
-      })
-      .where(eq(savedReplyModel.id, savedReply.id))
-      .returning()
 
-    return updatedSavedReply
+    return {
+      ...savedReply,
+      imageUrl: savedReply.imagePath
+        ? await uploader.getPresignedDownload(savedReply.imagePath)
+        : null,
+      updatedByName: user.name,
+    }
   })

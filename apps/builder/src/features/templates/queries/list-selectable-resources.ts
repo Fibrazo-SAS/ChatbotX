@@ -620,7 +620,7 @@ const listSettings = async (
   ])
 
   const all = [
-    ...savedReplies.map((row) => ({ id: row.id, name: row.shortcut })),
+    ...savedReplies.map((row) => ({ id: row.id, name: row.shortcut ?? "" })),
     ...botFields.map((row) => ({ id: row.id, name: row.name })),
   ].sort((a, b) => a.name.localeCompare(b.name))
 

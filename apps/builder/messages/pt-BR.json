@@ -6260,5 +6260,29 @@
       "error": "Não foi possível carregar os tickets"
     },
     "notRegisteredHint": "Ainda não foi consultado no Sysbrazo"
+  },
+  "quickReplies": {
+    "title": "Respostas rápidas",
+    "chatTab": "Chat",
+    "newReply": "Nova resposta",
+    "shortcutColumn": "Atalho",
+    "messageColumn": "Mensagem",
+    "noShortcut": "Sem atalho",
+    "firstTextPlaceholder": "Escreva a mensagem",
+    "secondTextPlaceholder": "Escreva o texto abaixo da imagem",
+    "addImage": "Anexar imagem",
+    "changeImage": "Alterar",
+    "attachedImage": "Imagem anexada",
+    "imageInvalid": "Somente imagens JPEG ou PNG de até 5 MB são aceitas.",
+    "saveError": "Revise a mensagem: ela excede o limite de caracteres ou a imagem é inválida.",
+    "deleteTitle": "Excluir esta resposta rápida?",
+    "deleteDescription": "Isso não pode ser desfeito.",
+    "previewDescription": "Prévia da resposta rápida",
+    "useInChat": "Usar no chat",
+    "useInChatTitle": "Enviar esta resposta rápida ao cliente?",
+    "useInChatDescription": "As informações deste atalho serão enviadas ao cliente.",
+    "useInChatSent": "Resposta enviada ao cliente.",
+    "useInChatPartial": "Foram enviadas {sent} de {total} mensagens; as demais não foram enviadas.",
+    "useInChatWindowClosed": "A conversa está fora da janela de 24 horas; nada foi enviado."
   }
 }

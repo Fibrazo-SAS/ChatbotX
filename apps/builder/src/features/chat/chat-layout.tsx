@@ -7,6 +7,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@chatbotx.io/ui/components/ui/resizable"
+import { cn } from "@chatbotx.io/ui/lib/utils"
 import {
   BotIcon,
   Loader2Icon,
@@ -28,6 +29,7 @@ import {
 import { MessageInput } from "../messages/components/message-input"
 import MessageHead from "../messages/message-head"
 import { MessageList } from "../messages/message-list"
+import { QuickRepliesPanel } from "../saved-replies/quick-replies-panel"
 import { ChatRealtime } from "./chat-realtime"
 import { useChatStore } from "./store/chat-store-provider"
 
@@ -56,6 +58,7 @@ export const ChatLayout = (props: ChatLayoutProps) => {
 
   const [activeConversation, setActiveConversation] =
     useState<ConversationResource | null>(null)
+  const [activeTab, setActiveTab] = useState<"chat" | "quickReplies">("chat")
   const isResolvingConversation =
     (isFirstLoadConversation && isLoadingConversation) ||
     isBootstrappingUrlConversation
@@ -121,48 +124,83 @@ export const ChatLayout = (props: ChatLayoutProps) => {
         className="bg-background pt-3"
         defaultSize={`${layout[1] ?? 50}%`}
       >
-        {isResolvingConversation && (
-          <Loader2Icon className="mx-auto my-4 animate-spin" />
-        )}
-        {activeConversation && (
-          <div className="flex h-full w-full flex-col overflow-hidden rounded-s-xl border-border border-t bg-card">
-            <MessageHead />
-            {isConversationActive(activeConversation) && (
-              <Button
-                className="rounded-none border-primary/20 border-y bg-primary/10 text-primary hover:bg-primary/15"
-                disabled={isDisablingBot}
-                onClick={() => {
-                  disableBot({ ids: [activeConversation.id] })
-                }}
-                variant="secondary"
-              >
-                <BotIcon />
-                {t("messages.botIsActive")}
-              </Button>
-            )}
-            <MessageList />
-            <MessageInput />
+        <div className="flex h-full w-full flex-col overflow-hidden rounded-s-xl border-border border-t bg-card">
+          <div className="flex items-center gap-1 border-b px-2">
+            <Button
+              className={cn(
+                "rounded-none border-transparent border-b-2 data-[active=true]:border-foreground",
+              )}
+              data-active={activeTab === "chat"}
+              onClick={() => setActiveTab("chat")}
+              type="button"
+              variant="ghost"
+            >
+              {t("quickReplies.chatTab")}
+            </Button>
+            <Button
+              className={cn(
+                "rounded-none border-transparent border-b-2 data-[active=true]:border-foreground",
+              )}
+              data-active={activeTab === "quickReplies"}
+              onClick={() => setActiveTab("quickReplies")}
+              type="button"
+              variant="ghost"
+            >
+              {t("quickReplies.title")}
+            </Button>
           </div>
-        )}
-        {shouldShowEmptyState && (
-          <div
-            aria-live="polite"
-            className="flex h-full w-full flex-col items-center justify-center px-6 text-center"
-          >
-            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-muted">
-              <MessagesSquareIcon
-                aria-hidden="true"
-                className="size-7 text-muted-foreground"
-              />
+
+          {activeTab === "quickReplies" ? (
+            <div className="min-h-0 flex-1">
+              <QuickRepliesPanel />
             </div>
-            <h3 className="font-semibold text-base">
-              {t("messages.selectConversationTitle")}
-            </h3>
-            <p className="mt-1 max-w-sm text-muted-foreground text-sm">
-              {t("messages.selectConversationDescription")}
-            </p>
-          </div>
-        )}
+          ) : (
+            <div className="flex min-h-0 flex-1 flex-col">
+              {isResolvingConversation && (
+                <Loader2Icon className="mx-auto my-4 animate-spin" />
+              )}
+              {activeConversation && (
+                <div className="flex h-full w-full flex-col overflow-hidden">
+                  <MessageHead />
+                  {isConversationActive(activeConversation) && (
+                    <Button
+                      className="rounded-none border-primary/20 border-y bg-primary/10 text-primary hover:bg-primary/15"
+                      disabled={isDisablingBot}
+                      onClick={() => {
+                        disableBot({ ids: [activeConversation.id] })
+                      }}
+                      variant="secondary"
+                    >
+                      <BotIcon />
+                      {t("messages.botIsActive")}
+                    </Button>
+                  )}
+                  <MessageList />
+                  <MessageInput />
+                </div>
+              )}
+              {shouldShowEmptyState && (
+                <div
+                  aria-live="polite"
+                  className="flex h-full w-full flex-col items-center justify-center px-6 text-center"
+                >
+                  <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-muted">
+                    <MessagesSquareIcon
+                      aria-hidden="true"
+                      className="size-7 text-muted-foreground"
+                    />
+                  </div>
+                  <h3 className="font-semibold text-base">
+                    {t("messages.selectConversationTitle")}
+                  </h3>
+                  <p className="mt-1 max-w-sm text-muted-foreground text-sm">
+                    {t("messages.selectConversationDescription")}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         <ChatRealtime />
       </ResizablePanel>
 

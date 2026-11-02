@@ -2,6 +2,7 @@
 
 import { Button } from "@chatbotx.io/ui/components/ui/button"
 import { PencilIcon, Trash2Icon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 import { deleteSavedReplyAction } from "./actions/delete-saved-reply.action"
@@ -24,6 +25,7 @@ export const SavedReplyItem = ({
   onEdit,
   onSelect,
 }: SavedReplyItemProps) => {
+  const t = useTranslations()
   const { executeAsync: deleteSavedReply, isPending: isDeletingSavedReply } =
     useAction(deleteSavedReplyAction.bind(null, workspaceId, item.id), {
       onError: ({ error }) => {
@@ -48,7 +50,9 @@ export const SavedReplyItem = ({
       variant="ghost"
     >
       <div className="min-w-0">
-        <p className="truncate font-semibold">/{item.shortcut}</p>
+        <p className="truncate font-semibold">
+          {item.shortcut ? `/${item.shortcut}` : t("quickReplies.noShortcut")}
+        </p>
         <p className="wrap-break-word line-clamp-2 whitespace-normal text-muted-foreground text-sm">
           {item.text}
         </p>

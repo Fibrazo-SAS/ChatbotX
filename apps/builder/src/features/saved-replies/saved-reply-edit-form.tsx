@@ -70,7 +70,7 @@ const SavedReplyEditForm = ({
 
   useEffect(() => {
     form.reset({
-      shortcut: editingSavedReply.shortcut,
+      shortcut: editingSavedReply.shortcut ?? "",
       text: editingSavedReply.text,
     })
   }, [editingSavedReply, form])
