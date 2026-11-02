@@ -203,6 +203,9 @@ vi.mock("@chatbotx.io/business", () => ({
     updateFlowStepState: mockUpdateFlowStepState,
   },
   resolveTenantSettings: mockresolveTenantSettings,
+  sysbrazoClientMultimediaService: {
+    associateMessageAttachments: vi.fn().mockResolvedValue(undefined),
+  },
 }))
 
 vi.mock("@chatbotx.io/encryption", () => ({
@@ -252,6 +255,7 @@ vi.mock("../src/lib/logger", () => ({
 vi.mock("../src/chat/handlers/send-message", () => ({
   sendFlowStepToChannel: mockSendFlowStepToChannel,
   sendMessageToChannel: mockSendMessageToChannel,
+  recordMessageSendError: vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock("../src/chat/handlers/send-messenger-template", () => ({
