@@ -1,7 +1,12 @@
 import {
   adsConversionService,
+  broadcastToWorkspaceParty,
   contactCustomFieldService,
   contactService,
+  normalizeSysbrazoDocumentId,
+  SYSBRAZO_DOCUMENT_FIELD_NAME,
+  sysbrazoClientLookupService,
+  sysbrazoClientMultimediaService,
   tagSyncService,
 } from "@chatbotx.io/business"
 import { contactSequenceService } from "@chatbotx.io/business/contact-sequence"
@@ -33,6 +38,7 @@ import type {
   UnsubscribeBroadcastStepSchema,
   UnsubscribeSequenceStepSchema,
 } from "@chatbotx.io/flow-config"
+import { RealtimeEventType } from "@chatbotx.io/partysocket-config"
 import { enrollContactInSequence } from "@chatbotx.io/sequence-scheduler"
 import { createId } from "@chatbotx.io/utils"
 import { TemporalInputParsing } from "@chatbotx.io/utils/datetime"
@@ -60,7 +66,7 @@ export async function setContactCustomField({
       variables,
     })
 
-    await contactCustomFieldService.setValueByKey({
+    const customFieldName = await contactCustomFieldService.setValueByKey({
       workspaceId: conversation.workspaceId,
       contactId: conversation.contactId,
       keyword: step.inputFieldId,
@@ -75,6 +81,57 @@ export async function setContactCustomField({
       contactInboxId: contactInbox.id,
       allowBotFields: true,
       operation: step.operation,
+    })
+
+    // `contactInbox` belongs to the executing flow, so its conversation is the
+    // only safe context boundary. Never infer one from the contact's history.
+    if (customFieldName !== SYSBRAZO_DOCUMENT_FIELD_NAME) {
+      return
+    }
+
+    const lookup = await sysbrazoClientLookupService.findByDocument({
+      workspaceId: conversation.workspaceId,
+      documentId: resolvedValue,
+    })
+    if (!(lookup.found && lookup.sysbrazoClientId)) {
+      await sysbrazoClientMultimediaService.invalidateContext({
+        workspaceId: conversation.workspaceId,
+        conversationId: conversation.id,
+      })
+      broadcastToWorkspaceParty(conversation.workspaceId, {
+        eventType: RealtimeEventType.contactCustomFieldChanged,
+        data: {
+          contactId: conversation.contactId,
+          changes: [
+            { name: SYSBRAZO_DOCUMENT_FIELD_NAME, value: resolvedValue },
+          ],
+        },
+      }).catch((error: unknown) => {
+        logger.warn(
+          { err: error, conversationId: conversation.id },
+          "Failed to broadcast invalidated Sysbrazo client context",
+        )
+      })
+      return
+    }
+
+    await sysbrazoClientMultimediaService.activateContext({
+      workspaceId: conversation.workspaceId,
+      conversationId: conversation.id,
+      documentId: normalizeSysbrazoDocumentId(resolvedValue) ?? resolvedValue,
+      sysbrazoClientId: lookup.sysbrazoClientId,
+    })
+    broadcastToWorkspaceParty(conversation.workspaceId, {
+      eventType: RealtimeEventType.contactCustomFieldChanged,
+      data: {
+        contactId: conversation.contactId,
+        changes: [{ name: SYSBRAZO_DOCUMENT_FIELD_NAME, value: resolvedValue }],
+      },
+    }).catch((error: unknown) => {
+      logger.warn(
+        { err: error, conversationId: conversation.id },
+        "Failed to broadcast activated Sysbrazo client context",
+      )
     })
   } catch (error: unknown) {
     // Steps run one-per-BullMQ-job and the next step is only enqueued after

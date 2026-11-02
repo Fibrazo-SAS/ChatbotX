@@ -1,7 +1,12 @@
+import {
+  conversationService,
+  sysbrazoClientMultimediaService,
+} from "@chatbotx.io/business"
 import { ChatbotXException } from "@chatbotx.io/business/errors"
 import { db } from "@chatbotx.io/database/client"
 import z from "zod"
 import { withWorkspaceIdSchema } from "@/features/workspaces/schema/resource"
+import { getCurrentUserAndTargetWorkspace } from "@/lib/auth/utils"
 import { workspaceAuthorizedMidddleware } from "@/middlewares/auth"
 import { authorizedAPI } from "@/orpc"
 import { setContactCustomFieldValue } from "../actions/add-contact-custom-field.action"
@@ -13,8 +18,10 @@ import { requireContactPermissionScope } from "../permissions"
 import { getContact } from "../queries/get-contact.query"
 import { getExportFile } from "../queries/get-export-file.query"
 import {
-  getSysbrazoClientByDocument,
+  getSysbrazoClientByDocumentId,
+  getSysbrazoClientForConversation,
   getSysbrazoClientOnu,
+  resolveContactSysbrazoDocumentId,
 } from "../queries/get-sysbrazo-client.query"
 import { listContactCustomFields } from "../queries/list-contact-fields.query"
 import {
@@ -24,6 +31,7 @@ import {
 import { listContactTags } from "../queries/list-contact-tags.query"
 import { countContacts, listContacts } from "../queries/list-contacts.queries"
 import {
+  createSysbrazoAutodiagnosticTicket,
   createSysbrazoNote,
   getSysbrazoAutodiagnosticDetail,
   getSysbrazoAutodiagnostics,
@@ -59,20 +67,92 @@ import {
   listContactsResponse,
 } from "../schema/query"
 import {
-  sysbrazoLookupResponseSchema,
+  sysbrazoConversationLookupResponseSchema,
   sysbrazoOnuStatusSchema,
 } from "../schema/sysbrazo-client"
+import {
+  sysbrazoClientMultimediaListSchema,
+  sysbrazoClientMultimediaUrlSchema,
+} from "../schema/sysbrazo-multimedia"
 import { sysbrazoNotesResponseSchema } from "../schema/sysbrazo-notes"
 import {
   sysbrazoAutodiagnosticsLookupSchema,
+  sysbrazoAutodiagnosticTicketOutcomeSchema,
   sysbrazoDiagnosticDetailSchema,
   sysbrazoStartDiagnosticResponseSchema,
   sysbrazoTicketsLookupSchema,
 } from "../schema/sysbrazo-support"
 import {
   canRunSysbrazoAutodiagnostic,
+  canUseSysbrazoMultimedia,
   canViewSysbrazoNotes,
 } from "../sysbrazo-panel/permissions"
+
+const requireSysbrazoConversation = async (input: {
+  contactId: string
+  conversationId: string
+  workspaceId: string
+}) => {
+  // `getContact` applies contacts membership and assigned-contact scope before
+  // accepting the conversation identifier supplied by the browser.
+  await getContact({
+    workspaceId: input.workspaceId,
+    contactId: input.contactId,
+  })
+  const conversation = await conversationService.findBy({
+    where: {
+      id: input.conversationId,
+      workspaceId: input.workspaceId,
+      contactId: input.contactId,
+    },
+  })
+  if (!conversation) {
+    throw new ChatbotXException("Conversation not found")
+  }
+  return conversation
+}
+
+const requireActiveSysbrazoConversation = async (input: {
+  contactId: string
+  conversationId: string
+  workspaceId: string
+}) => {
+  const conversation = await requireSysbrazoConversation(input)
+  const context = await sysbrazoClientMultimediaService.findActiveContext({
+    workspaceId: input.workspaceId,
+    conversationId: conversation.id,
+  })
+  if (!context) {
+    throw new ChatbotXException(
+      "Sysbrazo client context is not active",
+      "NOT_FOUND",
+      404,
+    )
+  }
+  return { context, conversation }
+}
+
+const requireSysbrazoMultimediaPermission = async (
+  workspaceId: string,
+  permission:
+    | "manageClientMultimedia"
+    | "permanentlyDeleteClientMultimedia"
+    | "viewClientMultimedia"
+    | "viewDeletedClientMultimedia",
+) => {
+  if (!(await canUseSysbrazoMultimedia(workspaceId, permission))) {
+    throw new ChatbotXException(
+      "You are not authorized to access client multimedia",
+    )
+  }
+}
+
+const sysbrazoMultimediaItemInput = z.object({
+  workspaceId: z.string().min(1),
+  contactId: z.string().min(1),
+  conversationId: z.string().min(1),
+  multimediaId: z.string().min(1),
+})
 
 export const contactsAuthenticatedAPI = {
   // Sysbrazo client-card procedures consumed by the ChatbotX contact panel.
@@ -335,15 +415,24 @@ export const contactsAuthenticatedAPI = {
       summary: "Get client identity/contact/services from Sysbrazo",
       tags: ["Contacts"],
     })
-    .input(getContactRequest)
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        conversationId: z.string().min(1),
+        cursor: z
+          .object({ createdAt: z.coerce.date(), id: z.string().min(1) })
+          .optional(),
+        limit: z.number().int().min(1).max(50).optional(),
+      }),
+    )
     .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
-    .output(sysbrazoLookupResponseSchema)
+    .output(sysbrazoConversationLookupResponseSchema)
     .handler(async ({ input }) => {
-      const { workspaceId, contactId } = input
-      await requireContactPermissionScope(workspaceId)
-      return await getSysbrazoClientByDocument({
-        workspaceId,
-        contactId,
+      const conversation = await requireSysbrazoConversation(input)
+      return await getSysbrazoClientForConversation({
+        workspaceId: input.workspaceId,
+        conversationId: conversation.id,
       })
     }),
 
@@ -359,8 +448,8 @@ export const contactsAuthenticatedAPI = {
     .input(
       z.object({
         workspaceId: z.string().min(1),
-        // Id del cliente en Sysbrazo (viene del lookup principal).
-        clientId: z.string().min(1),
+        contactId: z.string().min(1),
+        conversationId: z.string().min(1),
         // Salta la cache ONU de 1 h en Sysbrazo (botón "Refrescar" del panel).
         forceOnu: z.boolean().optional(),
       }),
@@ -368,11 +457,11 @@ export const contactsAuthenticatedAPI = {
     .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
     .output(sysbrazoOnuStatusSchema.nullable())
     .handler(async ({ input }) => {
-      const { workspaceId, clientId, forceOnu } = input
-      await requireContactPermissionScope(workspaceId)
+      const { workspaceId, forceOnu } = input
+      const { context } = await requireActiveSysbrazoConversation(input)
       return await getSysbrazoClientOnu({
         workspaceId,
-        clientId,
+        clientId: context.sysbrazoClientId,
         force: forceOnu,
       })
     }),
@@ -433,6 +522,47 @@ export const contactsAuthenticatedAPI = {
         workspaceId,
         contactId,
         runId,
+      })
+    }),
+
+  createSysbrazoAutodiagnosticTicketAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "POST",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/sysbrazo-autodiagnostics/{runId}/ticket",
+      summary:
+        "Create or queue a Sysbrazo ticket for a failed auto-diagnostic step",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        runId: z.number().int().positive(),
+        step: z.object({
+          step_name: z.string().min(1),
+          step_number: z.number().int().positive(),
+          status: z.enum(["failed", "error"]),
+          details: z.record(z.string(), z.unknown()).nullable(),
+        }),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(sysbrazoAutodiagnosticTicketOutcomeSchema)
+    .handler(async ({ input }) => {
+      const { workspaceId, contactId, runId, step } = input
+      await requireContactPermissionScope(workspaceId)
+      if (!(await canRunSysbrazoAutodiagnostic(workspaceId))) {
+        throw new ChatbotXException(
+          "You do not have permission to run auto-diagnostics",
+          "runAutodiagnosticDenied",
+          403,
+        )
+      }
+      return await createSysbrazoAutodiagnosticTicket({
+        workspaceId,
+        contactId,
+        runId,
+        step,
       })
     }),
 
@@ -520,6 +650,421 @@ export const contactsAuthenticatedAPI = {
         )
       }
       return await getSysbrazoNotes(input)
+    }),
+
+  getSysbrazoMultimediaAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/conversations/{conversationId}/sysbrazo-multimedia",
+      summary: "List ChatbotX multimedia linked to the active Sysbrazo client",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        conversationId: z.string().min(1),
+        cursor: z
+          .object({ createdAt: z.coerce.date(), id: z.string().min(1) })
+          .optional(),
+        limit: z.number().int().min(1).max(50).optional(),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(sysbrazoClientMultimediaListSchema)
+    .handler(async ({ input }) => {
+      await requireSysbrazoConversation(input)
+      await requireSysbrazoMultimediaPermission(
+        input.workspaceId,
+        "viewClientMultimedia",
+      )
+      const contextStatus =
+        await sysbrazoClientMultimediaService.getContextState({
+          workspaceId: input.workspaceId,
+          conversationId: input.conversationId,
+        })
+      if (contextStatus !== "active") {
+        return {
+          contextStatus,
+          counts: { active: 0, deleted: 0 },
+          data: [],
+          nextCursor: null,
+        }
+      }
+      const context = await sysbrazoClientMultimediaService.findActiveContext({
+        workspaceId: input.workspaceId,
+        conversationId: input.conversationId,
+      })
+      if (!context) {
+        return {
+          contextStatus: "missing" as const,
+          counts: { active: 0, deleted: 0 },
+          data: [],
+          nextCursor: null,
+        }
+      }
+      const limit = input.limit ?? 10
+      const [data, counts, userAndWorkspace] = await Promise.all([
+        sysbrazoClientMultimediaService.listActiveWithMetadata({
+          workspaceId: input.workspaceId,
+          sysbrazoClientId: context.sysbrazoClientId,
+          cursor: input.cursor,
+          limit: limit + 1,
+        }),
+        sysbrazoClientMultimediaService.getCounts({
+          workspaceId: input.workspaceId,
+          sysbrazoClientId: context.sysbrazoClientId,
+        }),
+        getCurrentUserAndTargetWorkspace(input.workspaceId),
+      ])
+      if (!userAndWorkspace) {
+        throw new ChatbotXException(
+          "User is not associated with this workspace",
+        )
+      }
+      const readAtByMultimediaId =
+        await sysbrazoClientMultimediaService.getReadAtByMultimediaId({
+          multimediaIds: data.map((item) => item.id),
+          userId: userAndWorkspace.user.id,
+          workspaceId: input.workspaceId,
+        })
+      const page = data.slice(0, limit)
+      const last = page.at(-1)
+      return {
+        contextStatus,
+        counts,
+        data: page.map((item) => ({
+          id: item.id,
+          createdAt: item.createdAt,
+          deletedAt: item.deletedAt,
+          readAt: readAtByMultimediaId.get(item.id) ?? null,
+          attachmentId: item.attachmentId,
+          attachmentCreatedAt: item.attachmentCreatedAt,
+          messageId: item.messageId,
+          messageCreatedAt: item.messageCreatedAt,
+          conversationId: item.conversationId,
+          sourceContactId: item.sourceContactId,
+          sysbrazoClientId: item.sysbrazoClientId,
+          attachment: {
+            fileType: item.attachment.fileType,
+            height: item.attachment.height,
+            mimeType: item.attachment.mimeType,
+            name: item.attachment.name,
+            size: item.attachment.size,
+            width: item.attachment.width,
+          },
+          message: item.message,
+        })),
+        nextCursor:
+          data.length > limit && last
+            ? { createdAt: last.createdAt, id: last.id }
+            : null,
+      }
+    }),
+
+  getSysbrazoMultimediaDownloadAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/conversations/{conversationId}/sysbrazo-multimedia/{multimediaId}/download",
+      summary: "Get an authorized download URL for Sysbrazo client multimedia",
+      tags: ["Contacts"],
+    })
+    .input(sysbrazoMultimediaItemInput)
+    .output(sysbrazoClientMultimediaUrlSchema)
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .handler(async ({ input }) => {
+      await requireSysbrazoMultimediaPermission(
+        input.workspaceId,
+        "viewClientMultimedia",
+      )
+      const { context } = await requireActiveSysbrazoConversation(input)
+      const resource =
+        await sysbrazoClientMultimediaService.getActiveAttachment({
+          multimediaId: input.multimediaId,
+          sysbrazoClientId: context.sysbrazoClientId,
+          workspaceId: input.workspaceId,
+        })
+      if (!resource) {
+        throw new ChatbotXException(
+          "Multimedia file not found",
+          "NOT_FOUND",
+          404,
+        )
+      }
+      const { uploader } = await import("@chatbotx.io/filesystem")
+      return {
+        downloadUrl: await uploader.getPresignedDownload(
+          resource.attachment.originPath,
+        ),
+      }
+    }),
+
+  getDeletedSysbrazoMultimediaAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "GET",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/conversations/{conversationId}/sysbrazo-multimedia/trash",
+      summary: "List deleted Sysbrazo client multimedia",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        conversationId: z.string().min(1),
+      }),
+    )
+    .output(sysbrazoClientMultimediaListSchema)
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .handler(async ({ input }) => {
+      await requireSysbrazoMultimediaPermission(
+        input.workspaceId,
+        "viewDeletedClientMultimedia",
+      )
+      const { context } = await requireActiveSysbrazoConversation(input)
+      const [data, counts, userAndWorkspace] = await Promise.all([
+        sysbrazoClientMultimediaService.listDeletedWithMetadata({
+          limit: 50,
+          sysbrazoClientId: context.sysbrazoClientId,
+          workspaceId: input.workspaceId,
+        }),
+        sysbrazoClientMultimediaService.getCounts({
+          sysbrazoClientId: context.sysbrazoClientId,
+          workspaceId: input.workspaceId,
+        }),
+        getCurrentUserAndTargetWorkspace(input.workspaceId),
+      ])
+      if (!userAndWorkspace) {
+        throw new ChatbotXException(
+          "User is not associated with this workspace",
+        )
+      }
+      const readAtByMultimediaId =
+        await sysbrazoClientMultimediaService.getReadAtByMultimediaId({
+          multimediaIds: data.map((item) => item.id),
+          userId: userAndWorkspace.user.id,
+          workspaceId: input.workspaceId,
+        })
+      return {
+        contextStatus: "active" as const,
+        counts,
+        data: data.map((item) => ({
+          id: item.id,
+          createdAt: item.createdAt,
+          deletedAt: item.deletedAt,
+          readAt: readAtByMultimediaId.get(item.id) ?? null,
+          attachmentId: item.attachmentId,
+          attachmentCreatedAt: item.attachmentCreatedAt,
+          messageId: item.messageId,
+          messageCreatedAt: item.messageCreatedAt,
+          conversationId: item.conversationId,
+          sourceContactId: item.sourceContactId,
+          sysbrazoClientId: item.sysbrazoClientId,
+          attachment: {
+            fileType: item.attachment.fileType,
+            height: item.attachment.height,
+            mimeType: item.attachment.mimeType,
+            name: item.attachment.name,
+            size: item.attachment.size,
+            width: item.attachment.width,
+          },
+          message: item.message,
+        })),
+        nextCursor: null,
+      }
+    }),
+
+  confirmSysbrazoMultimediaContextAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "POST",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/conversations/{conversationId}/sysbrazo-multimedia/confirm",
+      summary: "Confirm the Sysbrazo client for conversation multimedia",
+      tags: ["Contacts"],
+    })
+    .input(
+      z.object({
+        workspaceId: z.string().min(1),
+        contactId: z.string().min(1),
+        conversationId: z.string().min(1),
+        attachmentIds: z.array(z.string().min(1)).max(50),
+      }),
+    )
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .output(
+      z.discriminatedUnion("found", [
+        z.object({
+          found: z.literal(true),
+          expiresAt: z.date(),
+          associatedCount: z.number().int().nonnegative(),
+        }),
+        z.object({ found: z.literal(false) }),
+      ]),
+    )
+    .handler(async ({ input }) => {
+      const conversation = await requireSysbrazoConversation(input)
+      await requireSysbrazoMultimediaPermission(
+        input.workspaceId,
+        "viewClientMultimedia",
+      )
+
+      const documentId = await resolveContactSysbrazoDocumentId({
+        workspaceId: input.workspaceId,
+        contactId: conversation.contactId,
+      })
+      if (!documentId) {
+        await sysbrazoClientMultimediaService.invalidateContext({
+          workspaceId: input.workspaceId,
+          conversationId: conversation.id,
+        })
+        return { found: false as const }
+      }
+
+      const lookup = await getSysbrazoClientByDocumentId({
+        workspaceId: input.workspaceId,
+        documentId,
+      })
+      if (!lookup.found) {
+        await sysbrazoClientMultimediaService.invalidateContext({
+          workspaceId: input.workspaceId,
+          conversationId: conversation.id,
+        })
+        return { found: false as const }
+      }
+
+      const context = await sysbrazoClientMultimediaService.activateContext({
+        workspaceId: input.workspaceId,
+        conversationId: conversation.id,
+        documentId,
+        sysbrazoClientId: String(lookup.client.id),
+      })
+      const associatedCount =
+        await sysbrazoClientMultimediaService.associateRecentAttachmentsForConfirmedContext(
+          {
+            workspaceId: input.workspaceId,
+            conversationId: conversation.id,
+            contextId: context.id,
+            attachmentIds: input.attachmentIds,
+          },
+        )
+
+      return {
+        found: true as const,
+        expiresAt: context.expiresAt,
+        associatedCount,
+      }
+    }),
+
+  markSysbrazoMultimediaReadAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "POST",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/conversations/{conversationId}/sysbrazo-multimedia/{multimediaId}/read",
+      summary: "Mark Sysbrazo client multimedia as read",
+      tags: ["Contacts"],
+    })
+    .input(sysbrazoMultimediaItemInput)
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .handler(async ({ input }) => {
+      await requireSysbrazoMultimediaPermission(
+        input.workspaceId,
+        "viewClientMultimedia",
+      )
+      const [{ context }, userAndWorkspace] = await Promise.all([
+        requireActiveSysbrazoConversation(input),
+        getCurrentUserAndTargetWorkspace(input.workspaceId),
+      ])
+      if (!userAndWorkspace) {
+        throw new ChatbotXException(
+          "User is not associated with this workspace",
+        )
+      }
+      await sysbrazoClientMultimediaService.markRead({
+        multimediaId: input.multimediaId,
+        sysbrazoClientId: context.sysbrazoClientId,
+        userId: userAndWorkspace.user.id,
+        workspaceId: input.workspaceId,
+      })
+    }),
+
+  deleteSysbrazoMultimediaAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "DELETE",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/conversations/{conversationId}/sysbrazo-multimedia/{multimediaId}",
+      summary: "Move Sysbrazo client multimedia to trash",
+      tags: ["Contacts"],
+    })
+    .input(sysbrazoMultimediaItemInput)
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .handler(async ({ input }) => {
+      await requireSysbrazoMultimediaPermission(
+        input.workspaceId,
+        "manageClientMultimedia",
+      )
+      const [{ context }, userAndWorkspace] = await Promise.all([
+        requireActiveSysbrazoConversation(input),
+        getCurrentUserAndTargetWorkspace(input.workspaceId),
+      ])
+      if (!userAndWorkspace) {
+        throw new ChatbotXException(
+          "User is not associated with this workspace",
+        )
+      }
+      return await sysbrazoClientMultimediaService.withAssociationLock(
+        input.multimediaId,
+        async () =>
+          await sysbrazoClientMultimediaService.softDelete({
+            deletedBy: userAndWorkspace.user.id,
+            multimediaId: input.multimediaId,
+            sysbrazoClientId: context.sysbrazoClientId,
+            workspaceId: input.workspaceId,
+          }),
+      )
+    }),
+
+  restoreSysbrazoMultimediaAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "POST",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/conversations/{conversationId}/sysbrazo-multimedia/{multimediaId}/restore",
+      summary: "Restore Sysbrazo client multimedia from trash",
+      tags: ["Contacts"],
+    })
+    .input(sysbrazoMultimediaItemInput)
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .handler(async ({ input }) => {
+      await requireSysbrazoMultimediaPermission(
+        input.workspaceId,
+        "manageClientMultimedia",
+      )
+      const { context } = await requireActiveSysbrazoConversation(input)
+      return await sysbrazoClientMultimediaService.withAssociationLock(
+        input.multimediaId,
+        async () =>
+          await sysbrazoClientMultimediaService.restore({
+            multimediaId: input.multimediaId,
+            sysbrazoClientId: context.sysbrazoClientId,
+            workspaceId: input.workspaceId,
+          }),
+      )
+    }),
+
+  permanentlyDeleteSysbrazoMultimediaAuthenticatedAPI: authorizedAPI
+    .route({
+      method: "DELETE",
+      path: "/workspaces/{workspaceId}/contacts/{contactId}/conversations/{conversationId}/sysbrazo-multimedia/{multimediaId}/permanent",
+      summary: "Permanently delete Sysbrazo client multimedia",
+      tags: ["Contacts"],
+    })
+    .input(sysbrazoMultimediaItemInput)
+    .use(workspaceAuthorizedMidddleware, (input) => input.workspaceId)
+    .handler(async ({ input }) => {
+      await requireSysbrazoMultimediaPermission(
+        input.workspaceId,
+        "permanentlyDeleteClientMultimedia",
+      )
+      const { context } = await requireActiveSysbrazoConversation(input)
+      return await sysbrazoClientMultimediaService.permanentlyDelete({
+        multimediaId: input.multimediaId,
+        sysbrazoClientId: context.sysbrazoClientId,
+        workspaceId: input.workspaceId,
+      })
     }),
 
   createSysbrazoNoteAuthenticatedAPI: authorizedAPI

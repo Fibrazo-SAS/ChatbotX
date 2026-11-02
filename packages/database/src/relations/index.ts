@@ -120,6 +120,7 @@ import { sequenceRelations } from "./sequence"
 import { sequenceDispatchRelations } from "./sequence-dispatch"
 import { sequenceStepRelations } from "./sequence-step"
 import { spreadsheetRelations } from "./spreadsheet"
+import { sysbrazoClientMultimediaRelations } from "./sysbrazo-client-multimedia"
 import { tagRelations } from "./tag"
 import { tagChannelRelations } from "./tag-channel"
 import { templateRelations } from "./template"
@@ -209,6 +210,7 @@ export const relations = {
   ...auditLogRelations,
   ...sessionRelations,
   ...spreadsheetRelations,
+  ...sysbrazoClientMultimediaRelations,
   ...whatsappFlowRelations,
   ...integrationWhatsappRelations,
   ...whatsappMessageTemplateRelations,

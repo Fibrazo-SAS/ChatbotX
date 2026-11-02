@@ -262,12 +262,48 @@ export function MessageList() {
             onEdit={handleEditMessage}
             onPrivateReply={handlePrivateReplyComment}
             onReply={handleReplyComment}
+            selectedButtonLabel={getSelectedButtonLabel(messages, message)}
           />
         )}
         startReached={loadMoreItems}
       />
     </div>
   )
+}
+
+const getSelectedButtonLabel = (
+  messages: MessageResourceWithRelations[],
+  message: MessageResourceWithRelations,
+) => {
+  const messageIndex = messages.findIndex((item) => item.id === message.id)
+  if (messageIndex < 0) {
+    return
+  }
+  const followingMessage = messages[messageIndex + 1]
+  const contentAttributes = message?.contentAttributes as
+    | {
+        payload?: {
+          buttons?: Array<{ label: string }>
+          templateType?: string
+        }
+        type?: string
+      }
+    | undefined
+
+  if (
+    message?.messageType !== "outgoing" ||
+    contentAttributes?.type !== "template" ||
+    contentAttributes.payload?.templateType !== "button" ||
+    followingMessage?.messageType !== "incoming" ||
+    !followingMessage.text
+  ) {
+    return
+  }
+
+  const selectedText = followingMessage.text.trim().toLocaleLowerCase()
+  return contentAttributes.payload.buttons?.find(
+    (button) => button.label.trim().toLocaleLowerCase() === selectedText,
+  )?.label
 }
 
 const MessageComponentHeader: GridComponents["Header"] = () => {

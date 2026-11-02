@@ -12,6 +12,7 @@ import {
   quotaEnforcementService,
   recordProfileRefreshFailure,
   resolveTenantSettings,
+  sysbrazoClientMultimediaService,
   updateContactFromMessage,
   workspaceService,
 } from "@chatbotx.io/business"
@@ -27,7 +28,10 @@ import {
   contactSources,
   type IntegrationType,
 } from "@chatbotx.io/database/partials"
-import { createMessageRepository } from "@chatbotx.io/database/repositories"
+import {
+  createMessageRepository,
+  type MessageWithAttachments,
+} from "@chatbotx.io/database/repositories"
 import {
   CONTACT_INBOX_SOURCE_ID_KEY,
   CONTACT_INBOX_SOURCE_USER_ID_KEY,
@@ -345,6 +349,16 @@ export const receiveMessage = async (
         ...systemFieldUpdates,
       })
 
+    // Mantener vigente el contexto de Sysbrazo mientras el cliente escribe:
+    // extiende el contador de 24h solo si ya hay un contexto confirmado.
+    // No crea contexto nuevo ni se dispara por mensajes del asesor.
+    await sysbrazoClientMultimediaService
+      .refreshContext({
+        conversationId: conversation.id,
+        workspaceId: inbox.workspaceId,
+      })
+      .catch(() => undefined)
+
     // Best-effort backfill of a nameless existing contact's profile. No
     // isNewMessage/isNewContact gate; awaited before the flow-action enqueue
     // below so the first automated reply already sees `{{first_name}}`.
@@ -628,7 +642,7 @@ const saveAndBroadcastMessage = async (props: {
   createdAt?: Date
   storageUrl: string
 }): Promise<{
-  message: MessageModel & { attachments: unknown[] }
+  message: MessageWithAttachments
   isNew: boolean
 }> => {
   const {
@@ -682,7 +696,7 @@ const saveAndBroadcastMessage = async (props: {
       conversationId: conversation.id,
     })) ?? []
 
-  let messageWithAttachments: MessageModel & { attachments: unknown[] }
+  let messageWithAttachments: MessageWithAttachments
   let isNew: boolean
 
   if (attachmentInputs.length > 0) {
@@ -699,6 +713,20 @@ const saveAndBroadcastMessage = async (props: {
   }
 
   const newMessage = messageWithAttachments
+
+  // This runs for the persisted event, including a redelivery whose first
+  // association attempt failed. The context check uses the attachment's own
+  // timestamp and activation boundary, so it never backfills a later context.
+  if (newMessage.attachments.length > 0) {
+    await sysbrazoClientMultimediaService.associateMessageAttachments({
+      workspaceId: inbox.workspaceId,
+      conversationId: conversation.id,
+      messageId: newMessage.id,
+      messageCreatedAt: newMessage.createdAt,
+      sourceContactId: contactInbox.contactId,
+      attachments: newMessage.attachments,
+    })
+  }
 
   if (isNew) {
     await persistNewMessageSideEffects({

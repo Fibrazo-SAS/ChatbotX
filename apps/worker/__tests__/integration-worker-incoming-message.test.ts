@@ -342,6 +342,10 @@ vi.mock("@chatbotx.io/business", () => ({
   messageCleanupService: {
     cancelByInboxSource: vi.fn().mockResolvedValue(undefined),
   },
+  sysbrazoClientMultimediaService: {
+    refreshContext: vi.fn().mockResolvedValue(undefined),
+    associateMessageAttachments: vi.fn().mockResolvedValue(undefined),
+  },
 }))
 
 vi.mock("@chatbotx.io/event-bus", () => ({

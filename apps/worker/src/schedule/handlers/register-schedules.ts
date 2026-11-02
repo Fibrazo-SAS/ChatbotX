@@ -285,6 +285,20 @@ export const registerSchedules = async () => {
   )
 
   await scheduleQueue.upsertJobScheduler(
+    ScheduleJobData.purgeSysbrazoClientMultimedia,
+    {
+      pattern: "15 3 * * *",
+    },
+    {
+      name: ScheduleJobData.purgeSysbrazoClientMultimedia,
+      data: {
+        type: ScheduleJobData.purgeSysbrazoClientMultimedia,
+        data: {},
+      },
+    },
+  )
+
+  await scheduleQueue.upsertJobScheduler(
     ScheduleJobData.purgeWorkspaces,
     {
       pattern: `*/${PURGE_WORKSPACES_INTERVAL_MINUTES} * * * *`,

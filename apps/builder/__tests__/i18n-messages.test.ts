@@ -192,10 +192,10 @@ describe("locale resolution", () => {
     ["pt-PT", "pt-PT"],
     ["en-US", "en"],
     ["es-AR", "es"],
-    ["zh-CN", "en"],
-    ["zh-TW", "en"],
-    ["zh", "en"],
-    ["xx", "en"],
+    ["zh-CN", "es"],
+    ["zh-TW", "es"],
+    ["zh", "es"],
+    ["xx", "es"],
   ] as const)("resolves %s to %s", (input, expected) => {
     expect(resolveLocale(input)).toBe(expected)
   })

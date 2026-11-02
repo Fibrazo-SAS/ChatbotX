@@ -95,3 +95,17 @@ export const deleteMessageAction = workspaceActionClient
 
     return await deleteMessage({ workspaceId, conversationId, parsedInput })
   })
+
+export const deleteMessageFromMultimediaAction = workspaceActionClient
+  .bindArgsSchemas([zodBigintAsString()])
+  .inputSchema(
+    deleteMessageRequest.extend({ conversationId: zodBigintAsString() }),
+  )
+  .action(async (props) => {
+    const {
+      bindArgsParsedInputs: [workspaceId],
+      parsedInput: { conversationId, ...parsedInput },
+    } = props
+
+    return await deleteMessage({ workspaceId, conversationId, parsedInput })
+  })

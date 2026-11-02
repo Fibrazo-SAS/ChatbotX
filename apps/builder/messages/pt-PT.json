@@ -1712,7 +1712,11 @@
       "runAutodiagnostic": "Realizar autodiagnósticos",
       "viewBotFields": "Ver variáveis globais",
       "manageBotFields": "Gerir variáveis globais",
-      "viewClientNotes": "Notas do cliente"
+      "viewClientNotes": "Notas do cliente",
+      "viewClientMultimedia": "Ver multimédia do cliente",
+      "manageClientMultimedia": "Gerir multimédia do cliente",
+      "viewDeletedClientMultimedia": "Ver multimédia eliminada do cliente",
+      "permanentlyDeleteClientMultimedia": "Eliminar multimédia do cliente permanentemente"
     },
     "member": {
       "label": "Membro"
@@ -6012,6 +6016,10 @@
   },
   "sysbrazoPanel": {
     "notRegistered": "Não registrado como cliente",
+    "inactive": {
+      "title": "Chat inativo",
+      "hint": "Para voltar a consultar os dados do cliente, peça novamente o documento."
+    },
     "notes": {
       "title": "Notas ({count})",
       "toggle": "Mostrar ou ocultar notas",
@@ -6036,6 +6044,50 @@
       "editClosed": "Edição encerrada (mais de 10 minutos)",
       "saveError": "Não foi possível guardar a nota",
       "updateError": "Não foi possível atualizar a nota"
+    },
+    "multimedia": {
+      "title": "Multimédia e documentos",
+      "count": "{count} ficheiros",
+      "loading": "A carregar multimédia…",
+      "empty": "Sem multimédia nem documentos",
+      "retry": "Tentar novamente",
+      "unnamed": "Ficheiro sem nome",
+      "size": "{size} B",
+      "expired": "O contexto do Sysbrazo expirou. Confirme o documento do cliente para voltar a aceder à multimédia.",
+      "missing": "Confirme o documento do cliente para ativar a multimédia nesta conversa.",
+      "confirmDocument": "Confirmar documento e associar ficheiros recentes",
+      "confirming": "A confirmar…",
+      "confirmNotFound": "Não foi encontrado um cliente Sysbrazo para o documento guardado.",
+      "confirmError": "Não foi possível confirmar o documento. Tente novamente.",
+      "confirmSuccess": "Documento confirmado. {count} ficheiros recentes associados à multimédia.",
+      "active": "Ficheiros",
+      "trash": "Lixo ({count})",
+      "filter": "Filtrar multimédia",
+      "filters": {
+        "all": "Todos os ficheiros",
+        "images": "Imagens",
+        "documents": "Documentos"
+      },
+      "open": "Abrir {name}",
+      "download": "Transferir",
+      "copyLink": "Copiar ligação segura",
+      "linkCopied": "Ligação segura copiada",
+      "resend": "Adicionar ao rascunho da mensagem",
+      "resendStaged": "Ficheiro adicionado ao rascunho da mensagem",
+      "viewInChat": "Ver na conversa",
+      "delete": "Mover para o lixo",
+      "restore": "Restaurar",
+      "deletePermanently": "Eliminar permanentemente",
+      "downloadError": "Não foi possível abrir o ficheiro",
+      "updateError": "Não foi possível atualizar o ficheiro",
+      "loadMore": "Carregar mais",
+      "unread": "Não lido",
+      "sender": {
+        "client": "Cliente",
+        "advisor": "Consultor",
+        "bot": "Bot",
+        "team": "Equipa"
+      }
     },
     "loading": "A consultar dados do cliente no Sysbrazo…",
     "error": "Não foi possível carregar as informações do cliente",
@@ -6163,7 +6215,15 @@
       "reason": "Motivo: {reason}",
       "canceled": "Diagnóstico cancelado",
       "noSteps": "Não foi executado nenhum passo.",
-      "paused": "Autodiagnóstico pausado"
+      "paused": "Autodiagnóstico pausado",
+      "ticketQueued": "Ticket em fila",
+      "ticketQueuedMessage": "O ticket está em fila e será processado automaticamente em breve.",
+      "ticketCreated": "Ticket criado",
+      "ticketCreatedMessage": "O ticket de suporte foi criado com sucesso.",
+      "ticketBlocked": "Ticket não criado",
+      "ticketBlockedMessage": "Já existe um ticket de suporte aberto. Não foi criado um novo.",
+      "ticketError": "Não foi possível criar o ticket",
+      "ticketErrorMessage": "Não foi possível criar o ticket automático. Contacte o suporte."
     },
     "diagnosticHistory": {
       "title": "Histórico de autodiagnósticos",

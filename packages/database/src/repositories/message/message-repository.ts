@@ -168,6 +168,12 @@ export interface FindAttachmentByIdParams {
   workspaceId: string
 }
 
+export interface DeleteAttachmentParams {
+  createdAt: Date
+  id: string
+  workspaceId: string
+}
+
 export type AttachmentLookupRow = Pick<
   AttachmentModel,
   "id" | "originPath" | "mimeType" | "createdAt"
@@ -226,6 +232,8 @@ export interface IMessageRepository {
       "messageId" | "messageCreatedAt"
     >[],
   ): Promise<MessageWithAttachments>
+
+  deleteAttachment(params: DeleteAttachmentParams): Promise<void>
 
   deleteAttachmentsByMessageId(
     messageId: string,

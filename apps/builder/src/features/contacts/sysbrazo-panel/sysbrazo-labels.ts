@@ -29,6 +29,19 @@ export const BLOCKED_REASONS_AUTO_DIAGNOSTIC = new Set([
   "CLIENT_NOT_FOUND",
 ])
 
+/** Motivos que Sysbrazo usa para encolar automáticamente un ticket. */
+export const RAISE_TICKET_REASONS = new Set([
+  "PING_NOT_COMPLETE",
+  "PING_NO_SUCCESS",
+  "CPE_STATE_NOT_UP",
+  "CPE_LOSS_OF_SIGNAL",
+  "CPE_OFFLINE",
+  "CPE_GPON_POWER_LOW",
+  "RECONFIG_FAILED",
+  "REBOOT_FAILED",
+  "REPROVISION_FAILED",
+])
+
 /**
  * Traducción de los códigos de reason que vienen del backend en inglés
  * (bloqueos, cancelaciones, pasos de control, crédito, CPE, GPON, ping,

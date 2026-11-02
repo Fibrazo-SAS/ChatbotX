@@ -29,6 +29,7 @@ import type {
   CreateAttachmentInput,
   CreateMessageInput,
   CreateMessageResult,
+  DeleteAttachmentParams,
   DistributedLock,
   FindAIContextMessagesOptions,
   FindAttachmentByIdParams,
@@ -651,6 +652,31 @@ export class ShardedMessageRepository implements IMessageRepository {
             "deleteAttachmentsByMessageId: shard failed",
           )
         }
+      }),
+    )
+  }
+
+  async deleteAttachment({
+    id,
+    workspaceId,
+    createdAt,
+  }: DeleteAttachmentParams): Promise<void> {
+    const shards = await this.getShardsForRange(createdAt, createdAt)
+    const writeShard = await this.shardManager.getWriteShardInfo(workspaceId)
+    const targets = this.mergeWriteShard(shards, writeShard)
+
+    await Promise.all(
+      targets.map(async (shardInfo) => {
+        const client = await this.shardManager.getShardClient(shardInfo.shard)
+        await client
+          .delete(attachmentModel)
+          .where(
+            and(
+              eq(attachmentModel.id, id),
+              eq(attachmentModel.workspaceId, workspaceId),
+              eq(attachmentModel.createdAt, createdAt),
+            ),
+          )
       }),
     )
   }

@@ -2,8 +2,10 @@ import {
   botFieldService,
   externalRequestService,
   flowVersionService,
+  sysbrazoClientMultimediaService,
 } from "@chatbotx.io/business"
 import {
+  type SysbrazoConversationLookupResponse,
   type SysbrazoLookupResponse,
   type SysbrazoOnuStatus,
   sysbrazoClientListResponseSchema,
@@ -299,6 +301,16 @@ export const getSysbrazoClientByDocument = async ({
     return { found: false }
   }
 
+  return await getSysbrazoClientByDocumentId({ workspaceId, documentId })
+}
+
+export const getSysbrazoClientByDocumentId = async ({
+  workspaceId,
+  documentId,
+}: {
+  workspaceId: string
+  documentId: string
+}): Promise<SysbrazoLookupResponse> => {
   const { url, headers } = await resolveSysbrazoRequest(workspaceId, documentId)
 
   const result = await externalRequestService.execute(
@@ -328,6 +340,60 @@ export const getSysbrazoClientByDocument = async ({
   }
 
   return { found: true, client, baseUrl: new URL(url).origin }
+}
+
+export const getSysbrazoClientForConversation = async ({
+  workspaceId,
+  conversationId,
+}: {
+  workspaceId: string
+  conversationId: string
+}): Promise<SysbrazoConversationLookupResponse> => {
+  const context = await sysbrazoClientMultimediaService.findActiveContext({
+    workspaceId,
+    conversationId,
+  })
+  if (context) {
+    const lookup = await getSysbrazoClientByDocumentId({
+      workspaceId,
+      documentId: context.documentId,
+    })
+    const currentContext =
+      await sysbrazoClientMultimediaService.findActiveContext({
+        workspaceId,
+        conversationId,
+      })
+    if (currentContext?.id !== context.id) {
+      const contextStatus =
+        await sysbrazoClientMultimediaService.getContextState({
+          workspaceId,
+          conversationId,
+        })
+      return {
+        // A replacement raced the upstream request. Do not expose the old
+        // client while the panel waits for the context-change realtime refresh.
+        contextStatus: contextStatus === "active" ? "missing" : contextStatus,
+      }
+    }
+    return {
+      contextStatus: "active",
+      expiresAt: context.expiresAt,
+      // A document can be reassigned upstream. The panel remains bound to the
+      // client resolved at confirmation time; it never silently switches to a
+      // different client without a new confirmed document flow.
+      lookup:
+        lookup.found && String(lookup.client.id) !== context.sysbrazoClientId
+          ? { found: false }
+          : lookup,
+    }
+  }
+  const contextStatus = await sysbrazoClientMultimediaService.getContextState({
+    workspaceId,
+    conversationId,
+  })
+  return {
+    contextStatus: contextStatus === "active" ? "missing" : contextStatus,
+  }
 }
 
 /**

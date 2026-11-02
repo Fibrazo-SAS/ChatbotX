@@ -61,14 +61,7 @@ export default async function RootLayout({ children }: Props) {
           <SupportChatScript pageId={pancakeChatPageId} />
         )}
       </head>
-      <body
-        className={
-          tenantSettings.theme
-            ? `theme-${tenantSettings.theme.toLowerCase()}`
-            : undefined
-        }
-        suppressHydrationWarning
-      >
+      <body suppressHydrationWarning>
         <TenantProvider settings={tenantSettings}>
           <DirectionProvider direction={dir}>
             <UiProvider>

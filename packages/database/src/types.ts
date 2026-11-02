@@ -101,6 +101,12 @@ export type IntegrationTiktokModel =
   typeof schema.integrationTiktokModel.$inferSelect
 export type MessageModel = typeof schema.messageModel.$inferSelect
 export type AttachmentModel = typeof schema.attachmentModel.$inferSelect
+export type ConversationSysbrazoClientContextModel =
+  typeof schema.conversationSysbrazoClientContextModel.$inferSelect
+export type SysbrazoClientMultimediaModel =
+  typeof schema.sysbrazoClientMultimediaModel.$inferSelect
+export type SysbrazoClientMultimediaReadModel =
+  typeof schema.sysbrazoClientMultimediaReadModel.$inferSelect
 export type SpreadsheetModel = typeof schema.spreadsheetModel.$inferSelect
 export type SystemFieldModel = typeof schema.systemFieldModel.$inferSelect
 export type AIConversationSourceModel =

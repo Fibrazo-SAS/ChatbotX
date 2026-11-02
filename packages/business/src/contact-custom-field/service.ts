@@ -535,7 +535,7 @@ class ContactCustomFieldService extends BaseService {
     }
   }
 
-  async setValueByKey(input: SetValueByKeyInput): Promise<void> {
+  async setValueByKey(input: SetValueByKeyInput): Promise<string | null> {
     const {
       workspaceId,
       contactId,
@@ -560,22 +560,22 @@ class ContactCustomFieldService extends BaseService {
         temporalInputParsing,
         fillEmptyTemporalWithNow,
       })
-      return
+      return null
     }
 
-    let customField: { id: string } | undefined
+    let customField: { id: string; name: string } | undefined
 
     if (isNumericId(keyword)) {
       customField = await db.query.customFieldModel.findFirst({
         where: { id: keyword, workspaceId },
-        columns: { id: true },
+        columns: { id: true, name: true },
       })
     }
 
     if (!customField) {
       customField = await db.query.customFieldModel.findFirst({
         where: { name: keyword, workspaceId },
-        columns: { id: true },
+        columns: { id: true, name: true },
       })
     }
 
@@ -592,6 +592,7 @@ class ContactCustomFieldService extends BaseService {
       fillEmptyTemporalWithNow,
       contactInboxId,
     })
+    return customField.name
   }
 
   async deleteByKey(input: DeleteByKeyInput): Promise<void> {

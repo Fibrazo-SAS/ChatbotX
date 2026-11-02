@@ -92,6 +92,10 @@ vi.mock("@/features/contact-sequences/update-contact-sequence-field", () => ({
   default: () => null,
 }))
 
+vi.mock("@/features/contacts/sysbrazo-panel/sysbrazo-panel", () => ({
+  SysbrazoPanel: () => null,
+}))
+
 vi.mock("@/features/sequences/provider/sequence-store-context", () => ({
   SequenceStoreProvider: ({ children }: { children: React.ReactNode }) =>
     children,

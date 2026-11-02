@@ -28,7 +28,6 @@ import {
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import type { ComponentProps } from "react"
-import { BrandIcon } from "@/components/brand-icon"
 import { NavHelp } from "@/components/nav-help"
 import { NavMain } from "@/components/nav-main"
 import { NavUsage, type QuotaSummary } from "@/components/nav-usage"
@@ -191,7 +190,11 @@ export function AppSidebar({
           className="flex h-12 items-center justify-center border-b"
           href="/"
         >
-          <BrandIcon alt="Brand" />
+          <div className="flex items-center gap-2">
+            <span className="brand-expanded font-bold text-primary text-sm tracking-tight group-data-[collapsible=icon]:hidden">
+              Fibrazo Chat
+            </span>
+          </div>
         </Link>
         <div className="border-b px-1">
           <WorkspaceSwitcher

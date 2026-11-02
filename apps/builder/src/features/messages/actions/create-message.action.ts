@@ -4,6 +4,7 @@ import {
   contactInboxService,
   conversationService,
   resolveTenantSettings,
+  sysbrazoClientMultimediaService,
 } from "@chatbotx.io/business"
 import { ChatbotXException } from "@chatbotx.io/business/errors"
 import { getPublicFileUrl } from "@chatbotx.io/business/utils"
@@ -247,6 +248,17 @@ export const createMessage = async (props: {
     attachmentInputs.length > 0
       ? await repository.createWithAttachments(messageInput, attachmentInputs)
       : await repository.create(messageInput)
+
+  if ("attachments" in message && Array.isArray(message.attachments)) {
+    await sysbrazoClientMultimediaService.associateMessageAttachments({
+      workspaceId: conversation.workspaceId,
+      conversationId: targetConversation.id,
+      messageId: message.id,
+      messageCreatedAt: message.createdAt,
+      sourceContactId: contactInbox.contactId,
+      attachments: message.attachments,
+    })
+  }
 
   await db
     .update(conversationModel)

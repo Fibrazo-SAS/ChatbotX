@@ -11,6 +11,68 @@
 @source "../../node_modules/@chatbotx.io/ui";
 @source "../../node_modules/@chatbotx.io/minigame-ui";
 
+/* Fibrazo is the Builder's base design system, not a per-tenant override.
+ * Tenant themes can still opt in through themes.css, while every workspace
+ * inherits this palette by default. */
+:root {
+  --radius: 0.75rem;
+  --background: #f7f9f8;
+  --foreground: #17231e;
+  --card: #ffffff;
+  --card-foreground: #10201a;
+  --popover: #ffffff;
+  --popover-foreground: #10201a;
+  --primary: #278f63;
+  --primary-foreground: #ffffff;
+  --secondary: #edf4f0;
+  --secondary-foreground: #17231e;
+  --muted: #f0f5f2;
+  --muted-foreground: #64756c;
+  --accent: #e3f2e9;
+  --accent-foreground: #236b4a;
+  --destructive: #d84242;
+  --border: #dce6e0;
+  --input: #d2dfd8;
+  --ring: #61b88b;
+  --sidebar: #fafcfb;
+  --sidebar-foreground: #17231e;
+  --sidebar-primary: #278f63;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e5f2ea;
+  --sidebar-accent-foreground: #236b4a;
+  --sidebar-border: #dce6e0;
+  --sidebar-ring: #61b88b;
+}
+
+.dark {
+  --background: #0e1511;
+  --foreground: #edf4ef;
+  --card: #141e18;
+  --card-foreground: #edf4ef;
+  --popover: #17221b;
+  --popover-foreground: #edf4ef;
+  --primary: #46bb83;
+  --primary-foreground: #0b1a12;
+  --secondary: #1b2921;
+  --secondary-foreground: #edf4ef;
+  --muted: #1d2923;
+  --muted-foreground: #a8b3ac;
+  --accent: #26372d;
+  --accent-foreground: #edf4ef;
+  --destructive: #d67a73;
+  --border: #314137;
+  --input: #3a4a40;
+  --ring: #46bb83;
+  --sidebar: #111a15;
+  --sidebar-foreground: #edf4ef;
+  --sidebar-primary: #46bb83;
+  --sidebar-primary-foreground: #0b1a12;
+  --sidebar-accent: #1e3226;
+  --sidebar-accent-foreground: #9ff0c5;
+  --sidebar-border: #2a3b30;
+  --sidebar-ring: #46bb83;
+}
+
 /* ── Panel Sysbrazo (ticket #15467): accordions con transición suave ──────
  * Recipe de Base UI Collapsible: el panel expone su alto medido en
  * `--collapsible-panel-height`; animamos `height` entre 0 y ese valor

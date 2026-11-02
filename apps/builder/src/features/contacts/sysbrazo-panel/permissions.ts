@@ -31,3 +31,22 @@ export const canViewSysbrazoNotes = async (
       true
   )
 }
+
+type SysbrazoMultimediaPermission =
+  | "manageClientMultimedia"
+  | "permanentlyDeleteClientMultimedia"
+  | "viewClientMultimedia"
+  | "viewDeletedClientMultimedia"
+
+/**
+ * Resolves the canonical workspace-member permission flags for #15468. The
+ * contacts access scope is checked by the calling endpoint independently.
+ */
+export const canUseSysbrazoMultimedia = async (
+  workspaceId: string,
+  permission: SysbrazoMultimediaPermission,
+): Promise<boolean> => {
+  const userAndWorkspace = await getCurrentUserAndTargetWorkspace(workspaceId)
+  const permissions = userAndWorkspace?.targetWorkspaceMember.permissions
+  return permissions?.superAdmin === true || permissions?.[permission] === true
+}

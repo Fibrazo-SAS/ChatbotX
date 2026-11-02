@@ -1,7 +1,7 @@
 export const locales = ["en", "es", "pt-BR", "pt-PT"] as const
 
 export type Locale = (typeof locales)[number]
-export const defaultLocale: Locale = "en"
+export const defaultLocale: Locale = "es"
 
 export const localeMeta: Record<
   Locale,

@@ -163,3 +163,16 @@ export const sysbrazoLookupResponseSchema = z.discriminatedUnion("found", [
 export type SysbrazoLookupResponse = z.infer<
   typeof sysbrazoLookupResponseSchema
 >
+
+export const sysbrazoConversationLookupResponseSchema = z.union([
+  z.object({
+    contextStatus: z.literal("active"),
+    expiresAt: z.date(),
+    lookup: sysbrazoLookupResponseSchema,
+  }),
+  z.object({ contextStatus: z.literal("expired") }),
+  z.object({ contextStatus: z.literal("missing") }),
+])
+export type SysbrazoConversationLookupResponse = z.infer<
+  typeof sysbrazoConversationLookupResponseSchema
+>

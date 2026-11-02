@@ -25,7 +25,7 @@ import { formatDiagnosticDate } from "./format-support"
 const HISTORY_PAGE_SIZE = 50
 
 const tableHeadClass =
-  "sticky top-0 z-10 border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-start font-semibold text-slate-500 text-xs"
+  "sticky top-0 z-10 border-b border-border bg-muted/35 px-4 py-2.5 text-start font-semibold text-muted-foreground text-xs dark:border-border dark:bg-muted dark:text-muted-foreground"
 const tableCellClass = "px-4 py-2.5 text-xs"
 
 export const AutodiagnosticHistoryDialog = ({
@@ -155,11 +155,11 @@ export const AutodiagnosticHistoryDialog = ({
   return (
     <Dialog onOpenChange={(open) => !open && onClose()} open>
       <DialogContent className="flex max-h-[90vh] max-w-[90vw] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-6xl">
-        <DialogHeader className="flex-row items-center justify-between gap-2 border-slate-100 border-b px-6 py-4">
-          <DialogTitle className="flex items-center gap-2 font-extrabold text-slate-900">
+        <DialogHeader className="flex-row items-center justify-between gap-2 border-border border-b px-6 py-4 dark:border-border">
+          <DialogTitle className="flex items-center gap-2 font-extrabold text-foreground dark:text-foreground">
             <ActivityIcon
               aria-hidden="true"
-              className="size-5 shrink-0 text-slate-700"
+              className="size-5 shrink-0 text-foreground dark:text-muted-foreground"
             />
             {t("diagnosticHistory.title")}
           </DialogTitle>
@@ -169,7 +169,7 @@ export const AutodiagnosticHistoryDialog = ({
         </DialogHeader>
 
         <div
-          className="min-h-0 flex-1 overflow-y-auto bg-white"
+          className="min-h-0 flex-1 overflow-y-auto bg-card dark:bg-card"
           ref={containerRef}
         >
           <table className="w-full text-start text-xs">
@@ -201,14 +201,17 @@ export const AutodiagnosticHistoryDialog = ({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-600">
+            <tbody className="divide-y divide-border text-muted-foreground dark:divide-border dark:text-muted-foreground">
               {items.map((run) => (
-                <tr className="group hover:bg-slate-50/70" key={run.id}>
+                <tr
+                  className="group hover:bg-muted/45 dark:hover:bg-muted/70"
+                  key={run.id}
+                >
                   <td
-                    className={`${tableCellClass} font-semibold text-slate-900`}
+                    className={`${tableCellClass} font-semibold text-foreground dark:text-foreground`}
                   >
                     <button
-                      className="underline-offset-2 transition-colors hover:text-emerald-700 hover:underline"
+                      className="underline-offset-2 transition-colors hover:text-primary hover:underline dark:hover:text-emerald-400"
                       onClick={() => onOpenRun(run.id)}
                       type="button"
                     >
@@ -222,7 +225,7 @@ export const AutodiagnosticHistoryDialog = ({
                     {run.redmine_issue_id ?? t("diagnosticHistory.dash")}
                   </td>
                   <td
-                    className={`${tableCellClass} font-medium text-slate-700`}
+                    className={`${tableCellClass} font-medium text-foreground dark:text-foreground`}
                   >
                     {run.user_name ?? t("diagnosticHistory.na")}
                   </td>
@@ -242,7 +245,7 @@ export const AutodiagnosticHistoryDialog = ({
                   <td className={`${tableCellClass} text-start`}>
                     <button
                       aria-label={t("diagnosticHistory.columns.details")}
-                      className="inline-flex size-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-slate-300 hover:text-slate-700"
+                      className="inline-flex size-7 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-border hover:text-foreground dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:border-border dark:hover:text-foreground"
                       onClick={() => onOpenRun(run.id)}
                       type="button"
                     >
@@ -258,27 +261,27 @@ export const AutodiagnosticHistoryDialog = ({
           </table>
 
           {initialLoading && items.length === 0 ? (
-            <div className="flex items-center justify-center gap-2 py-10 text-slate-500 text-xs">
+            <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground text-xs dark:text-muted-foreground">
               <Loader2Icon aria-hidden="true" className="size-4 animate-spin" />
               {t("diagnosticHistory.loading")}
             </div>
           ) : null}
 
           {!(initialLoading || error) && items.length === 0 ? (
-            <p className="py-10 text-center text-slate-500 text-xs">
+            <p className="py-10 text-center text-muted-foreground text-xs dark:text-muted-foreground">
               {t("autodiagnostic.empty")}
             </p>
           ) : null}
 
           {error && items.length === 0 ? (
-            <p className="py-10 text-center text-red-600 text-xs">
+            <p className="py-10 text-center text-destructive text-xs dark:text-destructive">
               {t("autodiagnostic.error")}
             </p>
           ) : null}
 
           {hasMore ? (
             <div
-              className="flex items-center justify-center gap-2 border-slate-100 border-t py-4 text-slate-400 text-xs"
+              className="flex items-center justify-center gap-2 border-border border-t py-4 text-muted-foreground text-xs dark:border-border dark:text-muted-foreground"
               ref={sentinelRef}
             >
               <Loader2Icon aria-hidden="true" className="size-4 animate-spin" />
@@ -287,8 +290,8 @@ export const AutodiagnosticHistoryDialog = ({
           ) : null}
         </div>
 
-        <div className="flex items-center justify-between gap-2 border-slate-100 border-t bg-white px-6 py-3">
-          <span className="text-slate-500 text-xs">
+        <div className="flex items-center justify-between gap-2 border-border border-t bg-card px-6 py-3 dark:border-border dark:bg-card">
+          <span className="text-muted-foreground text-xs dark:text-muted-foreground">
             {t("diagnosticHistory.showing", {
               from: items.length === 0 ? 0 : 1,
               to: items.length,
@@ -296,7 +299,7 @@ export const AutodiagnosticHistoryDialog = ({
             })}
           </span>
           <button
-            className="rounded-lg border border-slate-200 bg-white px-4 py-1.5 font-semibold text-slate-700 text-xs shadow-sm transition-colors hover:bg-slate-50"
+            className="rounded-lg border border-border bg-card px-4 py-1.5 font-semibold text-foreground text-xs shadow-sm transition-colors hover:bg-muted/35 dark:border-border dark:bg-muted dark:text-foreground dark:hover:bg-accent"
             onClick={onClose}
             type="button"
           >

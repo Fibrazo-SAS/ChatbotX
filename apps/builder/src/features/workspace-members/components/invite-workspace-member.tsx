@@ -205,6 +205,30 @@ export function AddWorkspaceMemberForm({
             label={t("fields.permissions.viewClientNotes")}
             name="permissions.viewClientNotes"
           />
+          <SwitchField
+            disabled={isCommunity()}
+            formItemClassName="flex flex-row-reverse items-center justify-end gap-2"
+            label={t("fields.permissions.viewClientMultimedia")}
+            name="permissions.viewClientMultimedia"
+          />
+          <SwitchField
+            disabled={isCommunity()}
+            formItemClassName="flex flex-row-reverse items-center justify-end gap-2"
+            label={t("fields.permissions.manageClientMultimedia")}
+            name="permissions.manageClientMultimedia"
+          />
+          <SwitchField
+            disabled={isCommunity()}
+            formItemClassName="flex flex-row-reverse items-center justify-end gap-2"
+            label={t("fields.permissions.viewDeletedClientMultimedia")}
+            name="permissions.viewDeletedClientMultimedia"
+          />
+          <SwitchField
+            disabled={isCommunity()}
+            formItemClassName="flex flex-row-reverse items-center justify-end gap-2"
+            label={t("fields.permissions.permanentlyDeleteClientMultimedia")}
+            name="permissions.permanentlyDeleteClientMultimedia"
+          />
           {!isSuperAdmin && (
             <>
               <SwitchField

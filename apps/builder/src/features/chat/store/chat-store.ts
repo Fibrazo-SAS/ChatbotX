@@ -59,6 +59,8 @@ export type ChatState = {
 
   // active facebook post (for comment conversations)
   activePost: PostDetails | null
+  // Client-only file staged by an auxiliary panel. The advisor still submits it.
+  composerDraftFiles: File[]
 
   // Señal realtime de "un custom field del contacto cambió" (p.ej. el flujo
   // guardó `document_id`). El panel de contacto la observa y re-consulta.
@@ -124,6 +126,7 @@ export type ChatActions = {
     message: MessageResourceWithRelations | null,
     isPrivate?: boolean,
   ) => void
+  setComposerDraftFiles: (files: File[]) => void
 
   // Post actions
   loadActivePost: (workspaceId: string) => Promise<void>
@@ -183,6 +186,7 @@ export const createChatStore = () => {
     replyToMessage: null,
     isPrivateReply: false,
     activePost: null,
+    composerDraftFiles: [],
 
     prependConversation: (newConversation: ListConversationItemResource) =>
       set((state) => ({
@@ -329,9 +333,13 @@ export const createChatStore = () => {
           replyToMessage: null,
           isPrivateReply: false,
           activePost: null,
+          composerDraftFiles: [],
         })
       }
     },
+
+    setComposerDraftFiles: (composerDraftFiles: File[]) =>
+      set({ composerDraftFiles }),
 
     deleteConversation: (conversationId: string) => {
       const { conversations, activeConversationId } = get()

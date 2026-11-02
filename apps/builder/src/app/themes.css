@@ -241,37 +241,37 @@
 }
 
 .dark .theme-emerald {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.508 0.118 165.612);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.508 0.118 165.612);
+  --background: #070b0d;
+  --foreground: #e0e6ea;
+  --card: #0f171b;
+  --card-foreground: #e0e6ea;
+  --popover: #0c1215;
+  --popover-foreground: #e0e6ea;
+  --primary: #00df81;
+  --primary-foreground: #070b0d;
+  --secondary: #152026;
+  --secondary-foreground: #e0e6ea;
+  --muted: #11181c;
+  --muted-foreground: #8c9ea8;
+  --accent: #152026;
+  --accent-foreground: #e0e6ea;
+  --destructive: #ef5b5b;
+  --border: #192329;
+  --input: #1d2b33;
+  --ring: #00df81;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.508 0.118 165.612);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.508 0.118 165.612);
+  --sidebar: #0a0f12;
+  --sidebar-foreground: #e0e6ea;
+  --sidebar-primary: #00df81;
+  --sidebar-primary-foreground: #070b0d;
+  --sidebar-accent: #12231b;
+  --sidebar-accent-foreground: #00df81;
+  --sidebar-border: #192329;
+  --sidebar-ring: #00df81;
 }
 
 .theme-fuchsia {
@@ -1258,4 +1258,39 @@
   --sidebar-accent-foreground: oklch(0.985 0.001 106.423);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.553 0.013 58.071);
+}
+
+/* Fibrazo's dark workspace treatment. These selectors are intentionally scoped
+ * to the emerald tenant theme so other white-label tenants keep their own UI. */
+.dark [data-slot="sidebar"] {
+  background: #0a0f12;
+  border-color: #192329;
+}
+
+.dark [data-slot="sidebar"] [data-sidebar="menu-button"]:hover {
+  color: #00df81;
+  background: #12231b;
+}
+
+.dark [data-slot="sidebar"] [data-active="true"] {
+  color: #00df81;
+  background: #123522;
+}
+
+.dark [data-slot="card"],
+.dark [data-slot="dialog-content"],
+.dark [data-slot="popover-content"] {
+  border-color: #192329;
+  box-shadow: 0 12px 34px rgb(0 0 0 / 28%);
+}
+
+.dark input,
+.dark textarea {
+  background-color: #0c1215;
+  border-color: #1d2b33;
+}
+
+.dark input:focus,
+.dark textarea:focus {
+  border-color: #00df81;
 }

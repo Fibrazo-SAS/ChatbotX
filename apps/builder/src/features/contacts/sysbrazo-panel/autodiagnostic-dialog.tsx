@@ -12,13 +12,16 @@ import {
   AlertTriangleIcon,
   BanIcon,
   CheckIcon,
+  ClockIcon,
   Loader2Icon,
+  TicketIcon,
   XIcon,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useEffect, useRef, useState } from "react"
 import { client } from "@/lib/orpc/orpc"
 import type {
+  SysbrazoAutodiagnosticTicketResponse,
   SysbrazoDiagnosticDetail,
   SysbrazoDiagnosticStep,
   SysbrazoDiagnosticStepStatus,
@@ -29,6 +32,7 @@ import {
   formatElapsed,
   getReasonLabel,
   getStepLabel,
+  RAISE_TICKET_REASONS,
   summarizeStepDetails,
 } from "./sysbrazo-labels"
 
@@ -68,6 +72,103 @@ const visibleSteps = (
 ): SysbrazoDiagnosticStep[] =>
   detail.steps.filter((step) => !INTERNAL_STEP_NAMES.has(step.step_name))
 
+const ticketableFailedStep = (
+  detail: SysbrazoDiagnosticDetail,
+): {
+  step_name: string
+  step_number: number
+  status: "failed" | "error"
+  details: Record<string, unknown> | null
+} | null => {
+  for (const step of detail.steps) {
+    if (
+      (step.status !== "failed" && step.status !== "error") ||
+      !step.details ||
+      Array.isArray(step.details)
+    ) {
+      continue
+    }
+
+    const reason = step.details.reason
+    if (typeof reason !== "string" || !RAISE_TICKET_REASONS.has(reason)) {
+      continue
+    }
+
+    return {
+      step_name: step.step_name,
+      step_number: step.step_number,
+      status: step.status,
+      details: step.details,
+    }
+  }
+
+  return null
+}
+
+type TicketState = "created" | "queued" | "blocked" | "error"
+
+const TicketStateAlert = ({
+  ticket,
+}: {
+  ticket: {
+    state: TicketState
+    message: SysbrazoAutodiagnosticTicketResponse["client_message"]
+  }
+}) => {
+  const t = useTranslations("sysbrazoPanel")
+  const message = ticket.message
+  const customMessage =
+    typeof message === "string"
+      ? { title: null, body: message }
+      : (message ?? null)
+
+  let fallback: { title: string; body: string }
+  switch (ticket.state) {
+    case "queued":
+      fallback = {
+        title: t("diagnosticDialog.ticketQueued"),
+        body: t("diagnosticDialog.ticketQueuedMessage"),
+      }
+      break
+    case "created":
+      fallback = {
+        title: t("diagnosticDialog.ticketCreated"),
+        body: t("diagnosticDialog.ticketCreatedMessage"),
+      }
+      break
+    case "blocked":
+      fallback = {
+        title: t("diagnosticDialog.ticketBlocked"),
+        body: t("diagnosticDialog.ticketBlockedMessage"),
+      }
+      break
+    default:
+      fallback = {
+        title: t("diagnosticDialog.ticketError"),
+        body: t("diagnosticDialog.ticketErrorMessage"),
+      }
+  }
+  const content = customMessage ?? fallback
+  let tone = "border-primary/35 bg-primary/10 text-foreground"
+  if (ticket.state === "error") {
+    tone =
+      "border-amber-400/40 bg-amber-400/10 text-amber-700 dark:text-amber-200"
+  } else if (ticket.state === "blocked") {
+    tone = "border-border bg-muted/70 text-muted-foreground"
+  }
+  const Icon = ticket.state === "queued" ? ClockIcon : TicketIcon
+
+  return (
+    <div className={`flex items-start gap-3 rounded-xl border p-4 ${tone}`}>
+      <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+      <div className="min-w-0 text-sm leading-relaxed">
+        <p className="font-bold">{customMessage?.title ?? fallback.title}</p>
+        <p className="text-xs">{content.body}</p>
+      </div>
+    </div>
+  )
+}
+
 /** Marcador por estado de paso (pendiente / en curso / ok / fallo / pausa). */
 const StepMarker = ({ status }: { status: SysbrazoDiagnosticStepStatus }) => {
   const t = useTranslations("sysbrazoPanel")
@@ -76,7 +177,7 @@ const StepMarker = ({ status }: { status: SysbrazoDiagnosticStepStatus }) => {
     return (
       <CheckIcon
         aria-label={t("diagnosticDialog.stepDone")}
-        className="size-4 shrink-0 stroke-[3] text-emerald-600"
+        className="size-4 shrink-0 stroke-[3] text-primary dark:text-primary"
       />
     )
   }
@@ -85,7 +186,7 @@ const StepMarker = ({ status }: { status: SysbrazoDiagnosticStepStatus }) => {
     return (
       <XIcon
         aria-label={t("diagnosticDialog.stepFailed")}
-        className="size-4 shrink-0 stroke-[3] text-red-700"
+        className="size-4 shrink-0 stroke-[3] text-destructive dark:text-destructive"
       />
     )
   }
@@ -94,10 +195,10 @@ const StepMarker = ({ status }: { status: SysbrazoDiagnosticStepStatus }) => {
     return (
       <span
         aria-label={t("diagnosticDialog.stepRunning")}
-        className="flex size-4 shrink-0 animate-pulse items-center justify-center rounded-full border-2 border-emerald-600"
+        className="flex size-4 shrink-0 animate-pulse items-center justify-center rounded-full border-2 border-emerald-600 dark:border-primary/40"
         role="status"
       >
-        <span className="size-1.5 rounded-full bg-emerald-600" />
+        <span className="size-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
       </span>
     )
   }
@@ -106,7 +207,7 @@ const StepMarker = ({ status }: { status: SysbrazoDiagnosticStepStatus }) => {
     return (
       <AlertTriangleIcon
         aria-label={t("diagnosticDialog.stepPaused")}
-        className="size-4 shrink-0 text-amber-600"
+        className="size-4 shrink-0 text-amber-600 dark:text-amber-400"
       />
     )
   }
@@ -115,7 +216,7 @@ const StepMarker = ({ status }: { status: SysbrazoDiagnosticStepStatus }) => {
   return (
     <span
       aria-hidden="true"
-      className="size-4 shrink-0 rounded-full border-2 border-slate-300"
+      className="size-4 shrink-0 rounded-full border-2 border-border dark:border-border"
     />
   )
 }
@@ -130,12 +231,12 @@ const stepTextClass = (
   current: boolean,
 ): string => {
   if (failed) {
-    return "font-semibold text-red-800"
+    return "font-semibold text-destructive dark:text-destructive"
   }
   if (done || current) {
-    return "font-medium text-slate-900"
+    return "font-medium text-foreground dark:text-foreground"
   }
-  return "font-normal text-slate-700"
+  return "font-normal text-foreground dark:text-muted-foreground"
 }
 
 type ResultTone = "ok" | "error" | "cancel"
@@ -146,18 +247,18 @@ const boxToneClass: Record<
 > = {
   ok: {
     box: "border-s-emerald-600",
-    title: "text-emerald-700",
-    icon: "bg-emerald-700 text-white",
+    title: "text-primary dark:text-primary",
+    icon: "bg-primary text-primary-foreground",
   },
   error: {
-    box: "border-s-red-600",
-    title: "text-red-700",
-    icon: "bg-red-600 text-white",
+    box: "border-s-destructive/60",
+    title: "text-destructive dark:text-destructive",
+    icon: "bg-destructive text-white",
   },
   cancel: {
-    box: "border-s-slate-400",
-    title: "text-slate-600",
-    icon: "bg-slate-500 text-white",
+    box: "border-s-border",
+    title: "text-muted-foreground dark:text-muted-foreground",
+    icon: "bg-muted/350 text-white",
   },
 }
 
@@ -189,7 +290,7 @@ const ResultBox = ({
 
   return (
     <div
-      className={`space-y-2 rounded-2xl border-s-4 bg-slate-100/90 p-5 ${toneClass.box} ${withTopMargin ? "mt-6" : ""}`}
+      className={`space-y-2 rounded-2xl border-s-4 bg-muted/90 p-5 dark:bg-muted ${toneClass.box} ${withTopMargin ? "mt-6" : ""}`}
     >
       <div
         className={`flex items-center gap-2 font-extrabold text-base ${toneClass.title}`}
@@ -202,10 +303,14 @@ const ResultBox = ({
         <span>{title}</span>
       </div>
       {children ? (
-        <div className="text-slate-800 text-sm leading-relaxed">{children}</div>
+        <div className="text-foreground text-sm leading-relaxed dark:text-foreground">
+          {children}
+        </div>
       ) : null}
       {footer ? (
-        <p className="pt-1 font-bold text-slate-900 text-sm">{footer}</p>
+        <p className="pt-1 font-bold text-foreground text-sm dark:text-foreground">
+          {footer}
+        </p>
       ) : null}
     </div>
   )
@@ -229,7 +334,12 @@ export const AutodiagnosticDialog = ({
   const [detail, setDetail] = useState<SysbrazoDiagnosticDetail | null>(null)
   const [error, setError] = useState(false)
   const [pollStopped, setPollStopped] = useState(false)
+  const [ticket, setTicket] = useState<{
+    state: TicketState
+    message: SysbrazoAutodiagnosticTicketResponse["client_message"]
+  } | null>(null)
   const terminalNotifiedRef = useRef(false)
+  const ticketRequestedRef = useRef(false)
   const requestSeqRef = useRef(0)
 
   useEffect(() => {
@@ -252,6 +362,34 @@ export const AutodiagnosticDialog = ({
         }
         setDetail(next)
         setError(false)
+
+        // Igual que el modal de Sysbrazo: el ticket se solicita en cuanto el
+        // paso falla, sin esperar al cierre de toda la ejecución.
+        const failedStep = ticketableFailedStep(next)
+        if (failedStep && !ticketRequestedRef.current) {
+          ticketRequestedRef.current = true
+          client.contactsAPIs
+            .createSysbrazoAutodiagnosticTicketAuthenticatedAPI({
+              workspaceId,
+              contactId,
+              runId,
+              step: failedStep,
+            })
+            .then((response) => {
+              if (cancelled) {
+                return
+              }
+              setTicket({
+                state: response.state,
+                message: response.client_message,
+              })
+            })
+            .catch(() => {
+              if (!cancelled) {
+                setTicket({ state: "error", message: null })
+              }
+            })
+        }
 
         if (isTerminalStatus(next.status) && !terminalNotifiedRef.current) {
           terminalNotifiedRef.current = true
@@ -307,12 +445,12 @@ export const AutodiagnosticDialog = ({
 
   return (
     <Dialog onOpenChange={(open) => !open && onClose()} open>
-      <DialogContent className="max-h-[85vh] max-w-5xl gap-0 overflow-y-auto rounded-2xl p-0">
-        <DialogHeader className="flex-row items-center justify-between gap-2 border-slate-100 border-b px-6 py-4">
-          <DialogTitle className="flex items-center gap-2 font-extrabold text-lg text-slate-900">
+      <DialogContent className="max-h-[85vh] gap-0 overflow-y-auto rounded-2xl p-0 sm:max-w-xl">
+        <DialogHeader className="flex-row items-center justify-between gap-2 border-border border-b px-6 py-4 dark:border-border">
+          <DialogTitle className="flex items-center gap-2 font-extrabold text-foreground text-lg dark:text-foreground">
             <ActivityIcon
               aria-hidden="true"
-              className="size-5 shrink-0 text-slate-700"
+              className="size-5 shrink-0 text-foreground dark:text-muted-foreground"
             />
             <span>
               {t("diagnosticDialog.title")}
@@ -327,7 +465,7 @@ export const AutodiagnosticDialog = ({
         <div className="space-y-4 p-6">
           {/* Cargando el primer snapshot */}
           {detail || error ? null : (
-            <div className="flex items-center justify-center gap-2 py-8 text-slate-500 text-sm">
+            <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground text-sm dark:text-muted-foreground">
               <Loader2Icon aria-hidden="true" className="size-4 animate-spin" />
               {t("diagnosticDialog.loading")}
             </div>
@@ -335,7 +473,7 @@ export const AutodiagnosticDialog = ({
 
           {/* Sin conexión con el detalle: reintenta solo; no inventa resultado. */}
           {!detail && error ? (
-            <p className="py-8 text-center text-red-600 text-sm">
+            <p className="py-8 text-center text-destructive text-sm dark:text-destructive">
               {t("diagnosticDialog.error")}
             </p>
           ) : null}
@@ -371,8 +509,8 @@ export const AutodiagnosticDialog = ({
                           >
                             {label}
                           </span>
-                          {done ? (
-                            <span className="font-normal text-slate-500 text-xs">
+                          {done || failed ? (
+                            <span className="font-normal text-muted-foreground text-xs dark:text-muted-foreground">
                               (
                               {step.step_duration_seconds == null
                                 ? "—"
@@ -382,7 +520,7 @@ export const AutodiagnosticDialog = ({
                           ) : null}
                         </div>
                         {executed && details ? (
-                          <p className="ps-[26px] pt-0.5 font-normal text-slate-500 text-xs">
+                          <p className="ps-[26px] pt-0.5 font-normal text-muted-foreground text-xs dark:text-muted-foreground">
                             {details}
                           </p>
                         ) : null}
@@ -429,6 +567,8 @@ export const AutodiagnosticDialog = ({
                 </ResultBox>
               ) : null}
 
+              {ticket ? <TicketStateAlert ticket={ticket} /> : null}
+
               {status === "canceled" ? (
                 <ResultBox
                   title={t("diagnosticDialog.canceled")}
@@ -471,22 +611,22 @@ export const AutodiagnosticDialog = ({
         </div>
 
         {pollStopped ? (
-          <p className="px-6 pb-3 text-center text-amber-600 text-xs">
+          <p className="px-6 pb-3 text-center text-amber-600 text-xs dark:text-amber-400">
             {t("autodiagnostic.staleCreatedHint")}
           </p>
         ) : null}
 
-        <div className="flex justify-end border-slate-100 border-t px-6 py-4">
+        <div className="flex justify-end border-border border-t px-6 py-4 dark:border-border">
           {isTerminalStatus(status ?? "created") || !detail || pollStopped ? (
             <button
-              className="rounded-xl bg-slate-200/90 px-7 py-2.5 font-bold text-slate-800 text-sm transition-colors hover:bg-slate-300/80"
+              className="rounded-xl bg-muted/90 px-7 py-2.5 font-bold text-foreground text-sm transition-colors hover:bg-muted dark:bg-accent dark:text-foreground dark:hover:bg-muted"
               onClick={onClose}
               type="button"
             >
               {t("diagnosticDialog.close")}
             </button>
           ) : (
-            <span className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl bg-slate-100 px-5 py-2.5 font-semibold text-slate-400 text-sm">
+            <span className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl bg-muted px-5 py-2.5 font-semibold text-muted-foreground text-sm dark:bg-muted dark:text-muted-foreground">
               <Loader2Icon aria-hidden="true" className="size-4 animate-spin" />
               {t("diagnosticDialog.executing")}
             </span>

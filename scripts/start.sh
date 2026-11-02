@@ -205,25 +205,31 @@ else
 fi
 
 echo "=== 6/6 Apps ==="
-# worker + realtime (dev: livianos, no son los que demoran)
-setsid env NODE_OPTIONS='--dns-result-order=ipv4first --no-network-family-autoselection' pnpm --filter worker dev > /tmp/opencode/worker-dev.log 2>&1 < /dev/null &
-nohup pnpm --filter realtime dev > /tmp/opencode/realtime-dev.log 2>&1 &
-
 # builder
 if [ "$MODE" = "dev" ]; then
   echo "Builder en DEV (hot-reload, lento)..."
   nohup pnpm --filter builder dev > /tmp/opencode/builder-dev.log 2>&1 &
 elif [ "$BUILD" = "1" ] || [ ! -f apps/builder/.next/BUILD_ID ]; then
   echo "Build del builder (tarda unos minutos la primera vez)..."
-  # Build seguro: heap capado (2,5 GB vía NEXT_BUILD_HEAP, el build del
-  # builder ya lo aplica en scripts/build-builder.mjs) + baja prioridad +
-  # 2 cores + concurrency 1, para que la máquina siga usable con IDE/Docker
-  # abiertos. Override con NEXT_BUILD_HEAP=<mb> si hace falta más memoria
-  # (ej. NEXT_BUILD_HEAP=4096 bash scripts/start.sh --build).
-  if ! NEXT_BUILD_HEAP="${NEXT_BUILD_HEAP:-2560}" NODE_OPTIONS="--max-old-space-size=2560" nice -n 19 taskset -c 0-1 pnpm exec turbo build --concurrency=1; then
+  # Keep a conservative heap and low priority. On this machine CPUs 0 and 2
+  # belong to different physical cores; 0 and 1 are SMT siblings.
+  # Override for other machines: NEXT_BUILD_CPUS=... NEXT_BUILD_HEAP=... .
+  BUILD_HEAP="${NEXT_BUILD_HEAP:-2560}"
+  BUILD_CPUS="${NEXT_BUILD_CPUS:-0,2}"
+  if ! [[ "$BUILD_HEAP" =~ ^[1-9][0-9]*$ ]]; then
+    echo "❌ NEXT_BUILD_HEAP debe ser un entero positivo en MB."
+    exit 1
+  fi
+  AVAILABLE_MB=$(awk '/^MemAvailable:/ {printf "%.0f", $2 / 1024}' /proc/meminfo)
+  if [ -n "$AVAILABLE_MB" ] && [ "$AVAILABLE_MB" -lt "$((BUILD_HEAP + 2048))" ]; then
+    echo "⚠ RAM disponible: ${AVAILABLE_MB} MB; heap: ${BUILD_HEAP} MB."
+    echo "  Next usa memoria adicional fuera del heap. Cerrá aplicaciones para evitar swap."
+  fi
+  echo "Build: heap ${BUILD_HEAP} MB, CPUs ${BUILD_CPUS}, prioridad baja; caché conservada."
+  if ! NEXT_BUILD_HEAP="$BUILD_HEAP" NODE_OPTIONS="--max-old-space-size=$BUILD_HEAP" nice -n 19 taskset -c "$BUILD_CPUS" pnpm exec turbo build --filter=builder... --concurrency=1; then
     echo ""
     echo "❌ El build FALLÓ. NO arranco el builder."
-    echo "   (worker y realtime ya quedaron corriendo en background)"
+    echo "   Worker y realtime no se iniciaron para reservar RAM al build."
     echo "   Revisá el error de arriba. Si dice 'tsdown: not found' o"
     echo "   'node_modules missing', corré: pnpm install"
     exit 1
@@ -242,6 +248,11 @@ else
   setsid env NODE_OPTIONS='--dns-result-order=ipv4first --no-network-family-autoselection' pnpm --filter builder exec dotenv -e .env -e ../../.env -- next start -p 3123 \
     > /tmp/opencode/builder-prod.log 2>&1 < /dev/null &
 fi
+
+# Start these only after the production build succeeds, so they do not compete
+# with the compiler for memory. No-build and dev starts also reach this point.
+setsid env NODE_OPTIONS='--dns-result-order=ipv4first --no-network-family-autoselection' pnpm --filter worker dev > /tmp/opencode/worker-dev.log 2>&1 < /dev/null &
+nohup pnpm --filter realtime dev > /tmp/opencode/realtime-dev.log 2>&1 &
 
 echo ""
 echo "✅ Listo."

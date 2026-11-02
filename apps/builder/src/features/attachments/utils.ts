@@ -1,3 +1,4 @@
+import { getPublicFileUrl } from "@chatbotx.io/utils"
 import { useTenantSettings } from "@/features/tenant"
 import type { AttachmentResource } from "./schema/resource"
 
@@ -19,7 +20,7 @@ export function useAttachmentUrl(
   }
 
   try {
-    return new URL(attachment.originPath, storageUrl).toString()
+    return getPublicFileUrl(attachment.originPath, storageUrl)
   } catch (error) {
     console.error("Error getting attachment URL", error)
     return

@@ -1,9 +1,12 @@
 import { externalRequestStepDefaultFn } from "@chatbotx.io/flow-config"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 
+const numericDocumentId = /^\d{5,20}$/
+
 const mocks = vi.hoisted(() => ({
   execute: vi.fn(),
   executeAndMap: vi.fn(),
+  activateContext: vi.fn(async () => undefined),
   setValues: vi.fn(async () => undefined),
 }))
 
@@ -14,6 +17,11 @@ vi.mock("@chatbotx.io/business", () => ({
   },
   contactCustomFieldService: {
     setValues: mocks.setValues,
+  },
+  normalizeSysbrazoDocumentId: (value: string) =>
+    numericDocumentId.test(value) ? value : null,
+  sysbrazoClientMultimediaService: {
+    activateContext: mocks.activateContext,
   },
   // Faithful copy of the jsonBody cleaner (the real module cannot be
   // imported here: it pulls @chatbotx.io/integration-facebook-ads, which is
@@ -164,6 +172,49 @@ describe("externalRequest step handler", () => {
 
     expect(result).toMatchObject({ status: "error" })
     expect(result.errorMessage).toContain("500")
+  })
+
+  test("activates the conversation context after a successful Sysbrazo lookup", async () => {
+    mocks.executeAndMap.mockResolvedValue({
+      statusCode: 200,
+      durationMs: 10,
+      responseBody: '{"data":[{"id":456}]}',
+      responseHeaders: {},
+    })
+
+    const props = createProps()
+    props.step = {
+      ...props.step,
+      url: "https://sysbrazo.example/api/botmaker/client/by-document?document_id=1045123456&botmaker=1",
+    }
+
+    await externalRequest(props)
+
+    expect(mocks.activateContext).toHaveBeenCalledWith({
+      workspaceId: "workspace-1",
+      conversationId: "conversation-1",
+      documentId: "1045123456",
+      sysbrazoClientId: "456",
+    })
+  })
+
+  test("does not activate context when Sysbrazo returns no client", async () => {
+    mocks.executeAndMap.mockResolvedValue({
+      statusCode: 200,
+      durationMs: 10,
+      responseBody: '{"data":[]}',
+      responseHeaders: {},
+    })
+
+    const props = createProps()
+    props.step = {
+      ...props.step,
+      url: "https://sysbrazo.example/api/botmaker/client/by-document?document_id=1045123456",
+    }
+
+    await externalRequest(props)
+
+    expect(mocks.activateContext).not.toHaveBeenCalled()
   })
 
   test("returns an error result when the request throws", async () => {

@@ -16,14 +16,22 @@ import type {
  */
 
 const pillClassByStatus: Record<SysbrazoDiagnosticStatus, string> = {
-  finished: "border-emerald-300 bg-emerald-50 text-emerald-700",
-  running: "border-sky-200 bg-sky-50 text-sky-700",
-  failed: "border-red-200 bg-red-50 text-red-700",
-  error: "border-red-200 bg-red-50 text-red-700",
-  canceled: "border-amber-200 bg-amber-50 text-amber-800",
-  paused: "border-amber-200 bg-amber-50 text-amber-800",
-  delayed: "border-amber-200 bg-amber-50 text-amber-800",
-  created: "border-slate-300 bg-slate-100 text-slate-600",
+  finished:
+    "border-primary/40 bg-primary/10 text-primary dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
+  running:
+    "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-300",
+  failed:
+    "border-destructive/35 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive",
+  error:
+    "border-destructive/35 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/12 dark:text-destructive",
+  canceled:
+    "border-amber-400/40 bg-amber-400/10 text-amber-700 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200",
+  paused:
+    "border-amber-400/40 bg-amber-400/10 text-amber-700 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200",
+  delayed:
+    "border-amber-400/40 bg-amber-400/10 text-amber-700 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200",
+  created:
+    "border-border bg-muted text-muted-foreground dark:border-border dark:bg-muted dark:text-muted-foreground",
 }
 
 const statusIconByStatus: Record<
